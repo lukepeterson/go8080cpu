@@ -1,4 +1,4 @@
-package gates
+package cpu
 
 import (
 	"fmt"
@@ -89,6 +89,29 @@ func TestNand(t *testing.T) {
 			result := Not(And(tt.a, tt.b))
 			if result != tt.want {
 				t.Errorf("Nand(%t, %t) returned %t, expected %t", tt.a, tt.b, result, tt.want)
+			}
+		})
+	}
+}
+
+func TestXor(t *testing.T) {
+	type test struct {
+		a    bool
+		b    bool
+		want bool
+	}
+	tests := []test{
+		{a: false, b: false, want: false},
+		{a: false, b: true, want: true},
+		{a: true, b: false, want: true},
+		{a: true, b: true, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("Xor(%t, %t)", tt.a, tt.b), func(t *testing.T) {
+			result := Xor(tt.a, tt.b)
+			if result != tt.want {
+				t.Errorf("Xor(%t, %t) returned %t, expected %t", tt.a, tt.b, result, tt.want)
 			}
 		})
 	}
