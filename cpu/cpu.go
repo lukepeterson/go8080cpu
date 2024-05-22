@@ -6,20 +6,6 @@ import (
 	"time"
 )
 
-const (
-	FETCH = iota
-	DECODE
-	EXECUTE
-)
-
-const (
-	NOP = iota
-	LDA
-	ADD
-	SUB
-	HLT
-)
-
 type Register struct {
 	Data [8]bool
 }
@@ -33,6 +19,30 @@ func (r *Register) Load(input byte) []bool {
 	return data
 }
 
+type opcodeFunc func(*CPU)
+
+var opcodeMap [256]opcodeFunc
+
+func (cpu *CPU) NOP() {
+	fmt.Println("NOP")
+}
+
+func (cpu *CPU) HLT() {
+	fmt.Println("HALT!")
+	cpu.halted = true
+}
+
+func initOpcodeMap() {
+	opcodeMap[0x00] = (*CPU).NOP
+	opcodeMap[0x4C] = (*CPU).HLT
+}
+
+// var decodeMnemonic = map[string]byte{
+// 	"NOP": 0x00,
+// 	"LDA": 0x3A,
+// 	"HLT": 0x4C,
+// }
+
 type Bus struct {
 	Data [8]bool
 }
@@ -43,91 +53,62 @@ func NewBus() *Bus {
 	}
 }
 
+type CPU struct {
+	// alu            ALU
+	A Register
+	B Register
+
+	fetchedOpcode  byte
+	Memory         [32]byte
+	programCounter byte
+	bus            *Bus
+	halted         bool
+}
+
+func (cpu *CPU) DumpMemory() {
+	for i := range cpu.Memory {
+		fmt.Printf("%02X ", cpu.Memory[i])
+		if (i+1)%8 == 0 {
+			fmt.Println()
+		}
+	}
+}
+
+func NewCPU() *CPU {
+	cpu := CPU{
+		bus: NewBus(),
+	}
+
+	initOpcodeMap()
+
+	return &cpu
+}
+
 func (cpu *CPU) Fetch() {
-	fmt.Println("do fetch")
-	cpu.Controller.instruction = cpu.Memory[cpu.programCounter]
+	cpu.fetchedOpcode = cpu.Memory[cpu.programCounter]
 	cpu.programCounter++
-
-	fmt.Printf("    cpu.Controller.instruction: %v\n", cpu.Controller.instruction)
-	fmt.Println("--------------------")
 }
 
-func (cpu *CPU) Decode() {
-	fmt.Println("do decode")
-
-	cpu.Controller.opcode = cpu.Controller.instruction
-	if cpu.Controller.opcode == LDA || cpu.Controller.opcode == ADD || cpu.Controller.opcode == SUB { // instructions that have an operand
-		cpu.Controller.operand = cpu.Memory[cpu.programCounter]
-		cpu.programCounter++
-	}
-
-	fmt.Printf("    cpu.Controller.opcode: %v\n", cpu.Controller.opcode)
-	fmt.Printf("    cpu.Controller.operand: %v\n", cpu.Controller.operand)
-	fmt.Println("--------------------")
+func (cpu *CPU) Decode() opcodeFunc {
+	return opcodeMap[cpu.fetchedOpcode]
 }
 
-func (cpu *CPU) Execute() {
-	fmt.Println("do execute")
-
-	switch cpu.Controller.opcode {
-	case HLT:
+func (cpu *CPU) Execute(instruction opcodeFunc) {
+	if instruction != nil {
+		instruction(cpu)
+	} else {
 		cpu.halted = true
-	case LDA:
-		cpu.registerA.Load(cpu.Controller.operand)
-	case ADD:
-	case SUB:
-	default:
-		log.Fatalf("invalid instruction: %v", cpu.Controller.opcode)
-		cpu.halted = true
+		log.Fatal("instruction not found")
 	}
-
-	fmt.Println("--------------------")
 }
 
 func (cpu *CPU) Run() {
 
 	for !cpu.halted {
-		time.Sleep(100 * time.Millisecond)
-		switch cpu.Controller.State {
-		case FETCH:
-			cpu.Fetch()
-			cpu.Controller.Next()
-		case DECODE:
-			cpu.Decode()
-			cpu.Controller.Next()
-		case EXECUTE:
-			cpu.Execute()
-			cpu.Controller.Next()
-		}
+		time.Sleep(10 * time.Millisecond)
+		cpu.Fetch()
+		instruction := cpu.Decode()
+		cpu.Execute(instruction)
 	}
 
-}
-
-type Controller struct {
-	State       int
-	instruction byte
-	opcode      byte
-	operand     byte
-}
-
-func (c *Controller) Next() {
-	switch c.State {
-	case FETCH:
-		c.State = DECODE
-	case DECODE:
-		c.State = EXECUTE
-	case EXECUTE:
-		c.State = FETCH
-	}
-}
-
-type CPU struct {
-	// alu            ALU
-	registerA      Register
-	registerB      Register
-	Controller     Controller
-	Memory         [256]byte
-	programCounter byte
-	Bus            *Bus
-	halted         bool
 }
