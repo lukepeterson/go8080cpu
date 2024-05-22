@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/lukepeterson/gocpu/cpu"
 )
 
 func main() {
 
-	goCPU := cpu.NewCPU()
+	goCPU := cpu.NewCPU(100 * time.Millisecond)
 
 	goCPU.Memory[0x00] = 0x00 // NOP
 	goCPU.Memory[0x01] = 0x00 // NOP
