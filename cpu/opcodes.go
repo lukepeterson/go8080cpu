@@ -16,6 +16,7 @@ func initOpcodeMap() {
 	decode[0x1E] = (*CPU).MVI_E
 	decode[0x1A] = (*CPU).MVI_H
 	decode[0x2E] = (*CPU).MVI_L
+	decode[0x24] = (*CPU).MVI_M
 
 	decode[0x3A] = (*CPU).LDA
 
@@ -77,6 +78,10 @@ func (cpu *CPU) MVI_H() { // 0x1A
 
 func (cpu *CPU) MVI_L() { // 0x2E
 	cpu.L = cpu.fetchByte()
+}
+
+func (cpu *CPU) MVI_M() { // 0x24
+	cpu.bus.WriteByte(joinBytes(cpu.L, cpu.H), cpu.fetchByte())
 }
 
 func (cpu *CPU) HLT() { // 0x4C

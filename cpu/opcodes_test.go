@@ -153,3 +153,60 @@ func TestCPU_MVI_r(t *testing.T) {
 		})
 	}
 }
+
+func TestCPU_MVI_M(t *testing.T) {
+	testCases := []struct {
+		name   string
+		memory map[uint16]byte
+		want   byte
+		L      byte
+		H      byte
+	}{
+		{
+			name: "MOV M with value of data stored at HL (low order byte only)",
+			memory: map[uint16]byte{
+				0x00: 0x24, // MVI M
+				0x01: 0x11,
+				0x02: 0x4C, // HLT
+			},
+			want: 0x11,
+			L:    0x22,
+			H:    0x00,
+		},
+		{
+			name: "MOV M with value of data stored at HL (high order byte only)",
+			memory: map[uint16]byte{
+				0x00: 0x24, // MVI M
+				0x01: 0x33,
+				0x02: 0x4C, // HLT
+			},
+			want: 0x33,
+			L:    0x00,
+			H:    0x44,
+		},
+		{
+			name: "MOV M with value of data stored at HL (both high and low order bytes)",
+			memory: map[uint16]byte{
+				0x00: 0x24, // MVI M
+				0x01: 0x66,
+				0x02: 0x4C, // HLT
+			},
+			want: 0x66,
+			L:    0x77,
+			H:    0x88,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			goCPU := NewCPU(1*time.Millisecond, NewMemory(65535))
+			goCPU.Load(tc.memory)
+			goCPU.L = tc.L
+			goCPU.H = tc.H
+			goCPU.Run()
+			got := goCPU.bus.ReadByte(joinBytes(tc.L, tc.H))
+			if got != tc.want {
+				t.Errorf("%s returned 0x%02X, but expected 0x%02X", tc.name, got, tc.want)
+			}
+		})
+	}
+}
