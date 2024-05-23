@@ -6,22 +6,61 @@ import (
 	"time"
 )
 
+type word uint16
+
+type Bus interface {
+	ReadByte(address word) byte
+	WriteByte(address word, data byte)
+	getLength() uint16
+}
+
+type Memory struct {
+	data []byte
+}
+
+func (memory Memory) getLength() uint16 {
+	return uint16(len(memory.data))
+}
+
+func (memory Memory) ReadByte(address word) byte {
+	return memory.data[address]
+}
+
+func (memory *Memory) WriteByte(address word, data byte) {
+	memory.data[address] = data
+}
+
+func (cpu *CPU) fetchByte() byte {
+	nextByte := cpu.bus.ReadByte(cpu.programCounter)
+	cpu.programCounter++
+	return nextByte
+}
+
+func (cpu *CPU) fetchWord() word {
+	low := cpu.fetchByte()
+	high := cpu.fetchByte()
+	return joinBytes(low, high) // 8080 is little endian
+}
+
+func joinBytes(low, high byte) word {
+	return word(low) | word(high)<<8
+}
+
 type CPU struct {
 	// alu            ALU
 	A, flags       byte
 	B, C           byte
 	D, E           byte
 	H, L           byte
-	stackPointer   uint16
-	programCounter uint16
+	stackPointer   word
+	programCounter word
 
-	Memory        []byte
-	fetchedOpcode byte
-	halted        bool
-	delay         time.Duration
+	bus    Bus
+	halted bool
+	delay  time.Duration
 }
 
-func (cpu *CPU) DumpRegisters() {
+func (cpu CPU) DumpRegisters() {
 	fmt.Println("-----------------------------------------")
 	fmt.Println("Registers:")
 	fmt.Printf("     A: %08b (%02X), F: %08b (%02X)\n", cpu.A, cpu.A, cpu.flags, cpu.flags)
@@ -33,32 +72,29 @@ func (cpu *CPU) DumpRegisters() {
 }
 
 func (cpu *CPU) DumpMemory() {
-	fmt.Println("Memory: ")
+	fmt.Printf("Memory: (%v bytes)\n", cpu.bus.getLength())
 	fmt.Print("    ")
-	for i := range cpu.Memory {
-		fmt.Printf("%02X ", cpu.Memory[i])
+	for i := 0; i < int(cpu.bus.getLength()); i++ {
+		fmt.Printf("%02X ", cpu.bus.ReadByte(word(i)))
 		if (i+1)%8 == 0 {
 			fmt.Print("\n    ")
 		}
 	}
-	fmt.Println("-----------------------------------------")
+	fmt.Println("-------------------------------------")
 }
 
-func NewCPU(delay time.Duration, memorySize int) *CPU {
-	initOpcodeMap()
-	return &CPU{
-		delay:  delay,
-		Memory: make([]byte, memorySize),
+func NewMemory(size uint16) *Memory {
+	return &Memory{
+		data: make([]byte, size),
 	}
 }
 
-func (cpu *CPU) Fetch() {
-	cpu.fetchedOpcode = cpu.Memory[cpu.programCounter]
-	cpu.programCounter++
-}
-
-func (cpu *CPU) Decode() opcodeFunc {
-	return opcodeMap[cpu.fetchedOpcode]
+func NewCPU(delay time.Duration, memory *Memory) *CPU {
+	initOpcodeMap()
+	return &CPU{
+		delay: delay,
+		bus:   memory,
+	}
 }
 
 func (cpu *CPU) Execute(instruction opcodeFunc) {
@@ -66,15 +102,21 @@ func (cpu *CPU) Execute(instruction opcodeFunc) {
 		instruction(cpu)
 	} else {
 		cpu.halted = true
-		log.Fatal("instruction not found")
+		log.Println("instruction not found")
 	}
 }
 
 func (cpu *CPU) Run() {
 	for !cpu.halted {
+		opCode := cpu.fetchByte()     // FETCH
+		instruction := decode[opCode] // DECODE
+		cpu.Execute(instruction)      // EXECUTE
 		time.Sleep(cpu.delay)
-		cpu.Fetch()
-		instruction := cpu.Decode()
-		cpu.Execute(instruction)
+	}
+}
+
+func (cpu *CPU) Load(data map[uint16]byte) {
+	for addr, value := range data {
+		cpu.bus.WriteByte(word(addr), value)
 	}
 }

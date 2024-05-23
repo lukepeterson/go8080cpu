@@ -4,32 +4,54 @@ import "fmt"
 
 type opcodeFunc func(*CPU)
 
-var opcodeMap [256]opcodeFunc
+var decode [256]opcodeFunc
 
+// initOpcodeMap is a mapping of Intel 8080 opcodes to their functions.
+// Grouped by instruction set group as per "Table 2. Instruction Set Summary",
+// in the Intel 8080A 8-BIT N-CHANNEL MICROPROCESSOR datasheet.
 func initOpcodeMap() {
-	opcodeMap[0x00] = (*CPU).NOP
-	opcodeMap[0x3A] = (*CPU).LDA
-	opcodeMap[0x4C] = (*CPU).HLT
+	// MOVE, LOAD AND STORE
+	decode[0x3A] = (*CPU).LDA
+
+	// STACK OPERATIONS
+
+	// JUMP
+
+	// RESTART
+
+	// INCREMENT AND DECREMENT
+
+	// ADD
+
+	// SUBTRACT
+
+	// LOGICAL
+
+	// ROTATE
+
+	// SPECIALS
+
+	// INPUT/OUTPUT
+
+	// CONTROL
+	decode[0x00] = (*CPU).NOP
+	decode[0x4C] = (*CPU).HLT
 }
 
 func (cpu *CPU) NOP() { // 0x00
-	fmt.Println("NOP")
 }
 
 func (cpu *CPU) LDA() { // 0x3A
-	lowOrderByte := uint16(cpu.Memory[cpu.programCounter])
-	highOrderByte := uint16(cpu.Memory[cpu.programCounter+1])
-	cpu.A = cpu.Memory[(highOrderByte<<8)|lowOrderByte]
-	cpu.programCounter += 2
+	cpu.A = cpu.bus.ReadByte(cpu.fetchWord())
 }
+
+// func (cpu *CPU) MVI_A() { // 0x3A
+
+// 	// cpu.A = cpu.bus.ReadByte(cpu.fetchWord())
+
+// }
 
 func (cpu *CPU) HLT() { // 0x4C
 	fmt.Println("HALT!")
 	cpu.halted = true
 }
-
-// var decodeMnemonic = map[string]byte{
-// 	"NOP": 0x00,
-// 	"LDA": 0x3A,
-// 	"HLT": 0x4C,
-// }
