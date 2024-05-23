@@ -1,7 +1,5 @@
 package cpu
 
-import "fmt"
-
 type opcodeFunc func(*CPU)
 
 var decode [256]opcodeFunc
@@ -11,6 +9,14 @@ var decode [256]opcodeFunc
 // in the Intel 8080A 8-BIT N-CHANNEL MICROPROCESSOR datasheet.
 func initOpcodeMap() {
 	// MOVE, LOAD AND STORE
+	decode[0x3E] = (*CPU).MVI_A
+	decode[0x06] = (*CPU).MVI_B
+	decode[0x0E] = (*CPU).MVI_C
+	decode[0x10] = (*CPU).MVI_D
+	decode[0x1E] = (*CPU).MVI_E
+	decode[0x1A] = (*CPU).MVI_H
+	decode[0x2E] = (*CPU).MVI_L
+
 	decode[0x3A] = (*CPU).LDA
 
 	// STACK OPERATIONS
@@ -45,13 +51,34 @@ func (cpu *CPU) LDA() { // 0x3A
 	cpu.A = cpu.bus.ReadByte(cpu.fetchWord())
 }
 
-// func (cpu *CPU) MVI_A() { // 0x3A
+func (cpu *CPU) MVI_A() { // 0x3A
+	cpu.A = cpu.fetchByte()
+}
 
-// 	// cpu.A = cpu.bus.ReadByte(cpu.fetchWord())
+func (cpu *CPU) MVI_B() { // 0x06
+	cpu.B = cpu.fetchByte()
+}
 
-// }
+func (cpu *CPU) MVI_C() { // 0x0E
+	cpu.C = cpu.fetchByte()
+}
+
+func (cpu *CPU) MVI_D() { // 0x10
+	cpu.D = cpu.fetchByte()
+}
+
+func (cpu *CPU) MVI_E() { // 0x1E
+	cpu.E = cpu.fetchByte()
+}
+
+func (cpu *CPU) MVI_H() { // 0x1A
+	cpu.H = cpu.fetchByte()
+}
+
+func (cpu *CPU) MVI_L() { // 0x2E
+	cpu.L = cpu.fetchByte()
+}
 
 func (cpu *CPU) HLT() { // 0x4C
-	fmt.Println("HALT!")
 	cpu.halted = true
 }
