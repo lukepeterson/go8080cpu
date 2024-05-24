@@ -27,6 +27,9 @@ func initOpcodeMap() {
 	// RESTART
 
 	// INCREMENT AND DECREMENT
+	decode[0x3C] = (*CPU).INR_A
+	decode[0x04] = (*CPU).INR_B
+	decode[0x0C] = (*CPU).INR_C
 
 	// ADD
 
@@ -49,10 +52,27 @@ func (cpu *CPU) NOP() { // 0x00
 }
 
 func (cpu *CPU) LDA() { // 0x3A
-	cpu.A = cpu.bus.ReadByte(cpu.fetchWord())
+	cpu.A = cpu.Bus.ReadByte(cpu.fetchWord())
 }
 
-func (cpu *CPU) MVI_A() { // 0x3A
+func (cpu *CPU) INR_A() { // 0x3C
+	cpu.flags.AuxCarry = (cpu.A & 0x0F) == 0x0F
+
+	cpu.A++
+	cpu.flags.Sign = cpu.A&(1<<7) > 0
+	cpu.flags.Zero = cpu.A == 0
+	cpu.flags.Parity = getParity(cpu.A)
+}
+
+func (cpu *CPU) INR_B() { // 0x04
+	cpu.B++
+}
+
+func (cpu *CPU) INR_C() { // 0x0C
+	cpu.C++
+}
+
+func (cpu *CPU) MVI_A() { // 0x3E
 	cpu.A = cpu.fetchByte()
 }
 
@@ -81,7 +101,7 @@ func (cpu *CPU) MVI_L() { // 0x2E
 }
 
 func (cpu *CPU) MVI_M() { // 0x24
-	cpu.bus.WriteByte(joinBytes(cpu.L, cpu.H), cpu.fetchByte())
+	cpu.Bus.WriteByte(joinBytes(cpu.L, cpu.H), cpu.fetchByte())
 }
 
 func (cpu *CPU) HLT() { // 0x4C

@@ -14,19 +14,16 @@ func main() {
 	)
 
 	program := map[uint16]byte{
-		0x00: 0x3A, // LDA
-		0x01: 0x10,
-		0x02: 0x00,
-		0x03: 0x06, // MVI B
-		0x04: 0x44,
-		0x05: 0x4C, // HLT
-		0x10: 0x69, // Data
+		0x00: 0x3E, // MVI, A
+		0x01: 0xFE, // DATA
+		0x03: 0x3C, // INR A
+		0x04: 0x4C, // HLT
 	}
 
 	goCPU.Load(program)
 
-	// goCPU.DumpRegisters()
-	// goCPU.DumpMemory()
+	goCPU.DumpRegisters()
+	goCPU.DumpMemory()
 	goCPU.Run()
 	goCPU.DumpRegisters()
 	goCPU.DumpMemory()
