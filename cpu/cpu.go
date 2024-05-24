@@ -2,7 +2,6 @@ package cpu
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -124,24 +123,13 @@ func NewCPU(delay time.Duration, memory *Memory) *CPU {
 	}
 }
 
-func (cpu *CPU) Execute(instruction opcodeFunc) {
-	if instruction != nil {
-		instruction(cpu)
-	} else {
-		cpu.halted = true
-		log.Println("instruction not found")
-	}
-}
-
 func (cpu *CPU) Run() {
 	initOpcodeMap()
 	for !cpu.halted {
 		// cpu.DumpRegisters()
 		// cpu.DumpMemory()
 
-		opCode := cpu.fetchByte()     // FETCH
-		instruction := decode[opCode] // DECODE
-		cpu.Execute(instruction)      // EXECUTE
+		cpu.Execute(cpu.fetchByte())
 		time.Sleep(cpu.Delay)
 	}
 }
