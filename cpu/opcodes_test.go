@@ -246,7 +246,7 @@ func TestCPU_INR_r(t *testing.T) {
 			},
 			start: func() *CPU {
 				return &CPU{A: 0x7F, Bus: &Memory{Data: make([]byte, 32)}}
-			}, want: &CPU{A: 0x80, flags: Flags{Sign: true}},
+			}, want: &CPU{A: 0x80, flags: Flags{AuxCarry: true, Sign: true}},
 		},
 		{
 			name: "INR A from 0x80 (test sign and parity flags set)",
@@ -266,7 +266,7 @@ func TestCPU_INR_r(t *testing.T) {
 			},
 			start: func() *CPU {
 				return &CPU{A: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, want: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+			}, want: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true}},
 		},
 	}
 	for _, tc := range testCases {

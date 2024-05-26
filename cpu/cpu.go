@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -71,26 +72,35 @@ type CPU struct {
 }
 
 func (cpu CPU) DumpRegisters() {
-	fmt.Println("-----------------------------------------")
-	fmt.Println("Registers:")
-	fmt.Printf("     A: %08b (%02X), S:%v Z:%v AC:%v P:%v C:%v\n", cpu.A, cpu.A, boolToInt(cpu.flags.Sign), boolToInt(cpu.flags.Zero), boolToInt(cpu.flags.AuxCarry), boolToInt(cpu.flags.AuxCarry), boolToInt(cpu.flags.Carry))
-	fmt.Printf("     B: %08b (%02X), C: %08b (%02X)\n", cpu.B, cpu.B, cpu.C, cpu.C)
-	fmt.Printf("     D: %08b (%02X), E: %08b (%02X)\n", cpu.D, cpu.D, cpu.E, cpu.E)
-	fmt.Printf("     H: %08b (%02X), L: %08b (%02X)\n", cpu.H, cpu.H, cpu.L, cpu.L)
-	fmt.Printf("    PC: %016b (%04X)\n", cpu.programCounter, cpu.programCounter)
-	fmt.Printf("    SP: %016b (%04X)\n", cpu.stackPointer, cpu.stackPointer)
+	var sb strings.Builder
+
+	sb.WriteString("\033[H\033[2J") // Clear screen
+	sb.WriteString("-----------------------------------------\n")
+	sb.WriteString("Registers:\n")
+	sb.WriteString(fmt.Sprintf("     A: %08b (%02X), S:%v Z:%v AC:%v P:%v C:%v\n", cpu.A, cpu.A, boolToInt(cpu.flags.Sign), boolToInt(cpu.flags.Zero), boolToInt(cpu.flags.AuxCarry), boolToInt(cpu.flags.Parity), boolToInt(cpu.flags.Carry)))
+	sb.WriteString(fmt.Sprintf("     B: %08b (%02X), C: %08b (%02X)\n", cpu.B, cpu.B, cpu.C, cpu.C))
+	sb.WriteString(fmt.Sprintf("     D: %08b (%02X), E: %08b (%02X)\n", cpu.D, cpu.D, cpu.E, cpu.E))
+	sb.WriteString(fmt.Sprintf("     H: %08b (%02X), L: %08b (%02X)\n", cpu.H, cpu.H, cpu.L, cpu.L))
+	sb.WriteString(fmt.Sprintf("    PC: %016b (%04X)\n", cpu.programCounter, cpu.programCounter))
+	sb.WriteString(fmt.Sprintf("    SP: %016b (%04X)\n", cpu.stackPointer, cpu.stackPointer))
+
+	fmt.Print(sb.String())
 }
 
 func (cpu *CPU) DumpMemory() {
-	fmt.Printf("Memory: (%v bytes)\n", cpu.Bus.length())
-	fmt.Print("    ")
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("Memory: (%v bytes)\n", cpu.Bus.length()))
+	sb.WriteString("    ")
 	for i := 0; i < int(cpu.Bus.length()); i++ {
-		fmt.Printf("%02X ", cpu.Bus.ReadByte(word(i)))
+		sb.WriteString(fmt.Sprintf("%02X ", cpu.Bus.ReadByte(word(i))))
 		if (i+1)%8 == 0 {
-			fmt.Print("\n    ")
+			sb.WriteString("\n    ")
 		}
 	}
-	fmt.Println("-------------------------------------")
+	sb.WriteString("\n-------------------------------------\n")
+
+	fmt.Print(sb.String())
 }
 
 func boolToInt(in bool) int {
@@ -124,12 +134,10 @@ func NewCPU(delay time.Duration, memory *Memory) *CPU {
 }
 
 func (cpu *CPU) Run() {
-	initOpcodeMap()
 	for !cpu.halted {
-		// cpu.DumpRegisters()
-		// cpu.DumpMemory()
-
 		cpu.Execute(cpu.fetchByte())
+		cpu.DumpRegisters()
+		cpu.DumpMemory()
 		time.Sleep(cpu.Delay)
 	}
 }

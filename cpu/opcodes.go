@@ -31,6 +31,8 @@ func (cpu *CPU) Execute(opCode byte) {
 	// STACK OPERATIONS
 
 	// JUMP
+	case 0xC3: // JMP
+		cpu.programCounter = cpu.fetchWord()
 
 	// RESTART
 
