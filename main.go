@@ -12,18 +12,19 @@ import (
 func main() {
 
 	goCPU := cpu.NewCPU(
-		1*time.Millisecond,
+		25*time.Millisecond,
 		cpu.NewMemory(32),
 	)
 
 	code := `
-		MVI A, 02h
-		INR A
-		IN 55h
-		LDA 3400h
 		INR A
 		DCR H	
-		NOP
+		INR B
+		DCR C
+		INR D
+		DCR E
+		INR L
+		JMP 00h
 		HLT
 	`
 

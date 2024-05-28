@@ -69,6 +69,7 @@ type CPU struct {
 
 func (cpu CPU) DumpRegisters() {
 	var sb strings.Builder
+	sb.WriteString("\033[H\033[2J") // Clear the screen and move top, left
 	sb.WriteString("-----------------------------------------\n")
 	sb.WriteString("Registers:\n")
 	sb.WriteString(fmt.Sprintf("     A: %08b (%02X), S:%v Z:%v AC:%v P:%v C:%v\n", cpu.A, cpu.A, boolToInt(cpu.flags.Sign), boolToInt(cpu.flags.Zero), boolToInt(cpu.flags.AuxCarry), boolToInt(cpu.flags.Parity), boolToInt(cpu.flags.Carry)))
@@ -131,8 +132,8 @@ func (cpu *CPU) Run() error {
 			return err
 		}
 
-		// cpu.DumpRegisters()
-		// cpu.DumpMemory()
+		cpu.DumpRegisters()
+		cpu.DumpMemory()
 		time.Sleep(cpu.Delay)
 	}
 

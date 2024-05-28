@@ -6,6 +6,8 @@ An Intel 8080 CPU emulator, written in Go.  This project also uses [my Intel 808
 ![Go Report Card](https://goreportcard.com/badge/github.com/lukepeterson/go8080cpu)
 ![GitHub release](https://img.shields.io/github/v/release/lukepeterson/go8080cpu)
 
+![Running some INR and DCR](./images/running.gif)
+
 ## Features
 - :white_check_mark: Registers
 - :white_check_mark: Memory
