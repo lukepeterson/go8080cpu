@@ -2,33 +2,38 @@
 
 An Intel 8080 CPU emulator, written in Go.  This project also uses [my Intel 8080 CPU assembler](https://github.com/lukepeterson/go8080assembler), especially for running tests.
 
-## Progress
+[![Tests](https://github.com/lukepeterson/go8080cpu/actions/workflows/go.yml/badge.svg)](https://github.com/lukepeterson/go8080cpu/actions/workflows/go.yml)
+![Go Report Card](https://goreportcard.com/badge/github.com/lukepeterson/go8080cpu)
+![GitHub release](https://img.shields.io/github/v/release/lukepeterson/go8080cpu)
 
-- :white_check_mark: Base functionality: 
-  - :white_check_mark: Registers
-  - :white_check_mark: Memory
-  - :white_check_mark: Fetch/decode/execute cycle
-  - :warning: Test framework
-  - :x: Input/output
-  - :x: Interrupts
-- :x: Instruction set groups:
-  - :x: Move, load and store
-  - :x: Stack operations
-  - :x: Jump
-  - :x: Call
-  - :x: Return
-  - :x: Restart
-  - :warning: Increment and decrement
-  - :x: Add
-  - :x: Subtract
-  - :x: Logical
-  - :x: Rotate
-  - :x: Specials
-  - :x: Input/output
-  - :x: Control
-- :warning: Write an assembler
-- :warning: Group functions a little better
-- :warning: Fix inteface warnings on read/write memory functions
+## Features
+- :white_check_mark: Registers
+- :white_check_mark: Memory
+- :white_check_mark: Fetch/decode/execute cycle
+- :white_check_mark: [Write an assembler](https://github.com/lukepeterson/go8080assembler)
+
+## In progress :warning:
+- Increment and decrement
+- Test framework
+
+## TODO
+- :x: Move, load and store
+- :x: Stack operations
+- :x: Jump
+- :x: Call
+- :x: Return
+- :x: Restart
+- :x: Add
+- :x: Subtract
+- :x: Logical
+- :x: Rotate
+- :x: Specials
+- :x: Input/output
+- :x: Control
+- :x: Input/output
+- :x: Interrupts
+- :x: Fix inteface warnings on read/write memory functions
+- :x: Decide what I want to do with the ALU
 
 # Running tests
 

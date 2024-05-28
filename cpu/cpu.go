@@ -39,11 +39,7 @@ func (cpu *CPU) fetchByte() byte {
 func (cpu *CPU) fetchWord() word {
 	low := cpu.fetchByte()
 	high := cpu.fetchByte()
-	return joinBytes(low, high) // 8080 is little endian
-}
-
-func joinBytes(low, high byte) word {
-	return word(low) | word(high)<<8
+	return joinBytes(low, high) // 8080 is little endian, so low byte comes first when reading from memory
 }
 
 type Flags struct {
@@ -73,8 +69,6 @@ type CPU struct {
 
 func (cpu CPU) DumpRegisters() {
 	var sb strings.Builder
-
-	sb.WriteString("\033[H\033[2J") // Clear screen
 	sb.WriteString("-----------------------------------------\n")
 	sb.WriteString("Registers:\n")
 	sb.WriteString(fmt.Sprintf("     A: %08b (%02X), S:%v Z:%v AC:%v P:%v C:%v\n", cpu.A, cpu.A, boolToInt(cpu.flags.Sign), boolToInt(cpu.flags.Zero), boolToInt(cpu.flags.AuxCarry), boolToInt(cpu.flags.Parity), boolToInt(cpu.flags.Carry)))
@@ -83,13 +77,11 @@ func (cpu CPU) DumpRegisters() {
 	sb.WriteString(fmt.Sprintf("     H: %08b (%02X), L: %08b (%02X)\n", cpu.H, cpu.H, cpu.L, cpu.L))
 	sb.WriteString(fmt.Sprintf("    PC: %016b (%04X)\n", cpu.programCounter, cpu.programCounter))
 	sb.WriteString(fmt.Sprintf("    SP: %016b (%04X)\n", cpu.stackPointer, cpu.stackPointer))
-
 	fmt.Print(sb.String())
 }
 
 func (cpu *CPU) DumpMemory() {
 	var sb strings.Builder
-
 	sb.WriteString(fmt.Sprintf("Memory: (%v bytes)\n", cpu.Bus.length()))
 	sb.WriteString("    ")
 	for i := 0; i < int(cpu.Bus.length()); i++ {
@@ -99,7 +91,6 @@ func (cpu *CPU) DumpMemory() {
 		}
 	}
 	sb.WriteString("\n-------------------------------------\n")
-
 	fmt.Print(sb.String())
 }
 
@@ -133,16 +124,22 @@ func NewCPU(delay time.Duration, memory *Memory) *CPU {
 	}
 }
 
-func (cpu *CPU) Run() {
+func (cpu *CPU) Run() error {
 	for !cpu.halted {
-		cpu.Execute(cpu.fetchByte())
-		cpu.DumpRegisters()
-		cpu.DumpMemory()
+		err := cpu.Execute(cpu.fetchByte())
+		if err != nil {
+			return err
+		}
+
+		// cpu.DumpRegisters()
+		// cpu.DumpMemory()
 		time.Sleep(cpu.Delay)
 	}
+
+	return nil
 }
 
-func (cpu *CPU) Load(data map[uint16]byte) {
+func (cpu *CPU) Load(data []byte) {
 	for addr, value := range data {
 		cpu.Bus.WriteByte(word(addr), value)
 	}
