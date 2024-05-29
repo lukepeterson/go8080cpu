@@ -336,17 +336,17 @@ func (cpu *CPU) Execute(opCode byte) error {
 		dcr(cpu, &cpu.A)
 
 	case 0x03: // INX B
-		return ErrNotImplemented(opCode)
+		cpu.B, cpu.C = splitWord(joinBytes(cpu.B, cpu.C) + 1)
 	case 0x13: // INX D
-		return ErrNotImplemented(opCode)
+		cpu.D, cpu.E = splitWord(joinBytes(cpu.D, cpu.E) + 1)
 	case 0x23: // INX H
-		return ErrNotImplemented(opCode)
+		cpu.H, cpu.L = splitWord(joinBytes(cpu.H, cpu.L) + 1)
 	case 0x0B: // DCX B
-		return ErrNotImplemented(opCode)
+		cpu.B, cpu.C = splitWord(joinBytes(cpu.B, cpu.C) - 1)
 	case 0x1B: // DCX D
-		return ErrNotImplemented(opCode)
+		cpu.D, cpu.E = splitWord(joinBytes(cpu.D, cpu.E) - 1)
 	case 0x2B: // DCX H
-		return ErrNotImplemented(opCode)
+		cpu.H, cpu.L = splitWord(joinBytes(cpu.H, cpu.L) - 1)
 
 	// ADD
 	case 0x80: // ADD B

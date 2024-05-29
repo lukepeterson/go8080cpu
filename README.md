@@ -14,10 +14,6 @@ An Intel 8080 CPU emulator, written in Go.  This project also uses [my Intel 808
 - :white_check_mark: Fetch/decode/execute cycle
 - :white_check_mark: [Write an assembler](https://github.com/lukepeterson/go8080assembler)
 
-## In progress :warning:
-- Increment and decrement
-- Test framework
-
 ## TODO
 - :x: Move, load and store
 - :x: Stack operations
@@ -25,7 +21,6 @@ An Intel 8080 CPU emulator, written in Go.  This project also uses [my Intel 808
 - :x: Call
 - :x: Return
 - :x: Restart
-- :x: Increment/decrement
 - :x: Add
 - :x: Subtract
 - :x: Logical
@@ -38,5 +33,4 @@ An Intel 8080 CPU emulator, written in Go.  This project also uses [my Intel 808
 - :x: Decide what I want to do with the ALU
 
 # Running tests
-
 Run `go test ./...`.

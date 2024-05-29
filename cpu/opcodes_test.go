@@ -261,6 +261,126 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				return &CPU{Bus: &Memory{Data: make([]byte, 32)}}
 			}, wantCPU: &CPU{A: 0x02, L: 0x16},
 		},
+		{
+			name: "INX B from 0x00FF",
+			code: `
+				INX B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{B: 0x00, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{B: 0x01, C: 0x00},
+		},
+		{
+			name: "INX B from 0xFFFF",
+			code: `
+				INX B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{B: 0xFF, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{B: 0x00, C: 0x00},
+		},
+		{
+			name: "INX D from 0x00FF",
+			code: `
+				INX D
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{D: 0x00, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{D: 0x01, E: 0x00},
+		},
+		{
+			name: "INX D from 0xFFFF",
+			code: `
+				INX D
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{D: 0xFF, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{D: 0x00, E: 0x00},
+		},
+		{
+			name: "INX H from 0x00FF",
+			code: `
+				INX H
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{H: 0x00, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{H: 0x01, L: 0x00},
+		},
+		{
+			name: "INX H from 0xFFFF",
+			code: `
+				INX H
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{H: 0xFF, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{H: 0x00, L: 0x00},
+		},
+		{
+			name: "DCX B from 0x0100",
+			code: `
+				DCX B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{B: 0x01, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{B: 0x00, C: 0xFF},
+		},
+		{
+			name: "DCX B from 0x0000",
+			code: `
+				DCX B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{B: 0x00, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{B: 0xFF, C: 0xFF},
+		},
+		{
+			name: "DCX D from 0x0100",
+			code: `
+				DCX D
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{D: 0x01, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{D: 0x00, E: 0xFF},
+		},
+		{
+			name: "DCX D from 0x0000",
+			code: `
+				DCX D
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{D: 0x00, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{D: 0xFF, E: 0xFF},
+		},
+		{
+			name: "DCX H from 0x0100",
+			code: `
+				DCX H
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{H: 0x01, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{H: 0x00, L: 0xFF},
+		},
+		{
+			name: "DCX H from 0x0000",
+			code: `
+				DCX H
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{H: 0xFF, L: 0xFF},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
