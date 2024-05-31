@@ -351,14 +351,9 @@ func (cpu *CPU) Execute(opCode byte) error {
 	// ADD
 	case 0x80: // ADD B
 
-		tempB := cpu.A + cpu.B
-
-		cpu.flags.Zero = tempB == 0
-		cpu.flags.Sign = tempB&(1<<7) > 0
-		cpu.flags.Parity = getParity(tempB)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.B)
 		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.B, 0)
-
-		cpu.A = tempB
+		cpu.A = cpu.A + cpu.B
 
 	case 0x81: // ADD C
 		return ErrNotImplemented(opCode)
@@ -569,17 +564,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 func inr(cpu *CPU, register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register++
-	cpu.flags.Sign = *register&(1<<7) > 0
-	cpu.flags.Zero = *register == 0
-	cpu.flags.Parity = getParity(*register)
+	cpu.setSignZeroParityFlags(*register)
 }
 
 func dcr(cpu *CPU, register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register--
-	cpu.flags.Sign = *register&(1<<7) > 0
-	cpu.flags.Zero = *register == 0
-	cpu.flags.Parity = getParity(*register)
+	cpu.setSignZeroParityFlags(*register)
 }
 
 func ErrNotImplemented(opCode byte) error {
@@ -604,4 +595,12 @@ func carry(a, b, inCarry byte) (bool, bool) {
 	// Check if there is a carry out of the 4th bit
 	auxCarry := (a&0xF + b&0xF + inCarry&0xF) > 0xF
 	return outCarry, auxCarry
+}
+
+func (cpu *CPU) setSignZeroParityFlags(input byte) {
+
+	cpu.flags.Sign = input&(1<<7) > 0
+	cpu.flags.Zero = input == 0
+	cpu.flags.Parity = getParity(input)
+
 }
