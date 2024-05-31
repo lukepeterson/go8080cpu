@@ -351,12 +351,15 @@ func (cpu *CPU) Execute(opCode byte) error {
 	// ADD
 	case 0x80: // ADD B
 
-		cpu.A = cpu.A + cpu.B
+		tempB := cpu.A + cpu.B
 
-		// cpu.flags.Carry
-		// cpu.flags.FLAG_HALF_CARRY
+		cpu.flags.Zero = tempB == 0
+		cpu.flags.Sign = tempB&(1<<7) > 0
+		cpu.flags.Parity = getParity(tempB)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.B, 0)
 
-		// return ErrNotImplemented(opCode)
+		cpu.A = tempB
+
 	case 0x81: // ADD C
 		return ErrNotImplemented(opCode)
 	case 0x82: // ADD D
@@ -589,4 +592,16 @@ func joinBytes(high, low byte) word {
 
 func splitWord(address word) (high, low byte) {
 	return byte(address >> 8), byte(address)
+}
+
+// carry checks if there is a carry-out from the addition of three bytes (one of which is a carry-in), in addition to checking if there is a carry from the lower 4 bits (an aux carry).
+func carry(a, b, inCarry byte) (bool, bool) {
+	sum := uint16(a) + uint16(b) + uint16(inCarry)
+
+	// Check if there is a carry out of the 8th bit
+	outCarry := sum > 0xFF
+
+	// Check if there is a carry out of the 4th bit
+	auxCarry := (a&0xF + b&0xF + inCarry&0xF) > 0xF
+	return outCarry, auxCarry
 }

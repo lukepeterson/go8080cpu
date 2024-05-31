@@ -381,16 +381,55 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				return &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
 			}, wantCPU: &CPU{H: 0xFF, L: 0xFF},
 		},
-
 		{
-			name: "ADD B",
+			name: "ADD B (zero flag)",
 			code: `
 				ADD B
 				HLT
 				`,
 			initCPU: func() *CPU {
-				return &CPU{A: 0x6C, B: 0x2E, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x9A, flags: Flags{Sign: true, Zero: false, AuxCarry: true, Parity: true, Carry: false}},
+				return &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "ADD B (non zero)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x02, B: 0x01},
+		},
+		{
+			name: "ADD B (carry)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "ADD B (aux carry with sign)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{A: 0x7F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x80, B: 0x01, flags: Flags{AuxCarry: true, Sign: true}},
+		},
+		{
+			name: "ADD B (aux carry without sign)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{A: 0x0F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x10, B: 0x01, flags: Flags{AuxCarry: true}},
 		},
 	}
 	for _, tc := range testCases {
@@ -429,4 +468,78 @@ func (cpu *CPU) registersEqual(other *CPU) bool {
 	}
 
 	return false
+}
+
+func TestCarry(t *testing.T) {
+	type args struct {
+		a byte
+		b byte
+		c byte
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantCarry    bool
+		wantAuxCarry bool
+	}{
+		{
+			name:         "no carry, no aux carry (zero case)",
+			args:         args{a: 0x00, b: 0x00, c: 0x00},
+			wantCarry:    false,
+			wantAuxCarry: false,
+		},
+		{
+			name:         "no carry, no aux carry (small numbers)",
+			args:         args{a: 0x01, b: 0x01, c: 0x00},
+			wantCarry:    false,
+			wantAuxCarry: false,
+		},
+		{
+			name:         "no carry, aux carry (lower nibble sum 16)",
+			args:         args{a: 0x0F, b: 0x01, c: 0x00},
+			wantCarry:    false,
+			wantAuxCarry: true,
+		},
+		{
+			name:         "no carry, aux carry (lower nibble sum 17)",
+			args:         args{a: 0x08, b: 0x08, c: 0x01},
+			wantCarry:    false,
+			wantAuxCarry: true,
+		},
+		{
+			name:         "carry, no aux carry (total sum 256)",
+			args:         args{a: 0xF0, b: 0x10, c: 0x00},
+			wantCarry:    true,
+			wantAuxCarry: false,
+		},
+		{
+			name:         "carry, no aux carry (total sum 257)",
+			args:         args{a: 0x80, b: 0x80, c: 0x01},
+			wantCarry:    true,
+			wantAuxCarry: false,
+		},
+		{
+			name:         "carry, aux carry (total sum 256 + lower nibble sum 16)",
+			args:         args{a: 0xFF, b: 0x01, c: 0x00},
+			wantCarry:    true,
+			wantAuxCarry: true,
+		},
+		{
+			name:         "carry, aux carry (total sum 255 + 1)",
+			args:         args{a: 0x7F, b: 0x7F, c: 0x01},
+			wantCarry:    false,
+			wantAuxCarry: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotCarry, gotAuxCarry := carry(tt.args.a, tt.args.b, tt.args.c)
+			if gotCarry != tt.wantCarry {
+				t.Errorf("carry() gotCarry = %v, want %v", gotCarry, tt.wantCarry)
+			}
+			if gotAuxCarry != tt.wantAuxCarry {
+				t.Errorf("carry() gotAuxCarry = %v, want %v", gotAuxCarry, tt.wantAuxCarry)
+			}
+		})
+	}
 }
