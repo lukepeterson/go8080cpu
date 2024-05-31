@@ -381,6 +381,17 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				return &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
 			}, wantCPU: &CPU{H: 0xFF, L: 0xFF},
 		},
+
+		{
+			name: "ADD B",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: func() *CPU {
+				return &CPU{A: 0x6C, B: 0x2E, Bus: &Memory{Data: make([]byte, 32)}}
+			}, wantCPU: &CPU{A: 0x9A, flags: Flags{Sign: true, Zero: false, AuxCarry: true, Parity: true, Carry: false}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

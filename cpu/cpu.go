@@ -132,8 +132,8 @@ func (cpu *CPU) Run() error {
 			return err
 		}
 
-		cpu.DumpRegisters()
-		cpu.DumpMemory()
+		// cpu.DumpRegisters()
+		// cpu.DumpMemory()
 		time.Sleep(cpu.Delay)
 	}
 

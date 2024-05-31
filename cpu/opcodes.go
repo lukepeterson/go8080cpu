@@ -6,7 +6,7 @@ import "fmt"
 // Grouped by instruction set group as per "Table 2. Instruction Set Summary",
 // in the Intel 8080A 8-BIT N-CHANNEL MICROPROCESSOR datasheet.
 func (cpu *CPU) Execute(opCode byte) error {
-	fmt.Printf("Executing instruction: 0x%02X\n", opCode)
+	// fmt.Printf("Executing instruction: 0x%02X\n", opCode)
 
 	switch opCode {
 	// MOVE, LOAD AND STORE
@@ -350,7 +350,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// ADD
 	case 0x80: // ADD B
-		return ErrNotImplemented(opCode)
+
+		cpu.A = cpu.A + cpu.B
+
+		// cpu.flags.Carry
+		// cpu.flags.FLAG_HALF_CARRY
+
+		// return ErrNotImplemented(opCode)
 	case 0x81: // ADD C
 		return ErrNotImplemented(opCode)
 	case 0x82: // ADD D
