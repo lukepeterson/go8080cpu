@@ -298,42 +298,42 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// INCREMENT AND DECREMENT
 	case 0x04: // INR B
-		inr(cpu, &cpu.B)
+		cpu.inr(&cpu.B)
 	case 0x0C: // INR C
-		inr(cpu, &cpu.C)
+		cpu.inr(&cpu.C)
 	case 0x14: // INR D
-		inr(cpu, &cpu.D)
+		cpu.inr(&cpu.D)
 	case 0x1C: // INR E
-		inr(cpu, &cpu.E)
+		cpu.inr(&cpu.E)
 	case 0x24: // INR H
-		inr(cpu, &cpu.H)
+		cpu.inr(&cpu.H)
 	case 0x2C: // INR L
-		inr(cpu, &cpu.L)
+		cpu.inr(&cpu.L)
 	case 0x34: // INR M
 		tempM := cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-		inr(cpu, &tempM)
+		cpu.inr(&tempM)
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), tempM)
 	case 0x3C: // INR A
-		inr(cpu, &cpu.A)
+		cpu.inr(&cpu.A)
 
 	case 0x05: // DCR B
-		dcr(cpu, &cpu.B)
+		cpu.dcr(&cpu.B)
 	case 0x0D: // DCR C
-		dcr(cpu, &cpu.C)
+		cpu.dcr(&cpu.C)
 	case 0x15: // DCR D
-		dcr(cpu, &cpu.D)
+		cpu.dcr(&cpu.D)
 	case 0x1D: // DCR E
-		dcr(cpu, &cpu.E)
+		cpu.dcr(&cpu.E)
 	case 0x25: // DCR H
-		dcr(cpu, &cpu.H)
+		cpu.dcr(&cpu.H)
 	case 0x2D: // DCR L
-		dcr(cpu, &cpu.L)
+		cpu.dcr(&cpu.L)
 	case 0x35: // DCR M
 		tempM := cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-		dcr(cpu, &tempM)
+		cpu.dcr(&tempM)
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), tempM)
 	case 0x3D: // DCR A
-		dcr(cpu, &cpu.A)
+		cpu.dcr(&cpu.A)
 
 	case 0x03: // INX B
 		cpu.B, cpu.C = splitWord(joinBytes(cpu.B, cpu.C) + 1)
@@ -556,13 +556,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	return nil
 }
 
-func inr(cpu *CPU, register *byte) {
+func (cpu *CPU) inr(register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register++
 	cpu.setSignZeroParityFlags(*register)
 }
 
-func dcr(cpu *CPU, register *byte) {
+func (cpu *CPU) dcr(register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register--
 	cpu.setSignZeroParityFlags(*register)
