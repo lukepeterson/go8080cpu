@@ -451,6 +451,107 @@ func TestCPUIncrementDecrement(t *testing.T) {
 			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x04},
 		},
+		{
+			name: "ADC B (carry in with zero flag)",
+			code: `
+				ADC B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC B (carry in with carry out)",
+			code: `
+				ADC B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, B: 0x80, flags: Flags{Carry: true}},
+		},
+		{
+			name: "ADC B (carry in with parity flag)",
+			code: `
+				ADC B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, B: 0x02, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x04, B: 0x02},
+		},
+		{
+			name: "ADC B (carry in with no carry out + zero result)",
+			code: `
+				ADC B
+				HLT
+			`,
+			initCPU: &CPU{A: 0xFF, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "ADC C (carry in with zero flag)",
+			code: `
+				ADC C
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, C: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC D (carry in with zero flag)",
+			code: `
+				ADC D
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, D: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC E (carry in with zero flag)",
+			code: `
+				ADC E
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, E: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC H (carry in with zero flag)",
+			code: `
+				ADC H
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, H: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC L (carry in with zero flag)",
+			code: `
+				ADC L
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, L: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "ADC M (carry in with zero flag)",
+			code: `
+				MVI M, 55H
+				ADC M
+				HLT
+				`,
+			initCPU: &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+		},
+
+		{
+			name: "ADC A (carry in with zero flag)",
+			code: `
+				ADC A
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

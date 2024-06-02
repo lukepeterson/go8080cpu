@@ -370,22 +370,23 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.add(cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L)), NOCARRY)
 	case 0x87: // ADD A
 		cpu.add(cpu.A, NOCARRY)
+
 	case 0x88: // ADC B
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.B, cpu.flags.Carry)
 	case 0x89: // ADC C
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.C, cpu.flags.Carry)
 	case 0x8A: // ADC D
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.D, cpu.flags.Carry)
 	case 0x8B: // ADC E
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.E, cpu.flags.Carry)
 	case 0x8C: // ADC H
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.H, cpu.flags.Carry)
 	case 0x8D: // ADC L
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.L, cpu.flags.Carry)
 	case 0x8E: // ADC M
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L)), cpu.flags.Carry)
 	case 0x8F: // ADC A
-		return ErrNotImplemented(opCode)
+		cpu.add(cpu.A, cpu.flags.Carry)
 
 	case 0xC6: // ADI
 		return ErrNotImplemented(opCode)
@@ -574,9 +575,15 @@ func (cpu *CPU) dcr(register *byte) {
 
 // add adds the register specified in register to the accumulator (R), as well as calculation and setting the sign, zero, parity, carry and aux carry flags where appropriate.
 func (cpu *CPU) add(register byte, carry bool) {
-	cpu.setSignZeroParityFlags(cpu.A + register)
+	var carryValue byte // Cast the bool to a byte for our carry calculation
+	if carry {
+		carryValue = 1
+	}
+
+	result := cpu.A + register + carryValue
+	cpu.setSignZeroParityFlags(result)
 	cpu.flags.Carry, cpu.flags.AuxCarry = checkCarryOut(cpu.A, register, carry)
-	cpu.A = cpu.A + register
+	cpu.A = result
 }
 
 func ErrNotImplemented(opCode byte) error {
