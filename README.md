@@ -33,7 +33,6 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 
 ## TODO
 - :x: Fix inteface warnings on read/write memory functions
-- :x: Decide what I want to do with the ALU
 
 # Running tests
 Run `go test ./...`.
