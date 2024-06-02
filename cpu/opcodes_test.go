@@ -490,11 +490,11 @@ func (cpu *CPU) registersEqual(otherCPU *CPU) bool {
 	return false
 }
 
-func TestCarry(t *testing.T) {
+func TestCheckCarryOut(t *testing.T) {
 	type args struct {
-		a byte
-		b byte
-		c byte
+		a     byte
+		b     byte
+		carry bool
 	}
 	tests := []struct {
 		name         string
@@ -504,56 +504,56 @@ func TestCarry(t *testing.T) {
 	}{
 		{
 			name:         "no carry, no aux carry (zero case)",
-			args:         args{a: 0x00, b: 0x00, c: 0x00},
+			args:         args{a: 0x00, b: 0x00, carry: NOCARRY},
 			wantCarry:    false,
 			wantAuxCarry: false,
 		},
 		{
 			name:         "no carry, no aux carry (small numbers)",
-			args:         args{a: 0x01, b: 0x01, c: 0x00},
+			args:         args{a: 0x01, b: 0x01, carry: NOCARRY},
 			wantCarry:    false,
 			wantAuxCarry: false,
 		},
 		{
 			name:         "no carry, aux carry (lower nibble sum 16)",
-			args:         args{a: 0x0F, b: 0x01, c: 0x00},
+			args:         args{a: 0x0F, b: 0x01, carry: NOCARRY},
 			wantCarry:    false,
 			wantAuxCarry: true,
 		},
 		{
 			name:         "no carry, aux carry (lower nibble sum 17)",
-			args:         args{a: 0x08, b: 0x08, c: 0x01},
+			args:         args{a: 0x08, b: 0x08, carry: WITHCARRY},
 			wantCarry:    false,
 			wantAuxCarry: true,
 		},
 		{
 			name:         "carry, no aux carry (total sum 256)",
-			args:         args{a: 0xF0, b: 0x10, c: 0x00},
+			args:         args{a: 0xF0, b: 0x10, carry: NOCARRY},
 			wantCarry:    true,
 			wantAuxCarry: false,
 		},
 		{
 			name:         "carry, no aux carry (total sum 257)",
-			args:         args{a: 0x80, b: 0x80, c: 0x01},
+			args:         args{a: 0x80, b: 0x80, carry: WITHCARRY},
 			wantCarry:    true,
 			wantAuxCarry: false,
 		},
 		{
 			name:         "carry, aux carry (total sum 256 + lower nibble sum 16)",
-			args:         args{a: 0xFF, b: 0x01, c: 0x00},
+			args:         args{a: 0xFF, b: 0x01, carry: NOCARRY},
 			wantCarry:    true,
 			wantAuxCarry: true,
 		},
 		{
 			name:         "carry, aux carry (total sum 255 + 1)",
-			args:         args{a: 0x7F, b: 0x7F, c: 0x01},
+			args:         args{a: 0x7F, b: 0x7F, carry: WITHCARRY},
 			wantCarry:    false,
 			wantAuxCarry: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCarry, gotAuxCarry := checkCarryOut(tt.args.a, tt.args.b, tt.args.c)
+			gotCarry, gotAuxCarry := checkCarryOut(tt.args.a, tt.args.b, tt.args.carry)
 			if gotCarry != tt.wantCarry {
 				t.Errorf("carry() gotCarry = %v, want %v", gotCarry, tt.wantCarry)
 			}

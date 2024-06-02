@@ -2,6 +2,11 @@ package cpu
 
 import "fmt"
 
+const (
+	NOCARRY   = false
+	WITHCARRY = true
+)
+
 // Execute executes the 8-bit instruction passed in via opCode
 // Grouped by instruction set group as per "Table 2. Instruction Set Summary",
 // in the Intel 8080A 8-BIT N-CHANNEL MICROPROCESSOR datasheet.
@@ -350,21 +355,21 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// ADD
 	case 0x80: // ADD B
-		cpu.add(cpu.B, 0)
+		cpu.add(cpu.B, NOCARRY)
 	case 0x81: // ADD C
-		cpu.add(cpu.C, 0)
+		cpu.add(cpu.C, NOCARRY)
 	case 0x82: // ADD D
-		cpu.add(cpu.D, 0)
+		cpu.add(cpu.D, NOCARRY)
 	case 0x83: // ADD E
-		cpu.add(cpu.E, 0)
+		cpu.add(cpu.E, NOCARRY)
 	case 0x84: // ADD H
-		cpu.add(cpu.H, 0)
+		cpu.add(cpu.H, NOCARRY)
 	case 0x85: // ADD L
-		cpu.add(cpu.L, 0)
+		cpu.add(cpu.L, NOCARRY)
 	case 0x86: // ADD M
-		cpu.add(cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L)), 0)
+		cpu.add(cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L)), NOCARRY)
 	case 0x87: // ADD A
-		cpu.add(cpu.A, 0)
+		cpu.add(cpu.A, NOCARRY)
 	case 0x88: // ADC B
 		return ErrNotImplemented(opCode)
 	case 0x89: // ADC C
@@ -411,7 +416,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0x97: // SUB A
 		return ErrNotImplemented(opCode)
-
 	case 0x98: // SBB B
 		return ErrNotImplemented(opCode)
 	case 0x99: // SBB C
@@ -569,7 +573,7 @@ func (cpu *CPU) dcr(register *byte) {
 }
 
 // add adds the register specified in register to the accumulator (R), as well as calculation and setting the sign, zero, parity, carry and aux carry flags where appropriate.
-func (cpu *CPU) add(register byte, carry byte) {
+func (cpu *CPU) add(register byte, carry bool) {
 	cpu.setSignZeroParityFlags(cpu.A + register)
 	cpu.flags.Carry, cpu.flags.AuxCarry = checkCarryOut(cpu.A, register, carry)
 	cpu.A = cpu.A + register
@@ -588,14 +592,15 @@ func splitWord(address word) (high, low byte) {
 }
 
 // carry checks if there is a carry-out from the addition of three bytes (one of which is a carry-in), in addition to checking if there is a carry from the lower 4 bits (an aux carry).
-func checkCarryOut(a, b, inCarry byte) (bool, bool) {
-	sum := uint16(a) + uint16(b) + uint16(inCarry)
+func checkCarryOut(a, b byte, inCarry bool) (bool, bool) {
+	var carryValue byte // Cast the bool to a byte for our carry calculation
+	if inCarry {
+		carryValue = 1
+	}
+	sum := word(a) + word(b) + word(carryValue)
+	outCarry := sum > 0xFF                             // Carry-out on bit 8?
+	auxCarry := (a&0xF + b&0xF + carryValue&0xF) > 0xF // Carry-out on bit 4?
 
-	// Check if there is a carry out of the 8th bit
-	outCarry := sum > 0xFF
-
-	// Check if there is a carry out of the 4th bit
-	auxCarry := (a&0xF + b&0xF + inCarry&0xF) > 0xF
 	return outCarry, auxCarry
 }
 
