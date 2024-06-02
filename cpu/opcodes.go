@@ -15,139 +15,148 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	switch opCode {
 	// MOVE, LOAD AND STORE
+	case 0x40: // MOV B,B
+		temp := cpu.B
+		cpu.B = temp
+	case 0x41: // MOV B,C
+		cpu.B = cpu.C
+	case 0x42: // MOV B,D
+		cpu.B = cpu.D
+	case 0x43: // MOV B,E
+		cpu.B = cpu.E
+	case 0x44: // MOV B,H
+		cpu.B = cpu.H
+	case 0x45: // MOV B,L
+		cpu.B = cpu.L
+	case 0x46: // MOV B,M
+		cpu.B = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+	case 0x47: // MOV B,A
+		cpu.B = cpu.A
+
+	case 0x48: // MOV C,B
+		cpu.C = cpu.B
+	case 0x49: // MOV C,C
+		temp := cpu.C
+		cpu.C = temp
+	case 0x4A: // MOV C,D
+		cpu.C = cpu.D
+	case 0x4B: // MOV C,E
+		cpu.C = cpu.E
+	case 0x4C: // MOV C,H
+		cpu.C = cpu.H
+	case 0x4D: // MOV C,L
+		cpu.C = cpu.L
+	case 0x4E: // MOV C,M
+		cpu.C = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+	case 0x4F: // MOV C,A
+		cpu.C = cpu.A
+
+	case 0x50: // MOV D,B
+		cpu.D = cpu.B
+	case 0x51: // MOV D,C
+		cpu.D = cpu.C
+	case 0x52: // MOV D,D
+		temp := cpu.D
+		cpu.D = temp
+	case 0x53: // MOV D,E
+		cpu.D = cpu.E
+	case 0x54: // MOV D,H
+		cpu.D = cpu.H
+	case 0x55: // MOV D,L
+		cpu.D = cpu.L
+	case 0x56: // MOV D,M
+		cpu.D = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+	case 0x57: // MOV D,A
+		cpu.D = cpu.A
+
+	case 0x58: // MOV E,B
+		cpu.E = cpu.B
+	case 0x59: // MOV E,C
+		cpu.E = cpu.C
+	case 0x5A: // MOV E,D
+		cpu.E = cpu.D
+	case 0x5B: // MOV E,E
+		temp := cpu.E
+		cpu.E = temp
+	case 0x5C: // MOV E,H
+		cpu.E = cpu.H
+	case 0x5D: // MOV E,L
+		cpu.E = cpu.L
+	case 0x5E: // MOV E,M
+		cpu.E = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+	case 0x5F: // MOV E,A
+		cpu.E = cpu.A
+
+	case 0x60: // MOV H,B
+		cpu.H = cpu.B
+	case 0x61: // MOV H,C
+		cpu.H = cpu.C
+	case 0x62: // MOV H,D
+		cpu.H = cpu.D
+	case 0x63: // MOV H,E
+		cpu.H = cpu.E
+	case 0x64: // MOV H,H
+		temp := cpu.H
+		cpu.H = temp
+	case 0x65: // MOV H,L
+		cpu.H = cpu.L
+	case 0x66: // MOV H,M
+		// TODO: Fix test first
+		// cpu.H = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+		return ErrNotImplemented(opCode)
+	case 0x67: // MOV H,A
+		cpu.H = cpu.A
+
+	case 0x68: // MOV L,B
+		cpu.L = cpu.B
+	case 0x69: // MOV L,C
+		cpu.L = cpu.C
+	case 0x6A: // MOV L,D
+		cpu.L = cpu.D
+	case 0x6B: // MOV L,E
+		cpu.L = cpu.E
+	case 0x6C: // MOV L,H
+		cpu.L = cpu.H
+	case 0x6D: // MOV L,L
+		temp := cpu.L
+		cpu.L = temp
+	case 0x6E: // MOV L,M
+		cpu.L = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+	case 0x6F: // MOV L,A
+		cpu.L = cpu.A
+
+	case 0x70: // MOV M,B
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.B)
+	case 0x71: // MOV M,C
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.C)
+	case 0x72: // MOV M,D
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.D)
+	case 0x73: // MOV M,E
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.E)
+	case 0x74: // MOV M,H
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.H)
+	case 0x75: // MOV M,L
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.L)
+	case 0x77: // MOV M,A
+		return ErrNotImplemented(opCode)
+
 	case 0x78: // MOV A,B
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.B
 	case 0x79: // MOV A,C
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.C
 	case 0x7A: // MOV A,D
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.D
 	case 0x7B: // MOV A,E
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.E
 	case 0x7C: // MOV A,H
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.H
 	case 0x7D: // MOV A,L
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.L
 	case 0x7E: // MOV A,M
 		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
 	case 0x7F: // MOV A,A
-		return ErrNotImplemented(opCode)
-
-	case 0x40: // MOV B,B
-		return ErrNotImplemented(opCode)
-	case 0x41: // MOV B,C
-		return ErrNotImplemented(opCode)
-	case 0x42: // MOV B,D
-		return ErrNotImplemented(opCode)
-	case 0x43: // MOV B,E
-		return ErrNotImplemented(opCode)
-	case 0x44: // MOV B,H
-		return ErrNotImplemented(opCode)
-	case 0x45: // MOV B,L
-		return ErrNotImplemented(opCode)
-	case 0x46: // MOV B,M
-		return ErrNotImplemented(opCode)
-	case 0x47: // MOV B,A
-		return ErrNotImplemented(opCode)
-
-	case 0x48: // MOV C,B
-		return ErrNotImplemented(opCode)
-	case 0x49: // MOV C,C
-		return ErrNotImplemented(opCode)
-	case 0x4A: // MOV C,D
-		return ErrNotImplemented(opCode)
-	case 0x4B: // MOV C,E
-		return ErrNotImplemented(opCode)
-	case 0x4C: // MOV C,H
-		return ErrNotImplemented(opCode)
-	case 0x4D: // MOV C,L
-		return ErrNotImplemented(opCode)
-	case 0x4E: // MOV C,M
-		return ErrNotImplemented(opCode)
-	case 0x4F: // MOV C,A
-		return ErrNotImplemented(opCode)
-
-	case 0x50: // MOV D,B
-		return ErrNotImplemented(opCode)
-	case 0x51: // MOV D,C
-		return ErrNotImplemented(opCode)
-	case 0x52: // MOV D,D
-		return ErrNotImplemented(opCode)
-	case 0x53: // MOV D,E
-		return ErrNotImplemented(opCode)
-	case 0x54: // MOV D,H
-		return ErrNotImplemented(opCode)
-	case 0x55: // MOV D,L
-		return ErrNotImplemented(opCode)
-	case 0x56: // MOV D,M
-		return ErrNotImplemented(opCode)
-	case 0x57: // MOV D,A
-		return ErrNotImplemented(opCode)
-
-	case 0x58: // MOV E,B
-		return ErrNotImplemented(opCode)
-	case 0x59: // MOV E,C
-		return ErrNotImplemented(opCode)
-	case 0x5A: // MOV E,D
-		return ErrNotImplemented(opCode)
-	case 0x5B: // MOV E,E
-		return ErrNotImplemented(opCode)
-	case 0x5C: // MOV E,H
-		return ErrNotImplemented(opCode)
-	case 0x5D: // MOV E,L
-		return ErrNotImplemented(opCode)
-	case 0x5E: // MOV E,M
-		return ErrNotImplemented(opCode)
-	case 0x5F: // MOV E,A
-		return ErrNotImplemented(opCode)
-
-	case 0x60: // MOV H,B
-		return ErrNotImplemented(opCode)
-	case 0x61: // MOV H,C
-		return ErrNotImplemented(opCode)
-	case 0x62: // MOV H,D
-		return ErrNotImplemented(opCode)
-	case 0x63: // MOV H,E
-		return ErrNotImplemented(opCode)
-	case 0x64: // MOV H,H
-		return ErrNotImplemented(opCode)
-	case 0x65: // MOV H,L
-		return ErrNotImplemented(opCode)
-	case 0x66: // MOV H,M
-		return ErrNotImplemented(opCode)
-	case 0x67: // MOV H,A
-		return ErrNotImplemented(opCode)
-
-	case 0x68: // MOV L,B
-		return ErrNotImplemented(opCode)
-	case 0x69: // MOV L,C
-		return ErrNotImplemented(opCode)
-	case 0x6A: // MOV L,D
-		return ErrNotImplemented(opCode)
-	case 0x6B: // MOV L,E
-		return ErrNotImplemented(opCode)
-	case 0x6C: // MOV L,H
-		return ErrNotImplemented(opCode)
-	case 0x6D: // MOV L,L
-		return ErrNotImplemented(opCode)
-	case 0x6E: // MOV L,M
-		return ErrNotImplemented(opCode)
-	case 0x6F: // MOV L,A
-		return ErrNotImplemented(opCode)
-
-	case 0x70: // MOV M,B
-		return ErrNotImplemented(opCode)
-	case 0x71: // MOV M,C
-		return ErrNotImplemented(opCode)
-	case 0x72: // MOV M,D
-		return ErrNotImplemented(opCode)
-	case 0x73: // MOV M,E
-		return ErrNotImplemented(opCode)
-	case 0x74: // MOV M,H
-		return ErrNotImplemented(opCode)
-	case 0x75: // MOV M,L
-		return ErrNotImplemented(opCode)
-	case 0x77: // MOV M,A
-		return ErrNotImplemented(opCode)
+		temp := cpu.A
+		cpu.A = temp
 
 	case 0x06: // MVI B
 		cpu.B = cpu.fetchByte()

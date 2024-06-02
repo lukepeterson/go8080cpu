@@ -6,7 +6,7 @@ import (
 	"github.com/lukepeterson/go8080assembler/assembler"
 )
 
-func TestCPUIncrementDecrement(t *testing.T) {
+func TestCPUInstructions(t *testing.T) {
 	testCases := []struct {
 		name    string
 		code    string
@@ -14,6 +14,603 @@ func TestCPUIncrementDecrement(t *testing.T) {
 		wantCPU *CPU
 		wantErr bool
 	}{
+		{
+			name: "MOV B, B",
+			code: `
+				MOV B, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01},
+		},
+		{
+			name: "MOV B, C",
+			code: `
+				MOV B, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x02, C: 0x02},
+		},
+		{
+			name: "MOV B, D",
+			code: `
+				MOV B, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV B, E",
+			code: `
+				MOV B, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV B, H",
+			code: `
+				MOV B, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV B, L",
+			code: `
+				MOV B, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x02, L: 0x02},
+		},
+		{
+			name: "MOV B, M",
+			code: `
+				MVI M, 55H
+				MOV B, M
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{B: 0x055, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV B, A",
+			code: `
+				MOV B, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, A: 0x01},
+		},
+		{
+			name: "MOV C, B",
+			code: `
+				MOV C, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, C: 0x01},
+		},
+		{
+			name: "MOV C, C",
+			code: `
+				MOV C, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01},
+		},
+		{
+			name: "MOV C, D",
+			code: `
+				MOV C, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV C, E",
+			code: `
+				MOV C, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV C, H",
+			code: `
+				MOV C, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV C, L",
+			code: `
+				MOV C, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV C, M",
+			code: `
+				MVI M, 55H
+				MOV C, M
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{C: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV C, A",
+			code: `
+				MOV C, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, C: 0x01},
+		},
+		{
+			name: "MOV D, B",
+			code: `
+				MOV D, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV D, C",
+			code: `
+				MOV D, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV D, D",
+			code: `
+				MOV D, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01},
+		},
+		{
+			name: "MOV D, E",
+			code: `
+				MOV D, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV D, H",
+			code: `
+				MOV D, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV D, L",
+			code: `
+				MOV D, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV D, M",
+			code: `
+				MVI M, 55H
+				MOV D, M
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{D: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV D, A",
+			code: `
+				MOV D, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV E, B",
+			code: `
+				MOV E, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV E, C",
+			code: `
+				MOV E, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV E, D",
+			code: `
+				MOV E, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV E, E",
+			code: `
+				MOV E, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x01},
+		},
+		{
+			name: "MOV E, H",
+			code: `
+				MOV E, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV E, L",
+			code: `
+				MOV E, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV E, M",
+			code: `
+				MVI M, 55H
+				MOV E, M
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{E: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV E, A",
+			code: `
+				MOV E, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV H, B",
+			code: `
+				MOV H, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV H, C",
+			code: `
+				MOV H, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV H, D",
+			code: `
+				MOV H, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV H, E",
+			code: `
+				MOV H, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV H, H",
+			code: `
+				MOV H, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x01},
+		},
+		{
+			name: "MOV H, L",
+			code: `
+				MOV H, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x01, L: 0x01},
+		},
+		// {
+		// 	name: "MOV H, M",
+		// 	code: `
+		// 		MVI M, 55H
+		// 		MOV H, M
+		// 		HLT
+		// 		`,
+		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+		// 	wantCPU: &CPU{H: 0x55, H: 0x01, L: 0x01},
+		// },
+		{
+			name: "MOV H, A",
+			code: `
+				MOV H, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV L, B",
+			code: `
+				MOV L, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV L, C",
+			code: `
+				MOV L, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV L, D",
+			code: `
+				MOV L, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV L, E",
+			code: `
+				MOV L, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV L, H",
+			code: `
+				MOV L, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV L, L",
+			code: `
+				MOV L, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{L: 0x01},
+		},
+		// {
+		// 	name: "MOV L, M",
+		// 	code: `
+		// 		MVI M, 55H
+		// 		MOV L, M
+		// 		HLT
+		// 		`,
+		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+		// 	wantCPU: &CPU{L: 0x55, H: 0x01, L: 0x01},
+		// },
+		{
+			name: "MOV L, A",
+			code: `
+				MOV L, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, L: 0x01},
+		},
+
+		// M TESTS HERE
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		// /////////////
+		{
+			name: "MOV M, B",
+			code: `
+				MVI H, 01H
+				MVI L, 01H
+				MVI B, 55H
+				MOV M, B
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV M, C",
+			code: `
+				MVI H, 01H
+				MVI L, 01H
+				MVI C, 55H
+				MOV M, C
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{A: 0x55, C: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV M, D",
+			code: `
+				MVI H, 01H
+				MVI L, 01H
+				MVI D, 55H
+				MOV M, D
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{A: 0x55, D: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV M, E",
+			code: `
+				MVI H, 01H
+				MVI L, 01H
+				MVI E, 55H
+				MOV M, E
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{A: 0x55, E: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "MOV M, H",
+			code: `
+				LXI H, 0x0101
+				MVI H, 0x02
+				MOV M, H
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{H: 0x02, L: 0x01},
+		},
+		{
+			name: "MOV M, L",
+			code: `
+				LXI H, 0x0101
+				MVI L, 0x02
+				MOV M, L
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{H: 0x01, L: 0x02},
+		},
+
+		{
+			name: "MOV A, B",
+			code: `
+				MOV A, B
+				HLT
+				`,
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, A: 0x01},
+		},
+		{
+			name: "MOV A, C",
+			code: `
+				MOV A, C
+				HLT
+				`,
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, C: 0x01},
+		},
+		{
+			name: "MOV A, D",
+			code: `
+				MOV A, D
+				HLT
+				`,
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, D: 0x01},
+		},
+		{
+			name: "MOV A, E",
+			code: `
+				MOV A, E
+				HLT
+				`,
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, E: 0x01},
+		},
+		{
+			name: "MOV A, H",
+			code: `
+				MOV A, H
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, H: 0x01},
+		},
+		{
+			name: "MOV A, L",
+			code: `
+				MOV A, L
+				HLT
+				`,
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, L: 0x01},
+		},
+		// {
+		// 	name: "MOV H, M",
+		// 	code: `
+		// 		MVI M, 55H
+		// 		MOV H, M
+		// 		HLT
+		// 		`,
+		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+		// 	wantCPU: &CPU{H: 0x55, H: 0x01, L: 0x01},
+		// },
+		{
+			name: "MOV A, A",
+			code: `
+				MOV A, A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+
 		{
 			name: "INR A from 0x01",
 			code: `
