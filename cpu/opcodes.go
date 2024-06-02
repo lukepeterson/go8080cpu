@@ -561,19 +561,72 @@ func (cpu *CPU) Execute(opCode byte) error {
 	return nil
 }
 
+// inr increments the value of a given register by 1, updating the CPU flags accordingly.
+//
+// This method performs the following steps:
+// 1. Checks and sets the auxiliary carry flag based on the lower nibble of the register.
+// 2. Increments the value of the register by 1.
+// 3. Sets the Sign, Zero, and Parity flags based on the new value of the register.
+//
+// Parameters:
+// - register (*byte): A pointer to the byte register to be incremented.
+//
+// Example:
+//
+//	register := byte(0x0F)
+//	cpu := &CPU{}
+//	cpu.inr(&register)
+//	// register is 0x10
+//	// cpu.flags are updated based on the result
 func (cpu *CPU) inr(register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register++
 	cpu.setSignZeroParityFlags(*register)
 }
 
+// dcr decrements the value of a given register by 1, updating the CPU flags accordingly.
+//
+// This method performs the following steps:
+// 1. Checks and sets the auxiliary carry flag based on the lower nibble of the register.
+// 2. Decrements the value of the register by 1.
+// 3. Sets the Sign, Zero, and Parity flags based on the new value of the register.
+//
+// Parameters:
+// - register (*byte): A pointer to the byte register to be decremented.
+//
+// Example:
+//
+//	register := byte(0x10)
+//	cpu := &CPU{}
+//	cpu.dcr(&register)
+//	// register is 0x0F
+//	// cpu.flags are updated based on the result
 func (cpu *CPU) dcr(register *byte) {
 	cpu.flags.AuxCarry = (*register & 0x0F) == 0x0F
 	*register--
 	cpu.setSignZeroParityFlags(*register)
 }
 
-// add adds the register specified in register to the accumulator (R), as well as calculation and setting the sign, zero, parity, carry and aux carry flags where appropriate.
+// add adds the value of a register and an optional carry-in to the accumulator,
+// updating the accumulator and the CPU flags accordingly.
+//
+// This method performs the following steps:
+// 1. Converts the carry-in boolean to a byte value (1 if true, 0 if false).
+// 2. Adds the accumulator, the register value, and the carry-in value.
+// 3. Sets the Sign, Zero, and Parity flags based on the result.
+// 4. Checks for carry-out and auxiliary carry-out, updating the corresponding flags.
+// 5. Updates the accumulator with the result.
+//
+// Parameters:
+// - register (byte): The value of the register to be added to the accumulator.
+// - carry (bool): A boolean indicating if there is an initial carry-in.
+//
+// Example:
+//
+//	cpu := &CPU{A: 0x10, flags: Flags{}}
+//	cpu.add(0x20, true)
+//	// cpu.A is 0x31
+//	// cpu.flags are updated based on the result
 func (cpu *CPU) add(register byte, carry bool) {
 	var carryValue byte // Cast the bool to a byte for our carry calculation
 	if carry {
@@ -586,19 +639,71 @@ func (cpu *CPU) add(register byte, carry bool) {
 	cpu.A = result
 }
 
-func ErrNotImplemented(opCode byte) error {
-	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
-}
-
+// joinBytes combines two bytes into a 16-bit word.
+//
+// This function takes a high byte and a low byte and joins them to form
+// a 16-bit word, with the high byte occupying the most significant 8 bits
+// and the low byte occupying the least significant 8 bits.
+//
+// Parameters:
+// - high (byte): The high byte (most significant 8 bits).
+// - low (byte): The low byte (least significant 8 bits).
+//
+// Returns:
+// - word: The 16-bit word resulting from combining the high and low bytes.
+//
+// Example:
+//
+//	word := joinBytes(0x12, 0x34)
+//	// word is 0x1234
 func joinBytes(high, low byte) word {
 	return word(high)<<8 | word(low)
 }
 
+// splitWord splits a 16-bit word into its high and low bytes.
+//
+// This function takes a 16-bit word and extracts the high (most significant)
+// byte and the low (least significant) byte.
+//
+// Parameters:
+// - address (word): The 16-bit word to be split.
+//
+// Returns:
+// - byte: The high byte (most significant 8 bits) of the input word.
+// - byte: The low byte (least significant 8 bits) of the input word.
+//
+// Example:
+//
+//	high, low := splitWord(0x1234)
+//	// high is 0x12
+//	// low is 0x34
 func splitWord(address word) (high, low byte) {
 	return byte(address >> 8), byte(address)
 }
 
-// carry checks if there is a carry-out from the addition of three bytes (one of which is a carry-in), in addition to checking if there is a carry from the lower 4 bits (an aux carry).
+// checkCarryOut calculates and returns the carry-out and auxiliary carry-out
+// from the addition of two bytes and an optional carry-in.
+//
+// The function performs the following steps:
+// 1. Converts the carry-in boolean to a byte value (1 if true, 0 if false).
+// 2. Adds the two input bytes and the carry-in value, storing the result in a 16-bit word.
+// 3. Determines if there is a carry-out from the 8th bit (outCarry).
+// 4. Determines if there is an auxiliary carry-out from the 4th bit (auxCarry).
+//
+// Parameters:
+// - a (byte): The first byte to be added.
+// - b (byte): The second byte to be added.
+// - inCarry (bool): A boolean indicating if there is an initial carry-in.
+//
+// Returns:
+// - bool: True if there is a carry-out from the 8th bit, false otherwise.
+// - bool: True if there is an auxiliary carry-out from the 4th bit, false otherwise.
+//
+// Example:
+//
+//	outCarry, auxCarry := checkCarryOut(0x1F, 0xE1, true)
+//	// outCarry is false
+//	// auxCarry is true
 func checkCarryOut(a, b byte, inCarry bool) (bool, bool) {
 	var carryValue byte // Cast the bool to a byte for our carry calculation
 	if inCarry {
@@ -611,8 +716,31 @@ func checkCarryOut(a, b byte, inCarry bool) (bool, bool) {
 	return outCarry, auxCarry
 }
 
+// setSignZeroParityFlags sets the Sign, Zero, and Parity flags in the CPU's flag register
+// based on the provided input byte.
+//
+// This function updates the following flags:
+// - Sign flag: Set if the most significant bit (bit 7) of the input byte is 1.
+// - Zero flag: Set if the input byte is 0.
+// - Parity flag: Set if the input byte has an even number of 1 bits.
+//
+// Parameters:
+// - input (byte): The byte value used to determine the flag states.
+//
+// Example:
+//
+//	cpu := &CPU{}
+//	cpu.setSignZeroParityFlags(0x80)
+//	// cpu.flags.Sign is true
+//	// cpu.flags.Zero is false
+//	// cpu.flags.Parity is true (0x80 has one 1 bit, which is odd, so Parity is false)
 func (cpu *CPU) setSignZeroParityFlags(input byte) {
 	cpu.flags.Sign = input&(1<<7) > 0
 	cpu.flags.Zero = input == 0
 	cpu.flags.Parity = getParity(input)
+}
+
+// temporary function to be removed when all instructions are implemented
+func ErrNotImplemented(opCode byte) error {
+	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
 }
