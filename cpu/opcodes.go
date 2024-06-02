@@ -175,15 +175,15 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.A = cpu.fetchByte()
 
 	case 0x01: // LXI B
-		return ErrNotImplemented(opCode)
+		cpu.B, cpu.C = splitWord(cpu.fetchWord())
 	case 0x11: // LXI D
-		return ErrNotImplemented(opCode)
+		cpu.D, cpu.E = splitWord(cpu.fetchWord())
 	case 0x21: // LXI H
 		cpu.L, cpu.H = splitWord(cpu.fetchWord())
 	case 0x02: // STAX B
-		return ErrNotImplemented(opCode)
+		cpu.Bus.WriteByte(joinBytes(cpu.B, cpu.C), cpu.A)
 	case 0x12: // STAX D
-		return ErrNotImplemented(opCode)
+		cpu.Bus.WriteByte(joinBytes(cpu.D, cpu.E), cpu.A)
 	case 0x0A: // LDAX B
 		return ErrNotImplemented(opCode)
 	case 0x1A: // LDAX D
