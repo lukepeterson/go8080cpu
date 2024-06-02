@@ -22,7 +22,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :x: Return
 - :x: Restart
 - :white_check_mark: Increment and decrement
-- :x: Add
+- :white_check_mark: Add
 - :x: Subtract
 - :x: Logical
 - :x: Rotate
