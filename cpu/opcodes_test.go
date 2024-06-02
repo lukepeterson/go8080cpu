@@ -10,7 +10,7 @@ func TestCPUIncrementDecrement(t *testing.T) {
 	testCases := []struct {
 		name    string
 		code    string
-		initCPU func() *CPU
+		initCPU *CPU
 		wantCPU *CPU
 		wantErr bool
 	}{
@@ -20,9 +20,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x02},
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02},
 		},
 		{
 			name: "DCR A from 0x03",
@@ -30,9 +29,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x02},
+			initCPU: &CPU{A: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02},
 		},
 		{
 			name: "INR A from 0x02 (test parity flag set)",
@@ -40,9 +38,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
 		},
 		{
 			name: "DCR A from 0x04 (test parity flag set)",
@@ -50,9 +47,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x04, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0x04, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
 		},
 		{
 			name: "INR A from 0x7F (test sign flag set)",
@@ -60,9 +56,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x7F, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x80, flags: Flags{AuxCarry: true, Sign: true}},
+			initCPU: &CPU{A: 0x7F, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{AuxCarry: true, Sign: true}},
 		},
 		{
 			name: "DCR A from 0x81 (test sign flag set)",
@@ -70,9 +65,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x81, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true}},
+			initCPU: &CPU{A: 0x81, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true}},
 		},
 		{
 			name: "INR A from 0x80 (test sign and parity flags set)",
@@ -80,9 +74,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x80, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
+			initCPU: &CPU{A: 0x80, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
 			name: "DCR A from 0x82 (test sign and parity flags set)",
@@ -90,9 +83,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x82, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
+			initCPU: &CPU{A: 0x82, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
 		},
 
 		{
@@ -101,9 +93,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true}},
+			initCPU: &CPU{A: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true}},
 		},
 		{
 			name: "DCR A from 0x01 (test zero and parity flags set)",
@@ -111,9 +102,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
 			name: "INR B from 0x01",
@@ -121,9 +111,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0x02},
+			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x02},
 		},
 		{
 			name: "DCR B from 0x03",
@@ -131,9 +120,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0x02},
+			initCPU: &CPU{B: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x02},
 		},
 		{
 			name: "INR C from 0x01",
@@ -141,9 +129,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR C
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{C: 0x02},
+			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x02},
 		},
 		{
 			name: "DCR C from 0x03",
@@ -151,9 +138,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR C
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{C: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{C: 0x02},
+			initCPU: &CPU{C: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{C: 0x02},
 		},
 		{
 			name: "INR D from 0x01",
@@ -161,9 +147,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0x02},
+			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x02},
 		},
 		{
 			name: "DCR D from 0x03",
@@ -171,9 +156,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0x02},
+			initCPU: &CPU{D: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x02},
 		},
 		{
 			name: "INR E from 0x01",
@@ -181,9 +165,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR E
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{E: 0x02},
+			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x02},
 		},
 		{
 			name: "DCR E from 0x03",
@@ -191,19 +174,16 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR E
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{E: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{E: 0x02},
+			initCPU: &CPU{E: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{E: 0x02},
 		},
 		{
 			name: "INR H from 0x01",
-			code: `
-				INR H
+			code: ` INR H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0x02},
+			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x02},
 		},
 		{
 			name: "DCR H from 0x03",
@@ -211,9 +191,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0x02},
+			initCPU: &CPU{H: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x02},
 		},
 		{
 			name: "INR L from 0x01",
@@ -221,9 +200,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INR L
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{L: 0x02},
+			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{L: 0x02},
 		},
 		{
 			name: "DCR L from 0x03",
@@ -231,35 +209,30 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCR L
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{L: 0x03, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{L: 0x02},
+			initCPU: &CPU{L: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{L: 0x02},
 		},
 		{
 			name: "INR M from 0x01",
 			code: `
-				LXI H, 16H
 				MVI M, 01H
 				INR M
 				MOV A, M
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x02, L: 0x16},
+			initCPU: &CPU{L: 0x16, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02, L: 0x16},
 		},
 		{
 			name: "DCR M from 0x03",
 			code: `
-				LXI H, 16H
 				MVI M, 03H
 				DCR M
 				MOV A, M
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x02, L: 0x16},
+			initCPU: &CPU{L: 0x16, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02, L: 0x16},
 		},
 		{
 			name: "INX B from 0x00FF",
@@ -267,9 +240,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0x00, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0x01, C: 0x00},
+			initCPU: &CPU{B: 0x00, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x01, C: 0x00},
 		},
 		{
 			name: "INX B from 0xFFFF",
@@ -277,9 +249,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0xFF, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0x00, C: 0x00},
+			initCPU: &CPU{B: 0xFF, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x00, C: 0x00},
 		},
 		{
 			name: "INX D from 0x00FF",
@@ -287,9 +258,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0x00, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0x01, E: 0x00},
+			initCPU: &CPU{D: 0x00, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x01, E: 0x00},
 		},
 		{
 			name: "INX D from 0xFFFF",
@@ -297,9 +267,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0xFF, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0x00, E: 0x00},
+			initCPU: &CPU{D: 0xFF, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x00, E: 0x00},
 		},
 		{
 			name: "INX H from 0x00FF",
@@ -307,9 +276,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0x00, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0x01, L: 0x00},
+			initCPU: &CPU{H: 0x00, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x01, L: 0x00},
 		},
 		{
 			name: "INX H from 0xFFFF",
@@ -317,9 +285,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				INX H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0xFF, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0x00, L: 0x00},
+			initCPU: &CPU{H: 0xFF, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x00, L: 0x00},
 		},
 		{
 			name: "DCX B from 0x0100",
@@ -327,9 +294,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0x01, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0x00, C: 0xFF},
+			initCPU: &CPU{B: 0x01, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0x00, C: 0xFF},
 		},
 		{
 			name: "DCX B from 0x0000",
@@ -337,9 +303,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{B: 0x00, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{B: 0xFF, C: 0xFF},
+			initCPU: &CPU{B: 0x00, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{B: 0xFF, C: 0xFF},
 		},
 		{
 			name: "DCX D from 0x0100",
@@ -347,9 +312,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0x01, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0x00, E: 0xFF},
+			initCPU: &CPU{D: 0x01, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0x00, E: 0xFF},
 		},
 		{
 			name: "DCX D from 0x0000",
@@ -357,9 +321,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX D
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{D: 0x00, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{D: 0xFF, E: 0xFF},
+			initCPU: &CPU{D: 0x00, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{D: 0xFF, E: 0xFF},
 		},
 		{
 			name: "DCX H from 0x0100",
@@ -367,9 +330,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0x01, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0x00, L: 0xFF},
+			initCPU: &CPU{H: 0x01, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0x00, L: 0xFF},
 		},
 		{
 			name: "DCX H from 0x0000",
@@ -377,9 +339,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				DCX H
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{H: 0xFF, L: 0xFF},
+			initCPU: &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{H: 0xFF, L: 0xFF},
 		},
 		{
 			name: "ADD B (zero flag)",
@@ -387,9 +348,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
 			name: "ADD B (non zero)",
@@ -397,9 +357,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x02, B: 0x01},
+			initCPU: &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02, B: 0x01},
 		},
 		{
 			name: "ADD B (carry)",
@@ -407,9 +366,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
+			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
 			name: "ADD B (aux carry with sign)",
@@ -417,9 +375,8 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x7F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x80, B: 0x01, flags: Flags{AuxCarry: true, Sign: true}},
+			initCPU: &CPU{A: 0x7F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x80, B: 0x01, flags: Flags{AuxCarry: true, Sign: true}},
 		},
 		{
 			name: "ADD B (aux carry without sign)",
@@ -427,14 +384,77 @@ func TestCPUIncrementDecrement(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: func() *CPU {
-				return &CPU{A: 0x0F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}}
-			}, wantCPU: &CPU{A: 0x10, B: 0x01, flags: Flags{AuxCarry: true}},
+			initCPU: &CPU{A: 0x0F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x10, B: 0x01, flags: Flags{AuxCarry: true}},
+		},
+		{
+			name: "ADD C",
+			code: `
+				ADD C
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, C: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, C: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD D",
+			code: `
+				ADD D
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, D: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, D: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD E",
+			code: `
+				ADD E
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, E: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, E: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD H",
+			code: `
+				ADD H
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, H: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, H: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD L",
+			code: `
+				ADD L
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, L: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD M",
+			code: `
+				MVI M, 55H
+				ADD M
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD A",
+			code: `
+				ADD A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x04},
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			gotCPU := tc.initCPU()
+			gotCPU := tc.initCPU
 			a := assembler.Assembler{}
 			err := a.Assemble(tc.code)
 			if (err != nil) != tc.wantErr {
@@ -454,16 +474,16 @@ func TestCPUIncrementDecrement(t *testing.T) {
 	}
 }
 
-func (cpu *CPU) registersEqual(other *CPU) bool {
-	if cpu.A == other.A &&
-		cpu.flags == other.flags &&
-		cpu.B == other.B &&
-		cpu.C == other.C &&
-		cpu.D == other.D &&
-		cpu.E == other.E &&
-		cpu.H == other.H &&
-		cpu.L == other.L &&
-		cpu.stackPointer == other.stackPointer {
+func (cpu *CPU) registersEqual(otherCPU *CPU) bool {
+	if cpu.A == otherCPU.A &&
+		cpu.flags == otherCPU.flags &&
+		cpu.B == otherCPU.B &&
+		cpu.C == otherCPU.C &&
+		cpu.D == otherCPU.D &&
+		cpu.E == otherCPU.E &&
+		cpu.H == otherCPU.H &&
+		cpu.L == otherCPU.L &&
+		cpu.stackPointer == otherCPU.stackPointer {
 		return true
 	}
 

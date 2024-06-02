@@ -350,25 +350,38 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// ADD
 	case 0x80: // ADD B
-
 		cpu.setSignZeroParityFlags(cpu.A + cpu.B)
 		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.B, 0)
 		cpu.A = cpu.A + cpu.B
-
 	case 0x81: // ADD C
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.C)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.C, 0)
+		cpu.A = cpu.A + cpu.C
 	case 0x82: // ADD D
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.D)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.D, 0)
+		cpu.A = cpu.A + cpu.D
 	case 0x83: // ADD E
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.E)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.E, 0)
+		cpu.A = cpu.A + cpu.E
 	case 0x84: // ADD H
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.H)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.H, 0)
+		cpu.A = cpu.A + cpu.H
 	case 0x85: // ADD L
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.L)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.L, 0)
+		cpu.A = cpu.A + cpu.L
 	case 0x86: // ADD M
-		return ErrNotImplemented(opCode)
+		tempM := cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
+		cpu.setSignZeroParityFlags(cpu.A + tempM)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, tempM, 0)
+		cpu.A = cpu.A + tempM
 	case 0x87: // ADD A
-		return ErrNotImplemented(opCode)
+		cpu.setSignZeroParityFlags(cpu.A + cpu.A)
+		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.A, 0)
+		cpu.A = cpu.A + cpu.A
 
 	case 0x88: // ADC B
 		return ErrNotImplemented(opCode)
@@ -598,9 +611,7 @@ func carry(a, b, inCarry byte) (bool, bool) {
 }
 
 func (cpu *CPU) setSignZeroParityFlags(input byte) {
-
 	cpu.flags.Sign = input&(1<<7) > 0
 	cpu.flags.Zero = input == 0
 	cpu.flags.Parity = getParity(input)
-
 }

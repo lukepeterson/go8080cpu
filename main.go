@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/lukepeterson/go8080assembler/assembler"
 	"github.com/lukepeterson/go8080cpu/cpu"
@@ -12,7 +11,6 @@ import (
 func main() {
 
 	goCPU := cpu.NewCPU(
-		25*time.Millisecond,
 		cpu.NewMemory(32),
 	)
 

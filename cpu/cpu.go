@@ -3,7 +3,6 @@ package cpu
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 type word uint16
@@ -64,7 +63,6 @@ type CPU struct {
 	// alu    ALU
 	Bus    Bus
 	halted bool
-	Delay  time.Duration
 }
 
 func (cpu CPU) DumpRegisters() {
@@ -118,10 +116,9 @@ func NewMemory(size uint16) *Memory {
 	}
 }
 
-func NewCPU(delay time.Duration, memory *Memory) *CPU {
+func NewCPU(memory *Memory) *CPU {
 	return &CPU{
-		Delay: delay,
-		Bus:   memory,
+		Bus: memory,
 	}
 }
 
@@ -134,7 +131,6 @@ func (cpu *CPU) Run() error {
 
 		// cpu.DumpRegisters()
 		// cpu.DumpMemory()
-		time.Sleep(cpu.Delay)
 	}
 
 	return nil
