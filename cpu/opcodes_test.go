@@ -553,7 +553,7 @@ func TestCarry(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCarry, gotAuxCarry := carry(tt.args.a, tt.args.b, tt.args.c)
+			gotCarry, gotAuxCarry := checkCarryOut(tt.args.a, tt.args.b, tt.args.c)
 			if gotCarry != tt.wantCarry {
 				t.Errorf("carry() gotCarry = %v, want %v", gotCarry, tt.wantCarry)
 			}

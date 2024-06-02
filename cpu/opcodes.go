@@ -350,39 +350,21 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// ADD
 	case 0x80: // ADD B
-		cpu.setSignZeroParityFlags(cpu.A + cpu.B)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.B, 0)
-		cpu.A = cpu.A + cpu.B
+		cpu.add(cpu.B, 0)
 	case 0x81: // ADD C
-		cpu.setSignZeroParityFlags(cpu.A + cpu.C)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.C, 0)
-		cpu.A = cpu.A + cpu.C
+		cpu.add(cpu.C, 0)
 	case 0x82: // ADD D
-		cpu.setSignZeroParityFlags(cpu.A + cpu.D)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.D, 0)
-		cpu.A = cpu.A + cpu.D
+		cpu.add(cpu.D, 0)
 	case 0x83: // ADD E
-		cpu.setSignZeroParityFlags(cpu.A + cpu.E)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.E, 0)
-		cpu.A = cpu.A + cpu.E
+		cpu.add(cpu.E, 0)
 	case 0x84: // ADD H
-		cpu.setSignZeroParityFlags(cpu.A + cpu.H)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.H, 0)
-		cpu.A = cpu.A + cpu.H
+		cpu.add(cpu.H, 0)
 	case 0x85: // ADD L
-		cpu.setSignZeroParityFlags(cpu.A + cpu.L)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.L, 0)
-		cpu.A = cpu.A + cpu.L
+		cpu.add(cpu.L, 0)
 	case 0x86: // ADD M
-		tempM := cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-		cpu.setSignZeroParityFlags(cpu.A + tempM)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, tempM, 0)
-		cpu.A = cpu.A + tempM
+		cpu.add(cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L)), 0)
 	case 0x87: // ADD A
-		cpu.setSignZeroParityFlags(cpu.A + cpu.A)
-		cpu.flags.Carry, cpu.flags.AuxCarry = carry(cpu.A, cpu.A, 0)
-		cpu.A = cpu.A + cpu.A
-
+		cpu.add(cpu.A, 0)
 	case 0x88: // ADC B
 		return ErrNotImplemented(opCode)
 	case 0x89: // ADC C
@@ -586,6 +568,13 @@ func dcr(cpu *CPU, register *byte) {
 	cpu.setSignZeroParityFlags(*register)
 }
 
+// add adds the register specified in register to the accumulator (R), as well as calculation and setting the sign, zero, parity, carry and aux carry flags where appropriate.
+func (cpu *CPU) add(register byte, carry byte) {
+	cpu.setSignZeroParityFlags(cpu.A + register)
+	cpu.flags.Carry, cpu.flags.AuxCarry = checkCarryOut(cpu.A, register, carry)
+	cpu.A = cpu.A + register
+}
+
 func ErrNotImplemented(opCode byte) error {
 	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
 }
@@ -599,7 +588,7 @@ func splitWord(address word) (high, low byte) {
 }
 
 // carry checks if there is a carry-out from the addition of three bytes (one of which is a carry-in), in addition to checking if there is a carry from the lower 4 bits (an aux carry).
-func carry(a, b, inCarry byte) (bool, bool) {
+func checkCarryOut(a, b, inCarry byte) (bool, bool) {
 	sum := uint16(a) + uint16(b) + uint16(inCarry)
 
 	// Check if there is a carry out of the 8th bit
