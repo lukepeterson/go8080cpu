@@ -360,16 +360,18 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{H: 0x01, L: 0x01},
 		},
-		// {
-		// 	name: "MOV H, M",
-		// 	code: `
-		// 		MVI M, 55H
-		// 		MOV H, M
-		// 		HLT
-		// 		`,
-		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-		// 	wantCPU: &CPU{H: 0x55, H: 0x01, L: 0x01},
-		// },
+		{
+			name: "MOV H, M",
+			code: `
+				MVI H, 0x01
+				MVI L, 0x01
+				MVI M, 0x02
+				MOV H, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{H: 0x02, L: 0x01},
+		},
 		{
 			name: "MOV H, A",
 			code: `
@@ -433,16 +435,18 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{L: 0x01},
 		},
-		// {
-		// 	name: "MOV L, M",
-		// 	code: `
-		// 		MVI M, 55H
-		// 		MOV L, M
-		// 		HLT
-		// 		`,
-		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-		// 	wantCPU: &CPU{L: 0x55, H: 0x01, L: 0x01},
-		// },
+		{
+			name: "MOV L, M",
+			code: `
+				MVI H, 0x01
+				MVI L, 0x01
+				MVI M, 0x02
+				MOV L, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{H: 0x01, L: 0x02},
+		},
 		{
 			name: "MOV L, A",
 			code: `
@@ -452,16 +456,6 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x01, L: 0x01},
 		},
-
-		// M TESTS HERE
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		// /////////////
 		{
 			name: "MOV M, B",
 			code: `
@@ -536,7 +530,19 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{H: 0x01, L: 0x02},
 		},
-
+		{
+			name: "MOV M, A",
+			code: `
+				MVI H, 01H
+				MVI L, 01H
+				MVI A, 02H
+				MOV M, A
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x02, H: 0x01, L: 0x01},
+		},
 		{
 			name: "MOV A, B",
 			code: `
@@ -591,16 +597,16 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x01, L: 0x01},
 		},
-		// {
-		// 	name: "MOV H, M",
-		// 	code: `
-		// 		MVI M, 55H
-		// 		MOV H, M
-		// 		HLT
-		// 		`,
-		// 	initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-		// 	wantCPU: &CPU{H: 0x55, H: 0x01, L: 0x01},
-		// },
+		{
+			name: "MOV A, M",
+			code: `
+				MVI M, 55H
+				MOV A, M
+				HLT
+				`,
+			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
+			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
+		},
 		{
 			name: "MOV A, A",
 			code: `

@@ -16,7 +16,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	switch opCode {
 	// MOVE, LOAD AND STORE
 	case 0x40: // MOV B,B
-		temp := cpu.B
+		temp := cpu.B // Redundant from a Go perspective, but we'll add it here for completeness
 		cpu.B = temp
 	case 0x41: // MOV B,C
 		cpu.B = cpu.C
@@ -101,9 +101,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x65: // MOV H,L
 		cpu.H = cpu.L
 	case 0x66: // MOV H,M
-		// TODO: Fix test first
-		// cpu.H = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-		return ErrNotImplemented(opCode)
+		cpu.H = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
 	case 0x67: // MOV H,A
 		cpu.H = cpu.A
 
@@ -137,8 +135,9 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.H)
 	case 0x75: // MOV M,L
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.L)
+	// There is no MOV M, M instruction on the 8080.  0x76 is used for HLT.
 	case 0x77: // MOV M,A
-		return ErrNotImplemented(opCode)
+		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.A)
 
 	case 0x78: // MOV A,B
 		cpu.A = cpu.B
