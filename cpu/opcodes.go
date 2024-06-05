@@ -185,15 +185,17 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x12: // STAX D
 		cpu.Bus.WriteByte(joinBytes(cpu.D, cpu.E), cpu.A)
 	case 0x0A: // LDAX B
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.B, cpu.C))
 	case 0x1A: // LDAX D
-		return ErrNotImplemented(opCode)
+		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.D, cpu.E))
 	case 0x32: // STA
-		return ErrNotImplemented(opCode)
+		cpu.Bus.WriteByte(cpu.fetchWord(), cpu.A)
 	case 0x3A: // LDA
 		cpu.A = cpu.Bus.ReadByte(cpu.fetchWord())
 	case 0x22: // SHLD
-		return ErrNotImplemented(opCode)
+		address := cpu.fetchWord()
+		cpu.Bus.WriteByte(address, cpu.L)
+		cpu.Bus.WriteByte(address+1, cpu.H)
 	case 0x2A: // LHLD
 		return ErrNotImplemented(opCode)
 	case 0xEB: // XCH

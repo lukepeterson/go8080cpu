@@ -16,7 +16,7 @@ func main() {
 
 	code := `
 		INR A
-		DCR H	
+		DCR H
 		INR B
 		DCR C
 		INR D

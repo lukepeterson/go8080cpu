@@ -644,7 +644,7 @@ func TestCPUInstructions(t *testing.T) {
 				LXI H, 0x0101
 				MVI A, 0x55
 				STAX B
-				MOV A, M	
+				MOV A, M
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
@@ -657,13 +657,70 @@ func TestCPUInstructions(t *testing.T) {
 				LXI H, 0x0101
 				MVI A, 0x55
 				STAX D
-				MOV A, M	
+				MOV A, M
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
 		},
-
+		{
+			name: "LDAX B",
+			code: `
+				LXI B, 0101H
+				LXI H, 0101H
+				MVI M, 55H
+				LDAX B
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
+		},
+		{
+			name: "LDAX D",
+			code: `
+				LXI D, 0101H
+				LXI H, 0101H
+				MVI M, 55H
+				LDAX D
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
+		},
+		{
+			name: "STA",
+			code: `
+				MVI A, 55H
+				STA 0101H
+				LXI H 0101H
+				MOV B, M
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
+		},
+		{
+			name: "LDA",
+			code: `
+				LXI H 0101H
+				MVI M, 55H
+				LDA 0101H
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
+		},
+		// TODO: Fix incomplete test
+		// {
+		// 	name: "SHLD",
+		// 	code: `
+		// 		LXI H, 4455H
+		// 		SHLD 0101H
+		// 		HLT
+		// 		`,
+		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+		// 	wantCPU: &CPU{H: 0x44, L: 0x55},
+		// },
 		{
 			name: "INR A from 0x01",
 			code: `
