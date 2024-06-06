@@ -15,193 +15,193 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	switch opCode {
 	// MOVE, LOAD AND STORE
-	case 0x40: // MOV B,B
-		temp := cpu.B // Redundant from a Go perspective, but we'll add it here for completeness
+	case 0x40: // MOV B,B - Move register to register
+		temp := cpu.B // Redundant, but added for completeness
 		cpu.B = temp
-	case 0x41: // MOV B,C
+	case 0x41: // MOV B,C - Move register to register
 		cpu.B = cpu.C
-	case 0x42: // MOV B,D
+	case 0x42: // MOV B,D - Move register to register
 		cpu.B = cpu.D
-	case 0x43: // MOV B,E
+	case 0x43: // MOV B,E - Move register to register
 		cpu.B = cpu.E
-	case 0x44: // MOV B,H
+	case 0x44: // MOV B,H - Move register to register
 		cpu.B = cpu.H
-	case 0x45: // MOV B,L
+	case 0x45: // MOV B,L - Move register to register
 		cpu.B = cpu.L
-	case 0x46: // MOV B,M
+	case 0x46: // MOV B,M - Move memory to register
 		cpu.B = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x47: // MOV B,A
+	case 0x47: // MOV B,A - Move register to register
 		cpu.B = cpu.A
 
-	case 0x48: // MOV C,B
+	case 0x48: // MOV C,B - Move register to register
 		cpu.C = cpu.B
-	case 0x49: // MOV C,C
+	case 0x49: // MOV C,C - Move register to register
 		temp := cpu.C
 		cpu.C = temp
-	case 0x4A: // MOV C,D
+	case 0x4A: // MOV C,D - Move register to register
 		cpu.C = cpu.D
-	case 0x4B: // MOV C,E
+	case 0x4B: // MOV C,E - Move register to register
 		cpu.C = cpu.E
-	case 0x4C: // MOV C,H
+	case 0x4C: // MOV C,H - Move register to register
 		cpu.C = cpu.H
-	case 0x4D: // MOV C,L
+	case 0x4D: // MOV C,L - Move register to register
 		cpu.C = cpu.L
-	case 0x4E: // MOV C,M
+	case 0x4E: // MOV C,M - Move memory to register
 		cpu.C = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x4F: // MOV C,A
+	case 0x4F: // MOV C,A - Move register to register
 		cpu.C = cpu.A
 
-	case 0x50: // MOV D,B
+	case 0x50: // MOV D,B - Move register to register
 		cpu.D = cpu.B
-	case 0x51: // MOV D,C
+	case 0x51: // MOV D,C - Move register to register
 		cpu.D = cpu.C
-	case 0x52: // MOV D,D
+	case 0x52: // MOV D,D - Move register to register
 		temp := cpu.D
 		cpu.D = temp
-	case 0x53: // MOV D,E
+	case 0x53: // MOV D,E - Move register to register
 		cpu.D = cpu.E
-	case 0x54: // MOV D,H
+	case 0x54: // MOV D,H - Move register to register
 		cpu.D = cpu.H
-	case 0x55: // MOV D,L
+	case 0x55: // MOV D,L - Move register to register
 		cpu.D = cpu.L
-	case 0x56: // MOV D,M
+	case 0x56: // MOV D,M - Move memory to register
 		cpu.D = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
 	case 0x57: // MOV D,A
 		cpu.D = cpu.A
 
-	case 0x58: // MOV E,B
+	case 0x58: // MOV E,B - Move register to register
 		cpu.E = cpu.B
-	case 0x59: // MOV E,C
+	case 0x59: // MOV E,C - Move register to register
 		cpu.E = cpu.C
-	case 0x5A: // MOV E,D
+	case 0x5A: // MOV E,D - Move register to register
 		cpu.E = cpu.D
-	case 0x5B: // MOV E,E
+	case 0x5B: // MOV E,E - Move register to register
 		temp := cpu.E
 		cpu.E = temp
-	case 0x5C: // MOV E,H
+	case 0x5C: // MOV E,H - Move register to register
 		cpu.E = cpu.H
-	case 0x5D: // MOV E,L
+	case 0x5D: // MOV E,L - Move register to register
 		cpu.E = cpu.L
-	case 0x5E: // MOV E,M
+	case 0x5E: // MOV E,M - Move memory to register
 		cpu.E = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x5F: // MOV E,A
+	case 0x5F: // MOV E,A - Move register to register
 		cpu.E = cpu.A
 
-	case 0x60: // MOV H,B
+	case 0x60: // MOV H,B - Move register to register
 		cpu.H = cpu.B
-	case 0x61: // MOV H,C
+	case 0x61: // MOV H,C - Move register to register
 		cpu.H = cpu.C
-	case 0x62: // MOV H,D
+	case 0x62: // MOV H,D - Move register to register
 		cpu.H = cpu.D
-	case 0x63: // MOV H,E
+	case 0x63: // MOV H,E - Move register to register
 		cpu.H = cpu.E
-	case 0x64: // MOV H,H
+	case 0x64: // MOV H,H - Move register to register
 		temp := cpu.H
 		cpu.H = temp
-	case 0x65: // MOV H,L
+	case 0x65: // MOV H,L - Move register to register
 		cpu.H = cpu.L
-	case 0x66: // MOV H,M
+	case 0x66: // MOV H,M - Move memory to register
 		cpu.H = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x67: // MOV H,A
+	case 0x67: // MOV H,A - Move register to register
 		cpu.H = cpu.A
 
-	case 0x68: // MOV L,B
+	case 0x68: // MOV L,B - Move register to register
 		cpu.L = cpu.B
-	case 0x69: // MOV L,C
+	case 0x69: // MOV L,C - Move register to register
 		cpu.L = cpu.C
-	case 0x6A: // MOV L,D
+	case 0x6A: // MOV L,D - Move register to register
 		cpu.L = cpu.D
-	case 0x6B: // MOV L,E
+	case 0x6B: // MOV L,E - Move register to register
 		cpu.L = cpu.E
-	case 0x6C: // MOV L,H
+	case 0x6C: // MOV L,H - Move register to register
 		cpu.L = cpu.H
-	case 0x6D: // MOV L,L
+	case 0x6D: // MOV L,L - Move register to register
 		temp := cpu.L
 		cpu.L = temp
-	case 0x6E: // MOV L,M
+	case 0x6E: // MOV L,M - Move memory to register
 		cpu.L = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x6F: // MOV L,A
+	case 0x6F: // MOV L,A - Move register to register
 		cpu.L = cpu.A
 
-	case 0x70: // MOV M,B
+	case 0x70: // MOV M,B - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.B)
-	case 0x71: // MOV M,C
+	case 0x71: // MOV M,C - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.C)
-	case 0x72: // MOV M,D
+	case 0x72: // MOV M,D - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.D)
-	case 0x73: // MOV M,E
+	case 0x73: // MOV M,E - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.E)
-	case 0x74: // MOV M,H
+	case 0x74: // MOV M,H - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.H)
-	case 0x75: // MOV M,L
+	case 0x75: // MOV M,L - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.L)
 	// There is no MOV M, M instruction on the 8080.  0x76 is used for HLT.
-	case 0x77: // MOV M,A
+	case 0x77: // MOV M,A - Move register to memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.A)
 
-	case 0x78: // MOV A,B
+	case 0x78: // MOV A,B - Move register to register
 		cpu.A = cpu.B
-	case 0x79: // MOV A,C
+	case 0x79: // MOV A,C - Move register to register
 		cpu.A = cpu.C
-	case 0x7A: // MOV A,D
+	case 0x7A: // MOV A,D - Move register to register
 		cpu.A = cpu.D
-	case 0x7B: // MOV A,E
+	case 0x7B: // MOV A,E - Move register to register
 		cpu.A = cpu.E
-	case 0x7C: // MOV A,H
+	case 0x7C: // MOV A,H - Move register to register
 		cpu.A = cpu.H
-	case 0x7D: // MOV A,L
+	case 0x7D: // MOV A,L - Move register to register
 		cpu.A = cpu.L
-	case 0x7E: // MOV A,M
+	case 0x7E: // MOV A,M - Move memory to register
 		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.H, cpu.L))
-	case 0x7F: // MOV A,A
+	case 0x7F: // MOV A,A - Move register to register
 		temp := cpu.A
 		cpu.A = temp
 
-	case 0x06: // MVI B
+	case 0x06: // MVI B - Move immediate register
 		cpu.B = cpu.fetchByte()
-	case 0x0E: // MVI C
+	case 0x0E: // MVI C - Move immediate register
 		cpu.C = cpu.fetchByte()
-	case 0x16: // MVI D
+	case 0x16: // MVI D - Move immediate register
 		cpu.D = cpu.fetchByte()
-	case 0x1E: // MVI E
+	case 0x1E: // MVI E - Move immediate register
 		cpu.E = cpu.fetchByte()
-	case 0x26: // MVI H
+	case 0x26: // MVI H - Move immediate register
 		cpu.H = cpu.fetchByte()
-	case 0x2E: // MVI L
+	case 0x2E: // MVI L - Move immediate register
 		cpu.L = cpu.fetchByte()
-	case 0x36: // MVI M
+	case 0x36: // MVI M - Move immediate memory
 		cpu.Bus.WriteByte(joinBytes(cpu.H, cpu.L), cpu.fetchByte())
-	case 0x3E: // MVI A
+	case 0x3E: // MVI A - Move immediate register
 		cpu.A = cpu.fetchByte()
 
-	case 0x01: // LXI B
+	case 0x01: // LXI B - Load immediate register paid B&C
 		cpu.B, cpu.C = splitWord(cpu.fetchWord())
-	case 0x11: // LXI D
+	case 0x11: // LXI D - Load immediate register pair D&E
 		cpu.D, cpu.E = splitWord(cpu.fetchWord())
-	case 0x21: // LXI H
+	case 0x21: // LXI H - Load immediate register pair H&L
 		cpu.H, cpu.L = splitWord(cpu.fetchWord())
-	case 0x02: // STAX B
+	case 0x02: // STAX B - Store A indirect
 		cpu.Bus.WriteByte(joinBytes(cpu.B, cpu.C), cpu.A)
-	case 0x12: // STAX D
+	case 0x12: // STAX D - Store A indirect
 		cpu.Bus.WriteByte(joinBytes(cpu.D, cpu.E), cpu.A)
-	case 0x0A: // LDAX B
+	case 0x0A: // LDAX B - Load A indirect
 		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.B, cpu.C))
-	case 0x1A: // LDAX D
+	case 0x1A: // LDAX D - Load A indirect
 		cpu.A = cpu.Bus.ReadByte(joinBytes(cpu.D, cpu.E))
-	case 0x32: // STA
+	case 0x32: // STA - Store A direct
 		cpu.Bus.WriteByte(cpu.fetchWord(), cpu.A)
-	case 0x3A: // LDA
+	case 0x3A: // LDA - Load A direct
 		cpu.A = cpu.Bus.ReadByte(cpu.fetchWord())
-	case 0x22: // SHLD
+	case 0x22: // SHLD - Store H&L direct
 		address := cpu.fetchWord()
 		cpu.Bus.WriteByte(address, cpu.L)
 		cpu.Bus.WriteByte(address+1, cpu.H)
-	case 0x2A: // LHLD
+	case 0x2A: // LHLD - Load H&L direct
 		address := cpu.fetchWord()
 		cpu.L = cpu.Bus.ReadByte(address)
 		cpu.H = cpu.Bus.ReadByte(address + 1)
-	case 0xEB: // XCH
-		return ErrNotImplemented(opCode)
+	case 0xEB: // XCHG - Exchange D&E, H&L registers
+		cpu.D, cpu.E, cpu.H, cpu.L = cpu.H, cpu.L, cpu.D, cpu.E
 
 	// STACK OPERATIONS
 	case 0xC5: // PUSH B

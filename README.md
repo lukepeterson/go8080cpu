@@ -15,7 +15,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :white_check_mark: [Assembler support](https://github.com/lukepeterson/go8080assembler)
 
 ## Instructions supported
-- :x: Move, load and store
+- :white_check_mark: Move, load and store
 - :x: Stack operations
 - :x: Jump
 - :x: Call

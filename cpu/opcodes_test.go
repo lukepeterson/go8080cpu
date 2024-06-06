@@ -739,6 +739,15 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x44, H: 0x44, L: 0x33},
 		},
+		{
+			name: "XCHG",
+			code: `
+				XCHG
+				HLT
+			`,
+			initCPU: &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
+		},
 
 		{
 			name: "INR A from 0x01",
