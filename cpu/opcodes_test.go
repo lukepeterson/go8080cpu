@@ -713,14 +713,18 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "SHLD",
 			code: `
-				LXI H, 4455H
-				SHLD 0101H
-				MOV A, H
-				MOV B, L
-				HLT
+				LXI H, 4455H ; Load HL register pair with immediate value 4455H
+				SHLD 2000H   ; Store HL register pair into memory at address 2000H and 2001H
+				LXI H, 2000H ; Load HL register pair with address 2000H to
+				MOV A, M     ; Move contents of memory at address 2000H (pointed by HL) to A
+				MOV C, A     ; Store the value of A in C for verification
+				INX H        ; Increment HL to point to 2001H
+				MOV A, M     ; Move contents of memory at address 2001H to A
+				MOV D, A     ; Store the value of A in D for verification
+				HLT          ; Halt the processor
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x44, B: 0x55, H: 0x44, L: 0x55},
+			wantCPU: &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
 		},
 		{
 			name: "LHLD",
