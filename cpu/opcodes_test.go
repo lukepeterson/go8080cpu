@@ -613,29 +613,29 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LXI B",
 			code: `
-				LXI B, 0x0201
+				LXI B, 0x3344
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{B: 0x01, C: 0x02},
+			wantCPU: &CPU{B: 0x33, C: 0x44},
 		},
 		{
 			name: "LXI D",
 			code: `
-				LXI D, 0x0201
+				LXI D, 0x3344
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{D: 0x01, E: 0x02},
+			wantCPU: &CPU{D: 0x33, E: 0x44},
 		},
 		{
 			name: "LXI H",
 			code: `
-				LXI H, 0x0201
+				LXI H, 0x3344
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{H: 0x02, L: 0x01},
+			wantCPU: &CPU{H: 0x33, L: 0x44},
 		},
 		{
 			name: "STAX B",
@@ -691,13 +691,13 @@ func TestCPUInstructions(t *testing.T) {
 			name: "STA",
 			code: `
 				MVI A, 55H
-				STA 0101H
-				LXI H 0101H
+				STA 3344H
+				LXI H 3344H
 				MOV B, M
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
+			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x33, L: 0x44},
 		},
 		{
 			name: "LDA",
@@ -710,17 +710,32 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
 		},
-		// TODO: Fix incomplete test
-		// {
-		// 	name: "SHLD",
-		// 	code: `
-		// 		LXI H, 4455H
-		// 		SHLD 0101H
-		// 		HLT
-		// 		`,
-		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-		// 	wantCPU: &CPU{H: 0x44, L: 0x55},
-		// },
+		{
+			name: "SHLD",
+			code: `
+				LXI H, 4455H
+				SHLD 0101H
+				MOV A, H
+				MOV B, L
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x44, B: 0x55, H: 0x44, L: 0x55},
+		},
+		{
+			name: "LHLD",
+			code: `
+				MVI A, 33H
+				STA 2000H
+				MVI A, 44H
+				STA 2001H
+				LHLD 2000H
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x44, H: 0x44, L: 0x33},
+		},
+
 		{
 			name: "INR A from 0x01",
 			code: `

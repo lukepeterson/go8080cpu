@@ -36,9 +36,9 @@ func (cpu *CPU) fetchByte() byte {
 }
 
 func (cpu *CPU) fetchWord() word {
-	low := cpu.fetchByte()
+	low := cpu.fetchByte() // 8080 is little endian, so low byte comes first when reading from memory
 	high := cpu.fetchByte()
-	return joinBytes(low, high) // 8080 is little endian, so low byte comes first when reading from memory
+	return joinBytes(high, low)
 }
 
 type Flags struct {
@@ -60,7 +60,6 @@ type CPU struct {
 	stackPointer   word
 	programCounter word
 
-	// alu    ALU
 	Bus    Bus
 	halted bool
 }
@@ -79,13 +78,14 @@ func (cpu CPU) DumpRegisters() {
 	fmt.Print(sb.String())
 }
 
-func (cpu *CPU) DumpMemory() {
+func (cpu *CPU) DumpMemory(startAddress, endAddress word) {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Memory: (%v bytes)\n", cpu.Bus.length()))
+	sb.WriteString(fmt.Sprintf("Memory: %v bytes, ", cpu.Bus.length()))
+	sb.WriteString(fmt.Sprintf("Start: 0x%0004X, End: 0x%0004X\n", startAddress, endAddress))
 	sb.WriteString("    ")
-	for i := 0; i < int(cpu.Bus.length()); i++ {
+	for i := startAddress; i < endAddress; i++ {
 		sb.WriteString(fmt.Sprintf("%02X ", cpu.Bus.ReadByte(word(i))))
-		if (i+1)%8 == 0 {
+		if (i+1)%16 == 0 {
 			sb.WriteString("\n    ")
 		}
 	}
@@ -130,7 +130,7 @@ func (cpu *CPU) Run() error {
 		}
 
 		// cpu.DumpRegisters()
-		// cpu.DumpMemory()
+		// cpu.DumpMemory(0x2000, 0x2000+32)
 	}
 
 	return nil

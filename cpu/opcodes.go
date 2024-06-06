@@ -179,7 +179,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x11: // LXI D
 		cpu.D, cpu.E = splitWord(cpu.fetchWord())
 	case 0x21: // LXI H
-		cpu.L, cpu.H = splitWord(cpu.fetchWord())
+		cpu.H, cpu.L = splitWord(cpu.fetchWord())
 	case 0x02: // STAX B
 		cpu.Bus.WriteByte(joinBytes(cpu.B, cpu.C), cpu.A)
 	case 0x12: // STAX D
@@ -197,7 +197,9 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByte(address, cpu.L)
 		cpu.Bus.WriteByte(address+1, cpu.H)
 	case 0x2A: // LHLD
-		return ErrNotImplemented(opCode)
+		address := cpu.fetchWord()
+		cpu.L = cpu.Bus.ReadByte(address)
+		cpu.H = cpu.Bus.ReadByte(address + 1)
 	case 0xEB: // XCH
 		return ErrNotImplemented(opCode)
 

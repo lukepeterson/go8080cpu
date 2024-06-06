@@ -35,11 +35,11 @@ func main() {
 	for _, instruction := range assembler.ByteCode {
 		fmt.Printf("%02X ", instruction)
 	}
+	fmt.Println("")
 
 	goCPU.Load(assembler.ByteCode)
 	runErr := goCPU.Run()
 	if runErr != nil {
 		log.Fatal(runErr)
 	}
-
 }
