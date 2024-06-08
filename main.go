@@ -22,7 +22,6 @@ func main() {
 		INR D
 		DCR E
 		INR L
-		JMP 00h
 		HLT
 	`
 
