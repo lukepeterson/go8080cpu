@@ -748,7 +748,38 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
 		},
+		// {
+		// 	name: "PUSH B",
+		// 	code: `
+		// 		LXI SP, FFFFH
+		// 		MVI B, 0x12
+		// 		MVI C, 0x34
+		// 		PUSH B
 
+		// 		LXI H, FFFDH ; Point HL to stack pointer - 2
+		// 		MOV A, M
+
+		// 		INX H        ; Point HL to stack pointer - 1
+		// 		MOV B, M
+
+		// 		HLT
+		// 	`,
+		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+		// 	wantCPU: &CPU{stackPointer: 0x1234},
+		// },
+
+		{
+			name: "LXI SP",
+			code: `
+				LXI SP, 1234H
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{stackPointer: 0x1234},
+		},
+		// INX SP
+		// DCX SP
+		// DAD SP
 		{
 			name: "INR A from 0x01",
 			code: `

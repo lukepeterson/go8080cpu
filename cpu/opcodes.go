@@ -205,7 +205,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// STACK OPERATIONS
 	case 0xC5: // PUSH B
-		return ErrNotImplemented(opCode)
+		high, low := splitWord(joinBytes(cpu.B, cpu.C))
+		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.stackPointer -= 2
 	case 0xD5: // PUSH D
 		return ErrNotImplemented(opCode)
 	case 0xE5: // PUSH H
@@ -225,7 +228,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xF9: // SPHL
 		return ErrNotImplemented(opCode)
 	case 0x31: // LXI SP
-		return ErrNotImplemented(opCode)
+		cpu.stackPointer = cpu.fetchWord()
 	case 0x33: // INX SP
 		return ErrNotImplemented(opCode)
 	case 0x3B: // DCX SP
