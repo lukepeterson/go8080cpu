@@ -748,25 +748,54 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
 		},
-		// {
-		// 	name: "PUSH B",
-		// 	code: `
-		// 		LXI SP, FFFFH
-		// 		MVI B, 0x12
-		// 		MVI C, 0x34
-		// 		PUSH B
-
-		// 		LXI H, FFFDH ; Point HL to stack pointer - 2
-		// 		MOV A, M
-
-		// 		INX H        ; Point HL to stack pointer - 1
-		// 		MOV B, M
-
-		// 		HLT
-		// 	`,
-		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-		// 	wantCPU: &CPU{stackPointer: 0x1234},
-		// },
+		{
+			name: "PUSH B",
+			code: `
+				LXI SP, 1000H
+				MVI B, 12H
+				MVI C, 34H
+				PUSH B
+				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				MOV A, M
+				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				MOV B, M
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x34, B: 0x12, C: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+		},
+		{
+			name: "PUSH D",
+			code: `
+				LXI SP, 1000H
+				MVI D, 12H
+				MVI E, 34H
+				PUSH D
+				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				MOV A, M
+				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				MOV B, M
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x34, B: 0x12, D: 0x12, E: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+		},
+		{
+			name: "PUSH H",
+			code: `
+				LXI SP, 1000H
+				MVI H, 12H
+				MVI L, 34H
+				PUSH H
+				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				MOV A, M
+				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				MOV B, M
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+		},
 
 		{
 			name: "LXI SP",
