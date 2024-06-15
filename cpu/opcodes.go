@@ -220,7 +220,12 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xF5: // PUSH PSW
-		return ErrNotImplemented(opCode)
+
+		// high, low := splitWord(joinBytes(cpu.H, cpu.L))
+		// cpu.Bus.WriteByte(cpu.stackPointer-1, high)
+		// cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		// cpu.stackPointer -= 2
+
 	case 0xC1: // POP B
 		return ErrNotImplemented(opCode)
 	case 0xD1: // POP D
