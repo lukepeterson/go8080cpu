@@ -220,12 +220,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xF5: // PUSH PSW
-
-		// high, low := splitWord(joinBytes(cpu.H, cpu.L))
-		// cpu.Bus.WriteByte(cpu.stackPointer-1, high)
-		// cpu.Bus.WriteByte(cpu.stackPointer-2, low)
-		// cpu.stackPointer -= 2
-
+		high, low := splitWord(joinBytes(cpu.A, cpu.getFlags()))
+		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.stackPointer -= 2
 	case 0xC1: // POP B
 		return ErrNotImplemented(opCode)
 	case 0xD1: // POP D
@@ -585,6 +583,26 @@ func (cpu *CPU) Execute(opCode byte) error {
 	}
 
 	return nil
+}
+
+func (cpu CPU) getFlags() byte {
+	bools := []bool{
+		cpu.flags.Sign,
+		cpu.flags.Zero,
+		false, // bit 5 is always false
+		cpu.flags.AuxCarry,
+		false, // bit 3 is always false
+		cpu.flags.Parity,
+		true, // bit 1 is always true
+		cpu.flags.Carry,
+	}
+	var result byte
+	for i, b := range bools {
+		if b {
+			result |= 1 << i
+		}
+	}
+	return result
 }
 
 // inr increments the value of a given register by 1, updating the CPU flags accordingly.
