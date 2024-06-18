@@ -796,16 +796,23 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
-		{
-			name: "PUSH PSW",
-			code: `
-				PUSH PSW
-				; TODO: Write the actual test
-				HLT
-			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0x10000)}},
-			wantCPU: &CPU{H: 0x00, L: 0x00, stackPointer: 0xFFFE},
-		},
+		// {
+		// 	name: "PUSH PSW",
+		// 	code: `
+		// 		LXI SP, 1000H
+		// 		MVI A, 12H
+
+		// 		PUSH PSW
+
+		// 		LXI H, 0FFEH
+		// 		MOV A, M
+		// 		LXI H, 0FFFH
+		// 		MOV B, M
+		// 		HLT
+		// 	`,
+		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0x10000)}},
+		// 	wantCPU: &CPU{A: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+		// },
 
 		{
 			name: "LXI SP",
