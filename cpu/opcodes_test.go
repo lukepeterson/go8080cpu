@@ -796,24 +796,21 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
-		// {
-		// 	name: "PUSH PSW",
-		// 	code: `
-		// 		LXI SP, 1000H
-		// 		MVI A, 12H
-
-		// 		PUSH PSW
-
-		// 		LXI H, 0FFEH
-		// 		MOV A, M
-		// 		LXI H, 0FFFH
-		// 		MOV B, M
-		// 		HLT
-		// 	`,
-		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0x10000)}},
-		// 	wantCPU: &CPU{A: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
-		// },
-
+		{
+			name: "PUSH PSW",
+			code: `
+				LXI SP, 1000H
+				MVI A, 12H
+				PUSH PSW
+				LXI H, 0FFEH
+				MOV A, M
+				LXI H, 0FFFH
+				MOV B, M
+				HLT
+			`,
+			initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
+			wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
+		},
 		{
 			name: "LXI SP",
 			code: `
@@ -1472,6 +1469,60 @@ func TestCheckCarryOut(t *testing.T) {
 			}
 			if gotAuxCarry != tt.wantAuxCarry {
 				t.Errorf("carry() gotAuxCarry = %v, want %v", gotAuxCarry, tt.wantAuxCarry)
+			}
+		})
+	}
+}
+
+func TestCPUGetFlags(t *testing.T) {
+	tests := []struct {
+		name  string
+		flags Flags
+		want  byte
+	}{
+		{
+			name:  "all flags unset",
+			flags: Flags{Sign: false, Zero: false, AuxCarry: false, Parity: false, Carry: false},
+			want:  0b00000010,
+		},
+		{
+			name:  "carry flag set",
+			flags: Flags{Sign: false, Zero: false, AuxCarry: false, Parity: false, Carry: true},
+			want:  0b00000011,
+		},
+		{
+			name:  "parity flag set",
+			flags: Flags{Sign: false, Zero: false, AuxCarry: false, Parity: true, Carry: false},
+			want:  0b00000110,
+		},
+		{
+			name:  "auxcarry flag set",
+			flags: Flags{Sign: false, Zero: false, AuxCarry: true, Parity: false, Carry: false},
+			want:  0b00010010,
+		},
+		{
+			name:  "zero flag set",
+			flags: Flags{Sign: false, Zero: true, AuxCarry: false, Parity: false, Carry: false},
+			want:  0b01000010,
+		},
+		{
+			name:  "sign flag set",
+			flags: Flags{Sign: true, Zero: false, AuxCarry: false, Parity: false, Carry: false},
+			want:  0b10000010,
+		},
+		{
+			name:  "all flags set",
+			flags: Flags{Sign: true, Zero: true, AuxCarry: true, Parity: true, Carry: true},
+			want:  0b11010111,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cpu := CPU{
+				flags: tt.flags,
+			}
+			if got := cpu.getFlags(); got != tt.want {
+				t.Errorf("CPU.getFlags() = %v, want %v", got, tt.want)
 			}
 		})
 	}

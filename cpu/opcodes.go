@@ -1,6 +1,8 @@
 package cpu
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	NOCARRY   = false
@@ -585,8 +587,20 @@ func (cpu *CPU) Execute(opCode byte) error {
 	return nil
 }
 
+// getFlags returns the current state of the CPU flags packed into a single byte, for use in
+// functions such as PUSH PSW.  The flags are ordered from MSB (bit 7) to LSB (bit 0).
+//
+// This methods performs the following steps:
+// 1. Generates a slice of eight bools for the flag storage
+// 2. Iterates through each bit in the slice, shifting the bits to the left if set
+//
+// Example:
+//
+//	cpu := &CPU{flags: Flags{Sign: true, Parity: true}}
+//	result := cpu.getFlags()
+//	// result is 0b10000110 (0x86 or 134)
 func (cpu CPU) getFlags() byte {
-	bools := []bool{
+	flags := []bool{
 		cpu.flags.Sign,
 		cpu.flags.Zero,
 		false, // bit 5 is always false
@@ -596,10 +610,11 @@ func (cpu CPU) getFlags() byte {
 		true, // bit 1 is always true
 		cpu.flags.Carry,
 	}
+
 	var result byte
-	for i, b := range bools {
-		if b {
-			result |= 1 << i
+	for i, flag := range flags {
+		if flag {
+			result |= 1 << (7 - i)
 		}
 	}
 	return result
