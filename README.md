@@ -33,6 +33,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 
 ## TODO
 - :x: Fix inteface warnings on read/write memory functions
+- :x: Fix out-of-range errors when working at edge of 16-bit address space (POP H needs 0xFFFF+1 to work)
 
 # Running tests
 Run `go test ./...`.

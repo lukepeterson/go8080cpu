@@ -812,6 +812,67 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
 		},
 		{
+			name: "POP B",
+			code: `
+			    LXI H, FFFEH
+			    MVI M, 12H
+			    INX H
+			    MVI M, 34H
+			    LXI SP, FFFEH
+			    POP B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
+			wantCPU: &CPU{B: 0x34, C: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+		},
+		{
+			name: "POP D",
+			code: `
+			    LXI H, FFFEH
+			    MVI M, 12H
+			    INX H
+			    MVI M, 34H
+			    LXI SP, FFFEH
+			    POP D
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
+			wantCPU: &CPU{D: 0x34, E: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+		},
+		{
+			name: "POP H",
+			code: `
+			    LXI H, FFFEH
+			    MVI M, 12H
+			    INX H
+			    MVI M, 34H
+			    LXI SP, FFFEH
+			    POP H
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
+			wantCPU: &CPU{H: 0x34, L: 0x12, stackPointer: 0},
+		},
+		// {
+		// 	name: "POP PSW",
+		// 	code: `
+		// 	    LXI H, FFFEH
+		// 	    MVI M, 86H
+		// 	    INX H
+		// 	    MVI M, 34H
+		// 	    LXI SP, FFFEH
+		// 	    POP PSW
+		// 		HLT
+		// 	`,
+		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
+		// 	wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
+
+		// 	// initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
+		// 	// wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
+
+		// },
+
+		{
 			name: "LXI SP",
 			code: `
 				LXI SP, 1234H

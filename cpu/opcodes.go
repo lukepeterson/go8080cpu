@@ -227,13 +227,21 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xC1: // POP B
-		return ErrNotImplemented(opCode)
+		cpu.B = cpu.Bus.ReadByte(cpu.stackPointer + 1)
+		cpu.C = cpu.Bus.ReadByte(cpu.stackPointer)
+		cpu.stackPointer += 2
 	case 0xD1: // POP D
-		return ErrNotImplemented(opCode)
+		cpu.D = cpu.Bus.ReadByte(cpu.stackPointer + 1)
+		cpu.E = cpu.Bus.ReadByte(cpu.stackPointer)
+		cpu.stackPointer += 2
 	case 0xE1: // POP H
-		return ErrNotImplemented(opCode)
+		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
+		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
+		cpu.stackPointer += 2
 	case 0xF1: // POP PSW
-		return ErrNotImplemented(opCode)
+		a, flags := splitWord(cpu.popStack())
+		cpu.A = a
+		cpu.setFlags(flags)
 	case 0xE3: // XTHL
 		return ErrNotImplemented(opCode)
 	case 0xF9: // SPHL
@@ -618,6 +626,19 @@ func (cpu CPU) getFlags() byte {
 		}
 	}
 	return result
+}
+
+func (cpu *CPU) setFlags(flags byte) {
+
+	// POP PSW
+
+}
+
+func (cpu *CPU) popStack() word {
+	low := cpu.Bus.ReadByte(cpu.stackPointer)
+	high := cpu.Bus.ReadByte(cpu.stackPointer + 1)
+	cpu.stackPointer += 2
+	return joinBytes(high, low)
 }
 
 // inr increments the value of a given register by 1, updating the CPU flags accordingly.
