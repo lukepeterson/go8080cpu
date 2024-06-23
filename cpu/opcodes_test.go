@@ -814,12 +814,12 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP B",
 			code: `
-			    LXI H, FFFEH
-			    MVI M, 12H
-			    INX H
-			    MVI M, 34H
-			    LXI SP, FFFEH
-			    POP B
+				LXI H, FFFEH
+				MVI M, 12H
+				INX H
+				MVI M, 34H
+				LXI SP, FFFEH
+				POP B
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
@@ -828,12 +828,12 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP D",
 			code: `
-			    LXI H, FFFEH
-			    MVI M, 12H
-			    INX H
-			    MVI M, 34H
-			    LXI SP, FFFEH
-			    POP D
+				LXI H, FFFEH
+				MVI M, 12H
+				INX H
+				MVI M, 34H
+				LXI SP, FFFEH
+				POP D
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
@@ -842,12 +842,12 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP H",
 			code: `
-			    LXI H, FFFEH
-			    MVI M, 12H
-			    INX H
-			    MVI M, 34H
-			    LXI SP, FFFEH
-			    POP H
+				LXI H, FFFEH
+				MVI M, 12H
+				INX H
+				MVI M, 34H
+				LXI SP, FFFEH
+				POP H
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
@@ -856,12 +856,12 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP PSW",
 			code: `
-			    LXI H, FFFEH
-			    MVI M, 86H
-			    INX H
-			    MVI M, 34H
-			    LXI SP, FFFEH
-			    POP PSW
+				LXI H, FFFEH
+				MVI M, 86H
+				INX H
+				MVI M, 34H
+				LXI SP, FFFEH
+				POP PSW
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
@@ -877,7 +877,7 @@ func TestCPUInstructions(t *testing.T) {
 				LXI B, 5566H  ; Set B = 55H and C = 66H
 				PUSH B        ; Push BC onto the stack
 				XTHL          ; Exchange top of stack with HL
-				HLT			  ; Halt
+				HLT           ; Halt
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
