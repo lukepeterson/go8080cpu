@@ -243,7 +243,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.A = a
 		cpu.setFlags(flags)
 	case 0xE3: // XTHL
-		return ErrNotImplemented(opCode)
+		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
+		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
+		cpu.Bus.WriteByte(cpu.stackPointer, cpu.L)
+		cpu.Bus.WriteByte(cpu.stackPointer+1, cpu.H)
 	case 0xF9: // SPHL
 		return ErrNotImplemented(opCode)
 	case 0x31: // LXI SP

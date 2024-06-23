@@ -866,12 +866,23 @@ func TestCPUInstructions(t *testing.T) {
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
 			wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
-
-			// initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
-			// wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
-
 		},
-
+		{
+			name: "XTHL",
+			code: `
+				LXI SP, FFFFH ; Set the stack pointer to FFFFH
+				LXI H, 1122H  ; Set H = 11H and L = 22H
+				LXI B, 3344H  ; Set B = 33H and C = 44H
+				PUSH B        ; Push BC onto the stack
+				LXI B, 5566H  ; Set B = 55H and C = 66H
+				PUSH B        ; Push BC onto the stack
+				XTHL          ; Exchange top of stack with HL
+				HLT			  ; Halt
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
+		},
+		// SPHL
 		{
 			name: "LXI SP",
 			code: `
