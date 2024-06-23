@@ -876,13 +876,22 @@ func TestCPUInstructions(t *testing.T) {
 				PUSH B        ; Push BC onto the stack
 				LXI B, 5566H  ; Set B = 55H and C = 66H
 				PUSH B        ; Push BC onto the stack
-				XTHL          ; Exchange top of stack with HL
+				XTHL          ; Exchange the top of stack with HL
 				HLT           ; Halt
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
 		},
-		// SPHL
+		{
+			name: "SPHL",
+			code: `
+				LXI H, FFEEH ; Set H = FFH and L = EEH
+				SPHL         ; Load the contents of HL into SP
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{H: 0xFF, L: 0xEE, stackPointer: 0xFFEE},
+		},
 		{
 			name: "LXI SP",
 			code: `

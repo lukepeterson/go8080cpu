@@ -245,10 +245,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xE3: // XTHL
 		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
 		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
-		cpu.Bus.WriteByte(cpu.stackPointer, cpu.L)
 		cpu.Bus.WriteByte(cpu.stackPointer+1, cpu.H)
+		cpu.Bus.WriteByte(cpu.stackPointer, cpu.L)
 	case 0xF9: // SPHL
-		return ErrNotImplemented(opCode)
+		cpu.stackPointer = joinBytes(cpu.H, cpu.L)
 	case 0x31: // LXI SP
 		cpu.stackPointer = cpu.fetchWord()
 	case 0x33: // INX SP
