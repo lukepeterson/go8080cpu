@@ -611,11 +611,11 @@ func (cpu CPU) getFlags() byte {
 	flags := []bool{
 		cpu.flags.Sign,
 		cpu.flags.Zero,
-		false, // bit 5 is always false
+		false, // Bit 5 is always false
 		cpu.flags.AuxCarry,
-		false, // bit 3 is always false
+		false, // Bit 3 is always false
 		cpu.flags.Parity,
-		true, // bit 1 is always true
+		true, // Bit 1 is always true
 		cpu.flags.Carry,
 	}
 
@@ -628,10 +628,16 @@ func (cpu CPU) getFlags() byte {
 	return result
 }
 
+// setFlags updates the CPU flags based on provided flags byte.
 func (cpu *CPU) setFlags(flags byte) {
-
-	// POP PSW
-
+	cpu.flags.Sign = (flags & (1 << 7)) != 0
+	cpu.flags.Zero = (flags & (1 << 6)) != 0
+	// Bit 5 is always false
+	cpu.flags.AuxCarry = (flags & (1 << 4)) != 0
+	// Bit 3 is always false
+	cpu.flags.Parity = (flags & (1 << 2)) != 0
+	// Bit 1 is always true
+	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }
 
 func (cpu *CPU) popStack() word {

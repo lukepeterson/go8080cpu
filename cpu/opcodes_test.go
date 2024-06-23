@@ -853,24 +853,24 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
 			wantCPU: &CPU{H: 0x34, L: 0x12, stackPointer: 0},
 		},
-		// {
-		// 	name: "POP PSW",
-		// 	code: `
-		// 	    LXI H, FFFEH
-		// 	    MVI M, 86H
-		// 	    INX H
-		// 	    MVI M, 34H
-		// 	    LXI SP, FFFEH
-		// 	    POP PSW
-		// 		HLT
-		// 	`,
-		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
-		// 	wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
+		{
+			name: "POP PSW",
+			code: `
+			    LXI H, FFFEH
+			    MVI M, 86H
+			    INX H
+			    MVI M, 34H
+			    LXI SP, FFFEH
+			    POP PSW
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
+			wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
 
-		// 	// initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
-		// 	// wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
+			// initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
+			// wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
 
-		// },
+		},
 
 		{
 			name: "LXI SP",
@@ -1583,7 +1583,52 @@ func TestCPUGetFlags(t *testing.T) {
 				flags: tt.flags,
 			}
 			if got := cpu.getFlags(); got != tt.want {
-				t.Errorf("CPU.getFlags() = %v, want %v", got, tt.want)
+				t.Errorf("CPU.setFlags() = 0b%08b, want 0b%08b", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCPUSetFlags(t *testing.T) {
+	tests := []struct {
+		name  string
+		flags byte
+	}{
+		{
+			name:  "all flags unset",
+			flags: 0b00000010,
+		},
+		{
+			name:  "carry flag set",
+			flags: 0b00000011,
+		},
+		{
+			name:  "parity flag set",
+			flags: 0b00000110,
+		},
+		{
+			name:  "auxcarry flag set",
+			flags: 0b00010010,
+		},
+		{
+			name:  "zero flag set",
+			flags: 0b01000010,
+		},
+		{
+			name:  "sign flag set",
+			flags: 0b10000010,
+		},
+		{
+			name:  "all flags set",
+			flags: 0b11010111,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cpu := &CPU{}
+			cpu.setFlags(tt.flags) // setFlags() has no return, so use getFlags to confirm they were set correctly.
+			if got := cpu.getFlags(); got != tt.flags {
+				t.Errorf("CPU.setFlags() = 0b%08b, want 0b%08b", got, tt.flags)
 			}
 		})
 	}
