@@ -895,14 +895,48 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LXI SP",
 			code: `
-				LXI SP, 1234H
+				LXI SP, 1234H ; Set the stack pointer to 1234H
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{stackPointer: 0x1234},
 		},
-		// INX SP
-		// DCX SP
+		{
+			name: "INX SP from 0x1000",
+			code: `
+				INX SP
+				HLT
+			`,
+			initCPU: &CPU{stackPointer: 0x1000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{stackPointer: 0x1001},
+		},
+		{
+			name: "INX SP from 0xFFFF (test overflow works)",
+			code: `
+				INX SP
+				HLT
+			`,
+			initCPU: &CPU{stackPointer: 0xFFFF, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{stackPointer: 0x0000},
+		},
+		{
+			name: "DCX SP from 0x1000",
+			code: `
+				DCX SP
+				HLT
+			`,
+			initCPU: &CPU{stackPointer: 0x1000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{stackPointer: 0x0FFF},
+		},
+		{
+			name: "DCX SP from 0x0000 (test underflow works)",
+			code: `
+				DCX SP
+				HLT
+			`,
+			initCPU: &CPU{stackPointer: 0x0000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{stackPointer: 0xFFFF},
+		},
 		// DAD SP
 		{
 			name: "INR A from 0x01",

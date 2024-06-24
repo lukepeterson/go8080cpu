@@ -206,55 +206,55 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.D, cpu.E, cpu.H, cpu.L = cpu.H, cpu.L, cpu.D, cpu.E
 
 	// STACK OPERATIONS
-	case 0xC5: // PUSH B
+	case 0xC5: // PUSH B - Push register pair B&C to stack
 		high, low := splitWord(joinBytes(cpu.B, cpu.C))
 		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
-	case 0xD5: // PUSH D
+	case 0xD5: // PUSH D - Push register pair D&E to stack
 		high, low := splitWord(joinBytes(cpu.D, cpu.E))
 		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
-	case 0xE5: // PUSH H
+	case 0xE5: // PUSH H - Push register pair H&L to stack
 		high, low := splitWord(joinBytes(cpu.H, cpu.L))
 		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
-	case 0xF5: // PUSH PSW
+	case 0xF5: // PUSH PSW - Push register A and flags to stack
 		high, low := splitWord(joinBytes(cpu.A, cpu.getFlags()))
 		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
 		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
-	case 0xC1: // POP B
+	case 0xC1: // POP B - Pop register pair B&C off stack
 		cpu.B = cpu.Bus.ReadByte(cpu.stackPointer + 1)
 		cpu.C = cpu.Bus.ReadByte(cpu.stackPointer)
 		cpu.stackPointer += 2
-	case 0xD1: // POP D
+	case 0xD1: // POP D - Pop register pair D&E off stack
 		cpu.D = cpu.Bus.ReadByte(cpu.stackPointer + 1)
 		cpu.E = cpu.Bus.ReadByte(cpu.stackPointer)
 		cpu.stackPointer += 2
-	case 0xE1: // POP H
+	case 0xE1: // POP H - Pop register pair H&L off stack
 		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
 		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
 		cpu.stackPointer += 2
-	case 0xF1: // POP PSW
+	case 0xF1: // POP PSW - Pop register A and flags off stack
 		a, flags := splitWord(cpu.popStack())
 		cpu.A = a
 		cpu.setFlags(flags)
-	case 0xE3: // XTHL
+	case 0xE3: // XTHL - Exchange top of stack with H&L
 		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
 		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
 		cpu.Bus.WriteByte(cpu.stackPointer+1, cpu.H)
 		cpu.Bus.WriteByte(cpu.stackPointer, cpu.L)
-	case 0xF9: // SPHL
+	case 0xF9: // SPHL - Load stack pointer from H&L
 		cpu.stackPointer = joinBytes(cpu.H, cpu.L)
-	case 0x31: // LXI SP
+	case 0x31: // LXI SP - Load immediate stack pointer
 		cpu.stackPointer = cpu.fetchWord()
-	case 0x33: // INX SP
-		return ErrNotImplemented(opCode)
-	case 0x3B: // DCX SP
-		return ErrNotImplemented(opCode)
+	case 0x33: // INX SP - Increment stack pointer
+		cpu.stackPointer++
+	case 0x3B: // DCX SP - Decrement stack pointer
+		cpu.stackPointer--
 	case 0x39: // DAD SP
 		return ErrNotImplemented(opCode)
 
