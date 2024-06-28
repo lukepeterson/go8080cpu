@@ -937,7 +937,6 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{stackPointer: 0x0000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{stackPointer: 0xFFFF},
 		},
-		// DAD SP
 		{
 			name: "INR A from 0x01",
 			code: `
@@ -1466,7 +1465,6 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
 			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
-
 		{
 			name: "ADC A (carry in with zero flag)",
 			code: `
@@ -1475,6 +1473,63 @@ func TestCPUInstructions(t *testing.T) {
 			`,
 			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x01},
+		},
+		// ADI
+		// ACI
+		// DAD B
+		// DAD D
+		// DAD H
+		{
+			name: "DAD SP (basic addition)",
+			code: `
+				LXI SP, 1000H ; Load SP with 1000H
+				LXI H, 2000H  ; Load H and L with 2000H
+				DAD SP        ; Add stack pointer to HL
+				MOV A, H      ; Move the high byte of the result to A
+				MOV B, L      ; Move the low byte of the result to B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x30, B: 0x00, H: 0x30, L: 0x00, stackPointer: 0x1000},
+		},
+		{
+			name: "DAD SP (zero result including carry)",
+			code: `
+				LXI SP, 8000H ; Load SP with 8000H
+				LXI H, 8000H  ; Load H and L with 8000H
+				DAD SP        ; Add stack pointer to HL
+				MOV A, H      ; Move the high byte of the result to A
+				MOV B, L      ; Move the low byte of the result to B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}, stackPointer: 0x8000},
+		},
+		{
+			name: "DAD SP (negative result - two's complement)",
+			code: `
+				LXI SP, FF00H ; Load SP with FF00H
+				LXI H, 0100H  ; Load H and L with 0100H
+				DAD SP        ; Add stack pointer to HL
+				MOV A, H      ; Move the high byte of the result to A
+				MOV B, L      ; Move the low byte of the result to B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}, stackPointer: 0xFF00},
+		},
+		{
+			name: "DAD SP (large value with overflow)",
+			code: `
+				LXI SP, FFFFH ; Load SP with FFFFH
+				LXI H, FFFFH  ; Load H and L with FFFFH
+				DAD SP        ; Add stack pointer to HL
+				MOV A, H      ; Move the high byte of the result to A
+				MOV B, L      ; Move the low byte of the result to B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0xFE, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}, stackPointer: 0xFFFF},
 		},
 	}
 	for _, tc := range testCases {

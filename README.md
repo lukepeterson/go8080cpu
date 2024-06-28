@@ -16,13 +16,13 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 
 ## Instructions supported
 - :white_check_mark: Move, load and store
-- :x: Stack operations
+- :white_check_mark: Stack operations
 - :x: Jump
 - :x: Call
 - :x: Return
 - :x: Restart
 - :white_check_mark: Increment and decrement
-- :white_check_mark: Add
+- :x: Add
 - :x: Subtract
 - :x: Logical
 - :x: Rotate

@@ -255,8 +255,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.stackPointer++
 	case 0x3B: // DCX SP - Decrement stack pointer
 		cpu.stackPointer--
-	case 0x39: // DAD SP
-		return ErrNotImplemented(opCode)
 
 	// JUMP
 	case 0xC3: // JMP
@@ -436,6 +434,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0x29: // DAD H
 		return ErrNotImplemented(opCode)
+	case 0x39: // DAD SP
+		hl := joinBytes(cpu.H, cpu.L)
+		cpu.flags.Carry = 0xFFFF-cpu.stackPointer < hl
+		cpu.H, cpu.L = splitWord(hl + cpu.stackPointer)
 
 	// SUBTRACT
 	case 0x90: // SUB B
