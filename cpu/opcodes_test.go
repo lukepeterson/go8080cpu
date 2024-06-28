@@ -71,7 +71,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "MOV B, M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				MOV B, M
 				HLT
 				`,
@@ -144,7 +144,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "MOV C, M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				MOV C, M
 				HLT
 				`,
@@ -217,7 +217,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "MOV D, M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				MOV D, M
 				HLT
 				`,
@@ -290,7 +290,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "MOV E, M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				MOV E, M
 				HLT
 				`,
@@ -458,7 +458,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "MOV M, B",
 			code: `
 				LXI H, 0x0101
-				MVI B, 55H
+				MVI B, 0x55
 				MOV M, B
 				MOV A, M
 				HLT
@@ -470,7 +470,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "MOV M, C",
 			code: `
 				LXI H, 0x0101
-				MVI C, 55H
+				MVI C, 0x55
 				MOV M, C
 				MOV A, M
 				HLT
@@ -482,7 +482,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "MOV M, D",
 			code: `
 				LXI H, 0x0101
-				MVI D, 55H
+				MVI D, 0x55
 				MOV M, D
 				MOV A, M
 				HLT
@@ -494,7 +494,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "MOV M, E",
 			code: `
 				LXI H, 0x0101
-				MVI E, 55H
+				MVI E, 0x55
 				MOV M, E
 				MOV A, M
 				HLT
@@ -528,7 +528,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "MOV M, A",
 			code: `
 				LXI H, 0x0101
-				MVI A, 02H
+				MVI A, 0x02
 				MOV M, A
 				MOV A, M
 				HLT
@@ -593,7 +593,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "MOV A, M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				MOV A, M
 				HLT
 				`,
@@ -666,9 +666,9 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LDAX B",
 			code: `
-				LXI B, 0101H
-				LXI H, 0101H
-				MVI M, 55H
+				LXI B, 0x0101
+				LXI H, 0x0101
+				MVI M, 0x55
 				LDAX B
 				HLT
 				`,
@@ -678,9 +678,9 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LDAX D",
 			code: `
-				LXI D, 0101H
-				LXI H, 0101H
-				MVI M, 55H
+				LXI D, 0x0101
+				LXI H, 0x0101
+				MVI M, 0x55
 				LDAX D
 				HLT
 				`,
@@ -690,9 +690,9 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "STA",
 			code: `
-				MVI A, 55H
-				STA 3344H
-				LXI H 3344H
+				MVI A, 0x55
+				STA 0x3344
+				LXI H 0x3344
 				MOV B, M
 				HLT
 				`,
@@ -702,9 +702,9 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LDA",
 			code: `
-				LXI H 0101H
-				MVI M, 55H
-				LDA 0101H
+				LXI H 0x0101
+				MVI M, 0x55
+				LDA 0x0101
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
@@ -713,15 +713,15 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "SHLD",
 			code: `
-				LXI H, 4455H ; Load HL register pair with immediate value 4455H
-				SHLD 2000H   ; Store HL register pair into memory at address 2000H and 2001H
-				LXI H, 2000H ; Load HL register pair with address 2000H to
-				MOV A, M     ; Move contents of memory at address 2000H (pointed by HL) to A
-				MOV C, A     ; Store the value of A in C for verification
-				INX H        ; Increment HL to point to 2001H
-				MOV A, M     ; Move contents of memory at address 2001H to A
-				MOV D, A     ; Store the value of A in D for verification
-				HLT          ; Halt the processor
+				LXI H, 0x4455
+				SHLD 0x2000
+				LXI H, 0x2000
+				MOV A, M
+				MOV C, A
+				INX H
+				MOV A, M
+				MOV D, A
+				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
@@ -729,11 +729,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LHLD",
 			code: `
-				MVI A, 33H
-				STA 2000H
-				MVI A, 44H
-				STA 2001H
-				LHLD 2000H
+				MVI A, 0x33
+				STA 0x2000
+				MVI A, 0x44
+				STA 0x2001
+				LHLD 0x2000
 				HLT
 				`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
@@ -751,13 +751,13 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "PUSH B",
 			code: `
-				LXI SP, 1000H
-				MVI B, 12H
-				MVI C, 34H
+				LXI SP, 0x1000
+				MVI B, 0x12
+				MVI C, 0x34
 				PUSH B
-				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				LXI H, 0x0FFE
 				MOV A, M
-				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				LXI H, 0x0FFF
 				MOV B, M
 				HLT
 			`,
@@ -767,13 +767,13 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "PUSH D",
 			code: `
-				LXI SP, 1000H
-				MVI D, 12H
-				MVI E, 34H
+				LXI SP, 0x1000
+				MVI D, 0x12
+				MVI E, 0x34
 				PUSH D
-				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				LXI H, 0x0FFE
 				MOV A, M
-				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				LXI H, 0x0FFF
 				MOV B, M
 				HLT
 			`,
@@ -783,13 +783,13 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "PUSH H",
 			code: `
-				LXI SP, 1000H
-				MVI H, 12H
-				MVI L, 34H
+				LXI SP, 0x1000
+				MVI H, 0x12
+				MVI L, 0x34
 				PUSH H
-				LXI H, 0FFEH ; Point HL to stack pointer - 2
+				LXI H, 0x0FFE
 				MOV A, M
-				LXI H, 0FFFH ; Point HL to stack pointer - 1
+				LXI H, 0x0FFF
 				MOV B, M
 				HLT
 			`,
@@ -799,12 +799,12 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "PUSH PSW",
 			code: `
-				LXI SP, 1000H
-				MVI A, 12H
+				LXI SP, 0x1000
+				MVI A, 0x12
 				PUSH PSW
-				LXI H, 0FFEH
+				LXI H, 0x0FFE
 				MOV A, M
-				LXI H, 0FFFH
+				LXI H, 0x0FFF
 				MOV B, M
 				HLT
 			`,
@@ -814,11 +814,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP B",
 			code: `
-				LXI H, FFFEH
-				MVI M, 12H
+				LXI H, 0xFFFE
+				MVI M, 0x12
 				INX H
-				MVI M, 34H
-				LXI SP, FFFEH
+				MVI M, 0x34
+				LXI SP, 0xFFFE
 				POP B
 				HLT
 			`,
@@ -828,11 +828,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP D",
 			code: `
-				LXI H, FFFEH
-				MVI M, 12H
+				LXI H, 0xFFFE
+				MVI M, 0x12
 				INX H
-				MVI M, 34H
-				LXI SP, FFFEH
+				MVI M, 0x34
+				LXI SP, 0xFFFE
 				POP D
 				HLT
 			`,
@@ -842,11 +842,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP H",
 			code: `
-				LXI H, FFFEH
-				MVI M, 12H
+				LXI H, 0xFFFE
+				MVI M, 0x12
 				INX H
-				MVI M, 34H
-				LXI SP, FFFEH
+				MVI M, 0x34
+				LXI SP, 0xFFFE
 				POP H
 				HLT
 			`,
@@ -856,11 +856,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "POP PSW",
 			code: `
-				LXI H, FFFEH
-				MVI M, 86H
+				LXI H, 0xFFFE
+				MVI M, 0x86
 				INX H
-				MVI M, 34H
-				LXI SP, FFFEH
+				MVI M, 0x34
+				LXI SP, 0xFFFE
 				POP PSW
 				HLT
 			`,
@@ -870,14 +870,14 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "XTHL",
 			code: `
-				LXI SP, FFFFH ; Set the stack pointer to FFFFH
-				LXI H, 1122H  ; Set H = 11H and L = 22H
-				LXI B, 3344H  ; Set B = 33H and C = 44H
-				PUSH B        ; Push BC onto the stack
-				LXI B, 5566H  ; Set B = 55H and C = 66H
-				PUSH B        ; Push BC onto the stack
-				XTHL          ; Exchange the top of stack with HL
-				HLT           ; Halt
+				LXI SP, 0xFFFF
+				LXI H, 0x1122
+				LXI B, 0x3344
+				PUSH B
+				LXI B, 0x5566
+				PUSH B
+				XTHL
+				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
@@ -885,8 +885,8 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "SPHL",
 			code: `
-				LXI H, FFEEH ; Set H = FFH and L = EEH
-				SPHL         ; Load the contents of HL into SP
+				LXI H, 0xFFEE
+				SPHL
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
@@ -895,7 +895,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "LXI SP",
 			code: `
-				LXI SP, 1234H ; Set the stack pointer to 1234H
+				LXI SP, 0x1234
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
@@ -1138,7 +1138,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "INR M from 0x01",
 			code: `
-				MVI M, 01H
+				MVI M, 0x01
 				INR M
 				MOV A, M
 				HLT
@@ -1149,7 +1149,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "DCR M from 0x03",
 			code: `
-				MVI M, 03H
+				MVI M, 0x03
 				DCR M
 				MOV A, M
 				HLT
@@ -1358,7 +1358,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "ADD M",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				ADD M
 				HLT
 				`,
@@ -1458,7 +1458,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "ADC M (carry in with zero flag)",
 			code: `
-				MVI M, 55H
+				MVI M, 0x55
 				ADC M
 				HLT
 				`,
@@ -1482,11 +1482,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "DAD SP (basic addition)",
 			code: `
-				LXI SP, 1000H ; Load SP with 1000H
-				LXI H, 2000H  ; Load H and L with 2000H
-				DAD SP        ; Add stack pointer to HL
-				MOV A, H      ; Move the high byte of the result to A
-				MOV B, L      ; Move the low byte of the result to B
+				LXI SP, 0x1000
+				LXI H, 0x2000
+				DAD SP
+				MOV A, H
+				MOV B, L
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
@@ -1495,11 +1495,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "DAD SP (zero result including carry)",
 			code: `
-				LXI SP, 8000H ; Load SP with 8000H
-				LXI H, 8000H  ; Load H and L with 8000H
-				DAD SP        ; Add stack pointer to HL
-				MOV A, H      ; Move the high byte of the result to A
-				MOV B, L      ; Move the low byte of the result to B
+				LXI SP, 0x8000
+				LXI H, 0x8000
+				DAD SP
+				MOV A, H
+				MOV B, L
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
@@ -1508,11 +1508,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "DAD SP (negative result - two's complement)",
 			code: `
-				LXI SP, FF00H ; Load SP with FF00H
-				LXI H, 0100H  ; Load H and L with 0100H
-				DAD SP        ; Add stack pointer to HL
-				MOV A, H      ; Move the high byte of the result to A
-				MOV B, L      ; Move the low byte of the result to B
+				LXI SP, 0xFF00
+				LXI H, 0x0100
+				DAD SP
+				MOV A, H
+				MOV B, L
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
@@ -1521,11 +1521,11 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "DAD SP (large value with overflow)",
 			code: `
-				LXI SP, FFFFH ; Load SP with FFFFH
-				LXI H, FFFFH  ; Load H and L with FFFFH
-				DAD SP        ; Add stack pointer to HL
-				MOV A, H      ; Move the high byte of the result to A
-				MOV B, L      ; Move the low byte of the result to B
+				LXI SP, 0xFFFF
+				LXI H, 0xFFFF
+				DAD SP
+				MOV A, H
+				MOV B, L
 				HLT
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
