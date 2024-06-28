@@ -429,11 +429,17 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 
 	case 0x09: // DAD B
-		return ErrNotImplemented(opCode)
+		hl := joinBytes(cpu.H, cpu.L)
+		cpu.flags.Carry = 0xFFFF-cpu.getBC() < hl
+		cpu.H, cpu.L = splitWord(hl + cpu.getBC())
 	case 0x19: // DAD D
-		return ErrNotImplemented(opCode)
+		hl := joinBytes(cpu.H, cpu.L)
+		cpu.flags.Carry = 0xFFFF-cpu.getDE() < hl
+		cpu.H, cpu.L = splitWord(hl + cpu.getDE())
 	case 0x29: // DAD H
-		return ErrNotImplemented(opCode)
+		hl := joinBytes(cpu.H, cpu.L)
+		cpu.flags.Carry = 0xFFFF-hl < hl
+		cpu.H, cpu.L = splitWord(hl + hl)
 	case 0x39: // DAD SP
 		hl := joinBytes(cpu.H, cpu.L)
 		cpu.flags.Carry = 0xFFFF-cpu.stackPointer < hl
@@ -834,4 +840,12 @@ func (cpu *CPU) setSignZeroParityFlags(input byte) {
 // temporary function to be removed when all instructions are implemented
 func ErrNotImplemented(opCode byte) error {
 	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
+}
+
+func (cpu CPU) getBC() word {
+	return joinBytes(cpu.B, cpu.C)
+}
+
+func (cpu CPU) getDE() word {
+	return joinBytes(cpu.D, cpu.E)
 }

@@ -1476,9 +1476,119 @@ func TestCPUInstructions(t *testing.T) {
 		},
 		// ADI
 		// ACI
-		// DAD B
-		// DAD D
-		// DAD H
+		{
+			name: "DAD B (basic addition)",
+			code: `
+				LXI B, 0x1000
+				LXI H, 0x2000
+				DAD B
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x30, B: 0x00, H: 0x30, L: 0x00},
+		},
+		{
+			name: "DAD B (zero result including carry)",
+			code: `
+				LXI B, 0x8000
+				LXI H, 0x8000
+				DAD B
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
+		},
+		{
+			name: "DAD B (negative result)",
+			code: `
+				LXI B, 0xFF00
+				LXI H, 0x0100
+				DAD B
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
+		},
+		{
+			name: "DAD B (large value with overflow)",
+			code: `
+				LXI B, 0xFFFF
+				LXI H, 0xFFFF
+				DAD B
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0xFE, C: 0xFF, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}},
+		},
+		{
+			name: "DAD D (basic addition)",
+			code: `
+				LXI D, 0x1000
+				LXI H, 0x2000
+				DAD D
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x30, B: 0x00, D: 0x10, H: 0x30, L: 0x00},
+		},
+		{
+			name: "DAD H (basic addition)",
+			code: `
+				LXI H, 0x2000
+				DAD H
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x40, B: 0x00, H: 0x40, L: 0x00},
+		},
+		{
+			name: "DAD H (zero result including carry)",
+			code: `
+				LXI H, 0x8000
+				DAD H
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
+		},
+		{
+			name: "DAD H (negative result)",
+			code: `
+				LXI H, 0x0100
+				DAD H
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02, B: 0x00, H: 0x02, L: 0x00},
+		},
+		{
+			name: "DAD H (large value with overflow)",
+			code: `
+				LXI H, 0xFFFF
+				DAD H
+				MOV A, H
+				MOV B, L
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0xFE, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}},
+		},
 		{
 			name: "DAD SP (basic addition)",
 			code: `
@@ -1506,7 +1616,7 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}, stackPointer: 0x8000},
 		},
 		{
-			name: "DAD SP (negative result - two's complement)",
+			name: "DAD SP (negative result)",
 			code: `
 				LXI SP, 0xFF00
 				LXI H, 0x0100
