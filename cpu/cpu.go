@@ -8,8 +8,8 @@ import (
 type word uint16
 
 type Bus interface {
-	ReadByte(address word) byte
-	WriteByte(address word, data byte)
+	ReadByteAt(address word) (byte, error)
+	WriteByteAt(address word, data byte)
 	length() uint16
 }
 
@@ -17,11 +17,14 @@ type Memory struct {
 	Data []byte
 }
 
-func (memory Memory) ReadByte(address word) byte {
-	return memory.Data[address]
+func (memory Memory) ReadByteAt(address word) (byte, error) {
+	if int(address) >= len(memory.Data) {
+		return 0, fmt.Errorf("address out of bounds")
+	}
+	return memory.Data[address], nil
 }
 
-func (memory *Memory) WriteByte(address word, data byte) {
+func (memory *Memory) WriteByteAt(address word, data byte) {
 	memory.Data[address] = data
 }
 
@@ -29,16 +32,28 @@ func (memory Memory) length() uint16 {
 	return uint16(len(memory.Data))
 }
 
-func (cpu *CPU) fetchByte() byte {
-	nextByte := cpu.Bus.ReadByte(cpu.programCounter)
+func (cpu *CPU) fetchByte() (byte, error) {
+	nextByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
+	if err != nil {
+		return 0, err
+	}
+
 	cpu.programCounter++
-	return nextByte
+	return nextByte, nil
 }
 
-func (cpu *CPU) fetchWord() word {
-	low := cpu.fetchByte() // 8080 is little endian, so low byte comes first when reading from memory
-	high := cpu.fetchByte()
-	return joinBytes(high, low)
+func (cpu *CPU) fetchWord() (word, error) {
+	low, err := cpu.fetchByte() // 8080 is little endian, so low byte comes first when reading from memory
+	if err != nil {
+		return 0, err
+	}
+
+	high, err := cpu.fetchByte()
+	if err != nil {
+		return 0, err
+	}
+
+	return joinBytes(high, low), nil
 }
 
 type Flags struct {
@@ -78,19 +93,26 @@ func (cpu CPU) DumpRegisters() {
 	fmt.Print(sb.String())
 }
 
-func (cpu *CPU) DumpMemory(startAddress, endAddress word) {
+func (cpu *CPU) DumpMemory(startAddress, endAddress word) error {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("Memory: %v bytes, ", cpu.Bus.length()))
 	sb.WriteString(fmt.Sprintf("Start: 0x%0004X, End: 0x%0004X\n", startAddress, endAddress))
 	sb.WriteString("    ")
 	for i := startAddress; i < endAddress; i++ {
-		sb.WriteString(fmt.Sprintf("%02X ", cpu.Bus.ReadByte(word(i))))
+		nextByte, err := cpu.Bus.ReadByteAt(word(i))
+		if err != nil {
+			return err
+		}
+
+		sb.WriteString(fmt.Sprintf("%02X ", nextByte))
 		if (i+1)%16 == 0 {
 			sb.WriteString("\n    ")
 		}
 	}
 	sb.WriteString("\n-------------------------------------\n")
 	fmt.Print(sb.String())
+
+	return nil
 }
 
 func boolToInt(in bool) int {
@@ -124,7 +146,12 @@ func NewCPU(memory *Memory) *CPU {
 
 func (cpu *CPU) Run() error {
 	for !cpu.halted {
-		err := cpu.Execute(cpu.fetchByte())
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+
+		err = cpu.Execute(fetchedByte)
 		if err != nil {
 			return err
 		}
@@ -138,6 +165,6 @@ func (cpu *CPU) Run() error {
 
 func (cpu *CPU) Load(data []byte) {
 	for addr, value := range data {
-		cpu.Bus.WriteByte(word(addr), value)
+		cpu.Bus.WriteByteAt(word(addr), value)
 	}
 }

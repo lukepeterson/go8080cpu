@@ -31,7 +31,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x45: // MOV B,L - Move register to register
 		cpu.B = cpu.L
 	case 0x46: // MOV B,M - Move memory to register
-		cpu.B = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.B = nextByte
 	case 0x47: // MOV B,A - Move register to register
 		cpu.B = cpu.A
 
@@ -49,10 +53,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x4D: // MOV C,L - Move register to register
 		cpu.C = cpu.L
 	case 0x4E: // MOV C,M - Move memory to register
-		cpu.C = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.C = nextByte
 	case 0x4F: // MOV C,A - Move register to register
 		cpu.C = cpu.A
-
 	case 0x50: // MOV D,B - Move register to register
 		cpu.D = cpu.B
 	case 0x51: // MOV D,C - Move register to register
@@ -67,7 +74,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x55: // MOV D,L - Move register to register
 		cpu.D = cpu.L
 	case 0x56: // MOV D,M - Move memory to register
-		cpu.D = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.D = nextByte
 	case 0x57: // MOV D,A
 		cpu.D = cpu.A
 
@@ -85,7 +96,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x5D: // MOV E,L - Move register to register
 		cpu.E = cpu.L
 	case 0x5E: // MOV E,M - Move memory to register
-		cpu.E = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.E = nextByte
 	case 0x5F: // MOV E,A - Move register to register
 		cpu.E = cpu.A
 
@@ -103,7 +118,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x65: // MOV H,L - Move register to register
 		cpu.H = cpu.L
 	case 0x66: // MOV H,M - Move memory to register
-		cpu.H = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.H = nextByte
 	case 0x67: // MOV H,A - Move register to register
 		cpu.H = cpu.A
 
@@ -121,25 +140,29 @@ func (cpu *CPU) Execute(opCode byte) error {
 		temp := cpu.L
 		cpu.L = temp
 	case 0x6E: // MOV L,M - Move memory to register
-		cpu.L = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.L = nextByte
 	case 0x6F: // MOV L,A - Move register to register
 		cpu.L = cpu.A
 
 	case 0x70: // MOV M,B - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.B)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.B)
 	case 0x71: // MOV M,C - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.C)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.C)
 	case 0x72: // MOV M,D - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.D)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.D)
 	case 0x73: // MOV M,E - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.E)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.E)
 	case 0x74: // MOV M,H - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.H)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.H)
 	case 0x75: // MOV M,L - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.L)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.L)
 	// There is no MOV M, M instruction on the 8080.  0x76 is used for HLT.
 	case 0x77: // MOV M,A - Move register to memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.A)
+		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.A)
 
 	case 0x78: // MOV A,B - Move register to register
 		cpu.A = cpu.B
@@ -154,103 +177,226 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x7D: // MOV A,L - Move register to register
 		cpu.A = cpu.L
 	case 0x7E: // MOV A,M - Move memory to register
-		cpu.A = cpu.Bus.ReadByte(cpu.getHL())
+		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.A = nextByte
 	case 0x7F: // MOV A,A - Move register to register
 		temp := cpu.A
 		cpu.A = temp
 
 	case 0x06: // MVI B - Move immediate register
-		cpu.B = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.B = nextByte
 	case 0x0E: // MVI C - Move immediate register
-		cpu.C = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.C = nextByte
 	case 0x16: // MVI D - Move immediate register
-		cpu.D = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.D = nextByte
 	case 0x1E: // MVI E - Move immediate register
-		cpu.E = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.E = nextByte
 	case 0x26: // MVI H - Move immediate register
-		cpu.H = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.H = nextByte
 	case 0x2E: // MVI L - Move immediate register
-		cpu.L = cpu.fetchByte()
+		nextByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.L = nextByte
 	case 0x36: // MVI M - Move immediate memory
-		cpu.Bus.WriteByte(cpu.getHL(), cpu.fetchByte())
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.Bus.WriteByteAt(cpu.getHL(), fetchedByte)
 	case 0x3E: // MVI A - Move immediate register
-		cpu.A = cpu.fetchByte()
-
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.A = fetchedByte
 	case 0x01: // LXI B - Load immediate register paid B&C
-		cpu.B, cpu.C = splitWord(cpu.fetchWord())
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.B, cpu.C = splitWord(fetchedWord)
 	case 0x11: // LXI D - Load immediate register pair D&E
-		cpu.D, cpu.E = splitWord(cpu.fetchWord())
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.D, cpu.E = splitWord(fetchedWord)
 	case 0x21: // LXI H - Load immediate register pair H&L
-		cpu.H, cpu.L = splitWord(cpu.fetchWord())
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.H, cpu.L = splitWord(fetchedWord)
 	case 0x02: // STAX B - Store A indirect
-		cpu.Bus.WriteByte(cpu.getBC(), cpu.A)
+		cpu.Bus.WriteByteAt(cpu.getBC(), cpu.A)
 	case 0x12: // STAX D - Store A indirect
-		cpu.Bus.WriteByte(cpu.getDE(), cpu.A)
+		cpu.Bus.WriteByteAt(cpu.getDE(), cpu.A)
 	case 0x0A: // LDAX B - Load A indirect
-		cpu.A = cpu.Bus.ReadByte(cpu.getBC())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getBC())
+		if err != nil {
+			return err
+		}
+		cpu.A = readByte
 	case 0x1A: // LDAX D - Load A indirect
-		cpu.A = cpu.Bus.ReadByte(cpu.getDE())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getDE())
+		if err != nil {
+			return err
+		}
+		cpu.A = readByte
 	case 0x32: // STA - Store A direct
-		cpu.Bus.WriteByte(cpu.fetchWord(), cpu.A)
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.Bus.WriteByteAt(fetchedWord, cpu.A)
 	case 0x3A: // LDA - Load A direct
-		cpu.A = cpu.Bus.ReadByte(cpu.fetchWord())
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		readByte, err := cpu.Bus.ReadByteAt(fetchedWord)
+		if err != nil {
+			return err
+		}
+		cpu.A = readByte
 	case 0x22: // SHLD - Store H&L direct
-		address := cpu.fetchWord()
-		cpu.Bus.WriteByte(address, cpu.L)
-		cpu.Bus.WriteByte(address+1, cpu.H)
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		address := fetchedWord
+		cpu.Bus.WriteByteAt(address, cpu.L)
+		cpu.Bus.WriteByteAt(address+1, cpu.H)
 	case 0x2A: // LHLD - Load H&L direct
-		address := cpu.fetchWord()
-		cpu.L = cpu.Bus.ReadByte(address)
-		cpu.H = cpu.Bus.ReadByte(address + 1)
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		address := fetchedWord
+		readByte, err := cpu.Bus.ReadByteAt(address)
+		if err != nil {
+			return err
+		}
+		cpu.L = readByte
+		readByte, err = cpu.Bus.ReadByteAt(address + 1)
+		if err != nil {
+			return err
+		}
+		cpu.H = readByte
 	case 0xEB: // XCHG - Exchange D&E, H&L registers
 		cpu.D, cpu.E, cpu.H, cpu.L = cpu.H, cpu.L, cpu.D, cpu.E
 
 	// STACK OPERATIONS
 	case 0xC5: // PUSH B - Push register pair B&C to stack
 		high, low := splitWord(cpu.getBC())
-		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xD5: // PUSH D - Push register pair D&E to stack
 		high, low := splitWord(cpu.getDE())
-		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xE5: // PUSH H - Push register pair H&L to stack
 		high, low := splitWord(cpu.getHL())
-		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xF5: // PUSH PSW - Push register A and flags to stack
 		high, low := splitWord(joinBytes(cpu.A, cpu.getFlags()))
-		cpu.Bus.WriteByte(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByte(cpu.stackPointer-2, low)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
+		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xC1: // POP B - Pop register pair B&C off stack
-		cpu.B = cpu.Bus.ReadByte(cpu.stackPointer + 1)
-		cpu.C = cpu.Bus.ReadByte(cpu.stackPointer)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		if err != nil {
+			return err
+		}
+		cpu.B = readByte
+		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
+		if err != nil {
+			return err
+		}
+		cpu.C = readByte
 		cpu.stackPointer += 2
 	case 0xD1: // POP D - Pop register pair D&E off stack
-		cpu.D = cpu.Bus.ReadByte(cpu.stackPointer + 1)
-		cpu.E = cpu.Bus.ReadByte(cpu.stackPointer)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		if err != nil {
+			return err
+		}
+		cpu.D = readByte
+		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
+		if err != nil {
+			return err
+		}
+		cpu.E = readByte
 		cpu.stackPointer += 2
 	case 0xE1: // POP H - Pop register pair H&L off stack
-		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
-		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		if err != nil {
+			return err
+		}
+		cpu.H = readByte
+		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
+		if err != nil {
+			return err
+		}
+		cpu.L = readByte
 		cpu.stackPointer += 2
 	case 0xF1: // POP PSW - Pop register A and flags off stack
-		a, flags := splitWord(cpu.popStack())
+		readWord, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		a, flags := splitWord(readWord)
 		cpu.A = a
 		cpu.setFlags(flags)
 	case 0xE3: // XTHL - Exchange top of stack with H&L
-		cpu.H = cpu.Bus.ReadByte(cpu.stackPointer + 1)
-		cpu.L = cpu.Bus.ReadByte(cpu.stackPointer)
-		cpu.Bus.WriteByte(cpu.stackPointer+1, cpu.H)
-		cpu.Bus.WriteByte(cpu.stackPointer, cpu.L)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		if err != nil {
+			return err
+		}
+		cpu.H = readByte
+		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
+		if err != nil {
+			return err
+		}
+		cpu.L = readByte
+		cpu.Bus.WriteByteAt(cpu.stackPointer+1, cpu.H)
+		cpu.Bus.WriteByteAt(cpu.stackPointer, cpu.L)
 	case 0xF9: // SPHL - Load stack pointer from H&L
 		cpu.stackPointer = cpu.getHL()
 	case 0x31: // LXI SP - Load immediate stack pointer
-		cpu.stackPointer = cpu.fetchWord()
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.stackPointer = fetchedWord
 	case 0x33: // INX SP - Increment stack pointer
 		cpu.stackPointer++
 	case 0x3B: // DCX SP - Decrement stack pointer
@@ -258,7 +404,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// JUMP
 	case 0xC3: // JMP
-		cpu.programCounter = cpu.fetchWord()
+		fetchedWord, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.programCounter = fetchedWord
 	case 0xDA: // JC
 		return ErrNotImplemented(opCode)
 	case 0xD2: // JNC
@@ -350,9 +500,12 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x2C: // INR L
 		cpu.inr(&cpu.L)
 	case 0x34: // INR M
-		tempM := cpu.Bus.ReadByte(cpu.getHL())
-		cpu.inr(&tempM)
-		cpu.Bus.WriteByte(cpu.getHL(), tempM)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.inr(&readByte)
+		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
 	case 0x3C: // INR A
 		cpu.inr(&cpu.A)
 
@@ -369,9 +522,12 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x2D: // DCR L
 		cpu.dcr(&cpu.L)
 	case 0x35: // DCR M
-		tempM := cpu.Bus.ReadByte(cpu.getHL())
-		cpu.dcr(&tempM)
-		cpu.Bus.WriteByte(cpu.getHL(), tempM)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.dcr(&readByte)
+		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
 	case 0x3D: // DCR A
 		cpu.dcr(&cpu.A)
 
@@ -402,7 +558,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x85: // ADD L
 		cpu.add(cpu.L, NOCARRY)
 	case 0x86: // ADD M
-		cpu.add(cpu.Bus.ReadByte(cpu.getHL()), NOCARRY)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.add(readByte, NOCARRY)
 	case 0x87: // ADD A
 		cpu.add(cpu.A, NOCARRY)
 
@@ -419,7 +579,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x8D: // ADC L
 		cpu.add(cpu.L, cpu.flags.Carry)
 	case 0x8E: // ADC M
-		cpu.add(cpu.Bus.ReadByte(cpu.getHL()), cpu.flags.Carry)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.add(readByte, cpu.flags.Carry)
 	case 0x8F: // ADC A
 		cpu.add(cpu.A, cpu.flags.Carry)
 
@@ -647,11 +811,19 @@ func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }
 
-func (cpu *CPU) popStack() word {
-	low := cpu.Bus.ReadByte(cpu.stackPointer)
-	high := cpu.Bus.ReadByte(cpu.stackPointer + 1)
+func (cpu *CPU) popStack() (word, error) {
+	readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
+	if err != nil {
+		return 0, err
+	}
+	low := readByte
+	readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+	if err != nil {
+		return 0, err
+	}
+	high := readByte
 	cpu.stackPointer += 2
-	return joinBytes(high, low)
+	return joinBytes(high, low), nil
 }
 
 // inr increments the value of a given register by 1, updating the CPU flags accordingly.
