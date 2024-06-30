@@ -937,6 +937,16 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{stackPointer: 0x0000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{stackPointer: 0xFFFF},
 		},
+		// JMP - Jump unconditional
+		// JC - Jump on carry
+		// JNC - Jump on no carry
+		// JZ - Jump on zero
+		// JNZ - Jump on no zero
+		// JP - Jump on positive
+		// JM - Jump on minus
+		// JPE - Jump on parity even
+		// JPO - Jump on parity odd
+		// PCHL - H&L to program counter
 		{
 			name: "INR A from 0x01",
 			code: `

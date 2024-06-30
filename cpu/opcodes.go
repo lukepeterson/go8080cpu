@@ -155,7 +155,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.H)
 	case 0x75: // MOV M,L - Move register to memory
 		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.L)
-	// There is no MOV M, M instruction on the 8080.  0x76 is used for HLT.
 	case 0x77: // MOV M,A - Move register to memory
 		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.A)
 	case 0x78: // MOV A,B - Move register to register
@@ -179,7 +178,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x7F: // MOV A,A - Move register to register
 		temp := cpu.A
 		cpu.A = temp
-
 	case 0x06: // MVI B - Move immediate register
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
@@ -397,29 +395,29 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.stackPointer--
 
 	// JUMP
-	case 0xC3: // JMP
+	case 0xC3: // JMP - Jump unconditional
 		fetchedWord, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
 		cpu.programCounter = fetchedWord
-	case 0xDA: // JC
+	case 0xDA: // JC - Jump on carry
 		return ErrNotImplemented(opCode)
-	case 0xD2: // JNC
+	case 0xD2: // JNC - Jump on no carry
 		return ErrNotImplemented(opCode)
-	case 0xCA: // JZ
+	case 0xCA: // JZ - Jump on zero
 		return ErrNotImplemented(opCode)
-	case 0xC2: // JNZ
+	case 0xC2: // JNZ - Jump on no zero
 		return ErrNotImplemented(opCode)
-	case 0xF2: // JP
+	case 0xF2: // JP - Jump on positive
 		return ErrNotImplemented(opCode)
-	case 0xFA: // JM
+	case 0xFA: // JM - Jump on minus
 		return ErrNotImplemented(opCode)
-	case 0xEA: // JPE
+	case 0xEA: // JPE - Jump on parity even
 		return ErrNotImplemented(opCode)
-	case 0xE2: // JPO
+	case 0xE2: // JPO - Jump on parity odd
 		return ErrNotImplemented(opCode)
-	case 0xE9: // PCHL
+	case 0xE9: // PCHL - H&L to program counter
 		return ErrNotImplemented(opCode)
 
 	// CALL
@@ -557,7 +555,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.add(readByte, NOCARRY)
 	case 0x87: // ADD A
 		cpu.add(cpu.A, NOCARRY)
-
 	case 0x88: // ADC B
 		cpu.add(cpu.B, WITHCARRY)
 	case 0x89: // ADC C
@@ -636,7 +633,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0x9F: // SBB A
 		return ErrNotImplemented(opCode)
-
 	case 0xD6: // SUI
 		return ErrNotImplemented(opCode)
 	case 0xDE: // SBI
@@ -659,7 +655,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0xA7: // ANA A
 		return ErrNotImplemented(opCode)
-
 	case 0xA8: // XRA B
 		return ErrNotImplemented(opCode)
 	case 0xA9: // XRA C
@@ -676,7 +671,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0xAF: // XRA A
 		return ErrNotImplemented(opCode)
-
 	case 0xB0: // ORA B
 		return ErrNotImplemented(opCode)
 	case 0xB1: // ORA C
@@ -693,7 +687,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0xB7: // ORA A
 		return ErrNotImplemented(opCode)
-
 	case 0xB8: // CMP B
 		return ErrNotImplemented(opCode)
 	case 0xB9: // CMP C
@@ -710,7 +703,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 	case 0xBF: // CMP A
 		return ErrNotImplemented(opCode)
-
 	case 0xE6: // ANI
 		return ErrNotImplemented(opCode)
 	case 0xEE: // XRI
