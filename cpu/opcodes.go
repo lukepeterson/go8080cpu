@@ -31,14 +31,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x45: // MOV B,L - Move register to register
 		cpu.B = cpu.L
 	case 0x46: // MOV B,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.B = nextByte
+		cpu.B = readByte
 	case 0x47: // MOV B,A - Move register to register
 		cpu.B = cpu.A
-
 	case 0x48: // MOV C,B - Move register to register
 		cpu.C = cpu.B
 	case 0x49: // MOV C,C - Move register to register
@@ -53,11 +52,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x4D: // MOV C,L - Move register to register
 		cpu.C = cpu.L
 	case 0x4E: // MOV C,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.C = nextByte
+		cpu.C = readByte
 	case 0x4F: // MOV C,A - Move register to register
 		cpu.C = cpu.A
 	case 0x50: // MOV D,B - Move register to register
@@ -74,14 +73,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x55: // MOV D,L - Move register to register
 		cpu.D = cpu.L
 	case 0x56: // MOV D,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.D = nextByte
+		cpu.D = readByte
 	case 0x57: // MOV D,A
 		cpu.D = cpu.A
-
 	case 0x58: // MOV E,B - Move register to register
 		cpu.E = cpu.B
 	case 0x59: // MOV E,C - Move register to register
@@ -96,14 +94,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x5D: // MOV E,L - Move register to register
 		cpu.E = cpu.L
 	case 0x5E: // MOV E,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.E = nextByte
+		cpu.E = readByte
 	case 0x5F: // MOV E,A - Move register to register
 		cpu.E = cpu.A
-
 	case 0x60: // MOV H,B - Move register to register
 		cpu.H = cpu.B
 	case 0x61: // MOV H,C - Move register to register
@@ -118,14 +115,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x65: // MOV H,L - Move register to register
 		cpu.H = cpu.L
 	case 0x66: // MOV H,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.H = nextByte
+		cpu.H = readByte
 	case 0x67: // MOV H,A - Move register to register
 		cpu.H = cpu.A
-
 	case 0x68: // MOV L,B - Move register to register
 		cpu.L = cpu.B
 	case 0x69: // MOV L,C - Move register to register
@@ -140,14 +136,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 		temp := cpu.L
 		cpu.L = temp
 	case 0x6E: // MOV L,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.L = nextByte
+		cpu.L = readByte
 	case 0x6F: // MOV L,A - Move register to register
 		cpu.L = cpu.A
-
 	case 0x70: // MOV M,B - Move register to memory
 		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.B)
 	case 0x71: // MOV M,C - Move register to memory
@@ -163,7 +158,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 	// There is no MOV M, M instruction on the 8080.  0x76 is used for HLT.
 	case 0x77: // MOV M,A - Move register to memory
 		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.A)
-
 	case 0x78: // MOV A,B - Move register to register
 		cpu.A = cpu.B
 	case 0x79: // MOV A,C - Move register to register
@@ -177,51 +171,51 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x7D: // MOV A,L - Move register to register
 		cpu.A = cpu.L
 	case 0x7E: // MOV A,M - Move memory to register
-		nextByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.A = nextByte
+		cpu.A = readByte
 	case 0x7F: // MOV A,A - Move register to register
 		temp := cpu.A
 		cpu.A = temp
 
 	case 0x06: // MVI B - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.B = nextByte
+		cpu.B = fetchedByte
 	case 0x0E: // MVI C - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.C = nextByte
+		cpu.C = fetchedByte
 	case 0x16: // MVI D - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.D = nextByte
+		cpu.D = fetchedByte
 	case 0x1E: // MVI E - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.E = nextByte
+		cpu.E = fetchedByte
 	case 0x26: // MVI H - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.H = nextByte
+		cpu.H = fetchedByte
 	case 0x2E: // MVI L - Move immediate register
-		nextByte, err := cpu.fetchByte()
+		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.L = nextByte
+		cpu.L = fetchedByte
 	case 0x36: // MVI M - Move immediate memory
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
@@ -508,7 +502,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
 	case 0x3C: // INR A
 		cpu.inr(&cpu.A)
-
 	case 0x05: // DCR B
 		cpu.dcr(&cpu.B)
 	case 0x0D: // DCR C
@@ -530,7 +523,6 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
 	case 0x3D: // DCR A
 		cpu.dcr(&cpu.A)
-
 	case 0x03: // INX B
 		cpu.B, cpu.C = splitWord(cpu.getBC() + 1)
 	case 0x13: // INX D
@@ -567,31 +559,37 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.add(cpu.A, NOCARRY)
 
 	case 0x88: // ADC B
-		cpu.add(cpu.B, cpu.flags.Carry)
+		cpu.add(cpu.B, WITHCARRY)
 	case 0x89: // ADC C
-		cpu.add(cpu.C, cpu.flags.Carry)
+		cpu.add(cpu.C, WITHCARRY)
 	case 0x8A: // ADC D
-		cpu.add(cpu.D, cpu.flags.Carry)
+		cpu.add(cpu.D, WITHCARRY)
 	case 0x8B: // ADC E
-		cpu.add(cpu.E, cpu.flags.Carry)
+		cpu.add(cpu.E, WITHCARRY)
 	case 0x8C: // ADC H
-		cpu.add(cpu.H, cpu.flags.Carry)
+		cpu.add(cpu.H, WITHCARRY)
 	case 0x8D: // ADC L
-		cpu.add(cpu.L, cpu.flags.Carry)
+		cpu.add(cpu.L, WITHCARRY)
 	case 0x8E: // ADC M
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.add(readByte, cpu.flags.Carry)
+		cpu.add(readByte, WITHCARRY)
 	case 0x8F: // ADC A
-		cpu.add(cpu.A, cpu.flags.Carry)
-
+		cpu.add(cpu.A, WITHCARRY)
 	case 0xC6: // ADI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.add(fetchedByte, NOCARRY)
 	case 0xCE: // ACI
-		return ErrNotImplemented(opCode)
-
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.add(fetchedByte, WITHCARRY)
 	case 0x09: // DAD B
 		cpu.flags.Carry = 0xFFFF-cpu.getBC() < cpu.getHL()
 		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.getBC())

@@ -50,12 +50,12 @@ func (cpu *CPU) DumpMemory(startAddress, endAddress word) error {
 	sb.WriteString(fmt.Sprintf("Start: 0x%0004X, End: 0x%0004X\n", startAddress, endAddress))
 	sb.WriteString("    ")
 	for i := startAddress; i < endAddress; i++ {
-		nextByte, err := cpu.Bus.ReadByteAt(word(i))
+		readByte, err := cpu.Bus.ReadByteAt(word(i))
 		if err != nil {
 			return err
 		}
 
-		sb.WriteString(fmt.Sprintf("%02X ", nextByte))
+		sb.WriteString(fmt.Sprintf("%02X ", readByte))
 		if (i+1)%16 == 0 {
 			sb.WriteString("\n    ")
 		}

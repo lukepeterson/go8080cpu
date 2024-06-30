@@ -6,7 +6,7 @@ import (
 	"github.com/lukepeterson/go8080assembler/assembler"
 )
 
-func TestExecute(t *testing.T) {
+func TestCPUInstructions(t *testing.T) {
 	testCases := []struct {
 		name    string
 		code    string
@@ -1474,8 +1474,24 @@ func TestExecute(t *testing.T) {
 			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x01},
 		},
-		// ADI
-		// ACI
+		{
+			name: "ADI",
+			code: `
+				ADI 0x02
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x02},
+		},
+		{
+			name: "ACI",
+			code: `
+				ACI 0x20
+				HLT
+			`,
+			initCPU: &CPU{A: 0x10, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x31},
+		},
 		{
 			name: "DAD B (basic addition)",
 			code: `

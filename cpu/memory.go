@@ -26,7 +26,7 @@ func (cpu *CPU) Load(data []byte) {
 
 func (memory Memory) ReadByteAt(address word) (byte, error) {
 	if int(address) >= len(memory.Data) {
-		return 0, fmt.Errorf("address 0x%v out of bounds", address)
+		return 0, fmt.Errorf("address 0x%04X out of bounds", address)
 	}
 	return memory.Data[address], nil
 }
@@ -40,13 +40,13 @@ func (memory Memory) length() uint16 {
 }
 
 func (cpu *CPU) fetchByte() (byte, error) {
-	nextByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
+	readByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
 	if err != nil {
 		return 0, err
 	}
 
 	cpu.programCounter++
-	return nextByte, nil
+	return readByte, nil
 }
 
 func (cpu *CPU) fetchWord() (word, error) {
