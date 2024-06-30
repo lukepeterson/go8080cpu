@@ -85,7 +85,7 @@ func (cpu *CPU) Run() error {
 		}
 
 		// cpu.DumpRegisters()
-		// cpu.DumpMemory(0x2000, 0x2000+32)
+		// cpu.DumpMemory(0x00, word(cpu.Bus.length()))
 	}
 
 	return nil

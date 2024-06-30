@@ -22,7 +22,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :x: Return
 - :x: Restart
 - :white_check_mark: Increment and decrement
-- :x: Add
+- :white_check_mark: Add
 - :x: Subtract
 - :x: Logical
 - :x: Rotate
@@ -33,7 +33,6 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 
 ## TODO
 - :x: Fix out-of-range errors when working at edge of 16-bit address space (POP H needs 0xFFFF+1 to work)
-- :x: Fix the boolToInt() madness
 - :x: Force some `wantErr` errors in the CPU and detect them
 
 # Running tests
