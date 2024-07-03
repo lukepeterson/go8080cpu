@@ -882,10 +882,22 @@ func (cpu *CPU) dcr(register *byte) {
 //	// cpu.A is 0x31
 //	// cpu.flags are updated based on the result
 func (cpu *CPU) add(register byte, carry byte) {
-	result := cpu.A + register + carry
-	cpu.setSignZeroParityFlags(result)
-	cpu.flags.Carry, cpu.flags.AuxCarry = checkCarryOut(cpu.A, register, carry)
-	cpu.A = result
+	// Calculate the result, but capture the overflow by, casting to a word (uint16).
+	result := word(cpu.A) + word(register) + word(carry)
+
+	// Set the carry flag, by checking whether we've got an overflow into bit 8.
+	cpu.flags.Carry = result > 0xFF
+
+	// Set the auxillary carry flag, by checking whether our addition result in a carry into bit 4.
+	auxCarrySum := (cpu.A&0x0F + register&0x0F + carry&0x0F)
+	cpu.flags.AuxCarry = auxCarrySum > 0x0F
+
+	// Set the sign, zero and parity flags, based on the LSB only, given we've already
+	// taken note of whether there was a carry into bit 8 above.
+	cpu.setSignZeroParityFlags(byte(result))
+
+	// Return the 7 LSBs only
+	cpu.A = byte(result)
 }
 
 // joinBytes combines two bytes into a 16-bit word.
@@ -928,36 +940,6 @@ func joinBytes(high, low byte) word {
 //	// low is 0x34
 func splitWord(address word) (high, low byte) {
 	return byte(address >> 8), byte(address)
-}
-
-// checkCarryOut calculates and returns the carry-out and auxiliary carry-out
-// from the addition of two bytes and an optional carry-in.
-//
-// The function performs the following steps:
-// 1. Adds the two input bytes and the carry-in value, storing the result in a 16-bit word.
-// 2. Determines if there is a carry-out from the 8th bit (outCarry).
-// 3. Determines if there is an auxiliary carry-out from the 4th bit (auxCarry).
-//
-// Parameters:
-// - a (byte): The first byte to be added.
-// - b (byte): The second byte to be added.
-// - inCarry (byte): A boolean indicating if there is an initial carry-in.
-//
-// Returns:
-// - bool: True if there is a carry-out from the 8th bit, false otherwise.
-// - bool: True if there is an auxiliary carry-out from the 4th bit, false otherwise.
-//
-// Example:
-//
-//	outCarry, auxCarry := checkCarryOut(0x1F, 0xE1, 1)
-//	// outCarry is false
-//	// auxCarry is true
-func checkCarryOut(a, b byte, inCarry byte) (bool, bool) {
-	sum := word(a) + word(b) + word(inCarry)
-	outCarry := sum > 0xFF                          // Carry-out on bit 8?
-	auxCarry := (a&0xF + b&0xF + inCarry&0xF) > 0xF // Carry-out on bit 4?
-
-	return outCarry, auxCarry
 }
 
 // setSignZeroParityFlags sets the Sign, Zero, and Parity flags in the CPU's flag register

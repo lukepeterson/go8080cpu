@@ -1294,7 +1294,7 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
-			name: "ADD B (carry)",
+			name: "ADD B (carry out on bit-8)",
 			code: `
 				ADD B
 				HLT
@@ -1337,6 +1337,15 @@ func TestCPUInstructions(t *testing.T) {
 				`,
 			initCPU: &CPU{A: 0x7E, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x7F, B: 0x01},
+		},
+		{
+			name: "ADD B (maximum result with carry)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: &CPU{A: 0xFF, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFE, B: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
 		},
 		{
 			name: "ADD C",
@@ -1722,78 +1731,4 @@ func (cpu *CPU) registersEqual(otherCPU *CPU) bool {
 	}
 
 	return false
-}
-
-func TestCheckCarryOut(t *testing.T) {
-	type args struct {
-		a     byte
-		b     byte
-		carry byte
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantCarry    bool
-		wantAuxCarry bool
-	}{
-		{
-			name:         "no carry, no aux carry (zero case)",
-			args:         args{a: 0x00, b: 0x00, carry: NOCARRY},
-			wantCarry:    false,
-			wantAuxCarry: false,
-		},
-		{
-			name:         "no carry, no aux carry (small numbers)",
-			args:         args{a: 0x01, b: 0x01, carry: NOCARRY},
-			wantCarry:    false,
-			wantAuxCarry: false,
-		},
-		{
-			name:         "no carry, aux carry (lower nibble sum 16)",
-			args:         args{a: 0x0F, b: 0x01, carry: NOCARRY},
-			wantCarry:    false,
-			wantAuxCarry: true,
-		},
-		{
-			name:         "no carry, aux carry (lower nibble sum 17)",
-			args:         args{a: 0x08, b: 0x08, carry: WITHCARRY},
-			wantCarry:    false,
-			wantAuxCarry: true,
-		},
-		{
-			name:         "carry, no aux carry (total sum 256)",
-			args:         args{a: 0xF0, b: 0x10, carry: NOCARRY},
-			wantCarry:    true,
-			wantAuxCarry: false,
-		},
-		{
-			name:         "carry, no aux carry (total sum 257)",
-			args:         args{a: 0x80, b: 0x80, carry: WITHCARRY},
-			wantCarry:    true,
-			wantAuxCarry: false,
-		},
-		{
-			name:         "carry, aux carry (total sum 256 + lower nibble sum 16)",
-			args:         args{a: 0xFF, b: 0x01, carry: NOCARRY},
-			wantCarry:    true,
-			wantAuxCarry: true,
-		},
-		{
-			name:         "carry, aux carry (total sum 255 + 1)",
-			args:         args{a: 0x7F, b: 0x7F, carry: WITHCARRY},
-			wantCarry:    false,
-			wantAuxCarry: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotCarry, gotAuxCarry := checkCarryOut(tt.args.a, tt.args.b, tt.args.carry)
-			if gotCarry != tt.wantCarry {
-				t.Errorf("carry() gotCarry = %v, want %v", gotCarry, tt.wantCarry)
-			}
-			if gotAuxCarry != tt.wantAuxCarry {
-				t.Errorf("carry() gotAuxCarry = %v, want %v", gotAuxCarry, tt.wantAuxCarry)
-			}
-		})
-	}
 }
