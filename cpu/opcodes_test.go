@@ -1338,7 +1338,6 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0x7E, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x7F, B: 0x01},
 		},
-
 		{
 			name: "ADD C",
 			code: `
@@ -1729,7 +1728,7 @@ func TestCheckCarryOut(t *testing.T) {
 	type args struct {
 		a     byte
 		b     byte
-		carry bool
+		carry byte
 	}
 	tests := []struct {
 		name         string

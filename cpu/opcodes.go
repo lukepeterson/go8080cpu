@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	NOCARRY   = false
-	WITHCARRY = true
+	NOCARRY   = 0
+	WITHCARRY = 1
 )
 
 // Execute executes the 8-bit instruction passed in via opCode
@@ -882,13 +882,8 @@ func (cpu *CPU) dcr(register *byte) {
 //	cpu.add(0x20, true)
 //	// cpu.A is 0x31
 //	// cpu.flags are updated based on the result
-func (cpu *CPU) add(register byte, carry bool) {
-	var carryValue byte // Cast the bool to a byte for our carry calculation
-	if carry {
-		carryValue = 1
-	}
-
-	result := cpu.A + register + carryValue
+func (cpu *CPU) add(register byte, carry byte) {
+	result := cpu.A + register + carry
 	cpu.setSignZeroParityFlags(result)
 	cpu.flags.Carry, cpu.flags.AuxCarry = checkCarryOut(cpu.A, register, carry)
 	cpu.A = result
@@ -959,14 +954,10 @@ func splitWord(address word) (high, low byte) {
 //	outCarry, auxCarry := checkCarryOut(0x1F, 0xE1, true)
 //	// outCarry is false
 //	// auxCarry is true
-func checkCarryOut(a, b byte, inCarry bool) (bool, bool) {
-	var carryValue byte // Cast the bool to a byte for our carry calculation
-	if inCarry {
-		carryValue = 1
-	}
-	sum := word(a) + word(b) + word(carryValue)
-	outCarry := sum > 0xFF                             // Carry-out on bit 8?
-	auxCarry := (a&0xF + b&0xF + carryValue&0xF) > 0xF // Carry-out on bit 4?
+func checkCarryOut(a, b byte, inCarry byte) (bool, bool) {
+	sum := word(a) + word(b) + word(inCarry)
+	outCarry := sum > 0xFF                          // Carry-out on bit 8?
+	auxCarry := (a&0xF + b&0xF + inCarry&0xF) > 0xF // Carry-out on bit 4?
 
 	return outCarry, auxCarry
 }
