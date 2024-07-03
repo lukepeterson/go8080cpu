@@ -866,11 +866,10 @@ func (cpu *CPU) dcr(register *byte) {
 // updating the accumulator and the CPU flags accordingly.
 //
 // This method performs the following steps:
-// 1. Converts the carry-in boolean to a byte value (1 if true, 0 if false).
-// 2. Adds the accumulator, the register value, and the carry-in value.
-// 3. Sets the Sign, Zero, and Parity flags based on the result.
-// 4. Checks for carry-out and auxiliary carry-out, updating the corresponding flags.
-// 5. Updates the accumulator with the result.
+// 1. Adds the accumulator, the register value, and the carry-in value.
+// 2. Sets the Sign, Zero, and Parity flags based on the result.
+// 3. Checks for carry-out and auxiliary carry-out, updating the corresponding flags.
+// 4. Updates the accumulator with the result.
 //
 // Parameters:
 // - register (byte): The value of the register to be added to the accumulator.
