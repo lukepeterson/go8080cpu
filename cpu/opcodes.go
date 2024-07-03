@@ -935,15 +935,14 @@ func splitWord(address word) (high, low byte) {
 // from the addition of two bytes and an optional carry-in.
 //
 // The function performs the following steps:
-// 1. Converts the carry-in boolean to a byte value (1 if true, 0 if false).
-// 2. Adds the two input bytes and the carry-in value, storing the result in a 16-bit word.
-// 3. Determines if there is a carry-out from the 8th bit (outCarry).
-// 4. Determines if there is an auxiliary carry-out from the 4th bit (auxCarry).
+// 1. Adds the two input bytes and the carry-in value, storing the result in a 16-bit word.
+// 2. Determines if there is a carry-out from the 8th bit (outCarry).
+// 3. Determines if there is an auxiliary carry-out from the 4th bit (auxCarry).
 //
 // Parameters:
 // - a (byte): The first byte to be added.
 // - b (byte): The second byte to be added.
-// - inCarry (bool): A boolean indicating if there is an initial carry-in.
+// - inCarry (byte): A boolean indicating if there is an initial carry-in.
 //
 // Returns:
 // - bool: True if there is a carry-out from the 8th bit, false otherwise.
@@ -951,7 +950,7 @@ func splitWord(address word) (high, low byte) {
 //
 // Example:
 //
-//	outCarry, auxCarry := checkCarryOut(0x1F, 0xE1, true)
+//	outCarry, auxCarry := checkCarryOut(0x1F, 0xE1, 1)
 //	// outCarry is false
 //	// auxCarry is true
 func checkCarryOut(a, b byte, inCarry byte) (bool, bool) {
