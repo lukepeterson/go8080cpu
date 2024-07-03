@@ -866,37 +866,40 @@ func (cpu *CPU) dcr(register *byte) {
 // updating the accumulator and the CPU flags accordingly.
 //
 // This method performs the following steps:
-// 1. Adds the accumulator, the register value, and the carry-in value.
-// 2. Sets the Sign, Zero, and Parity flags based on the result.
+// 1. Adds the accumulator, register value, and the carry-in value.
 // 3. Checks for carry-out and auxiliary carry-out, updating the corresponding flags.
+// 2. Sets the sign, zero, and parity flags based on the result
 // 4. Updates the accumulator with the result.
 //
 // Parameters:
 // - register (byte): The value of the register to be added to the accumulator.
-// - carry (bool): A boolean indicating if there is an initial carry-in.
+// - carry (byte): A byte indicating if there is an initial carry-in (used by ADC opcodes)
 //
 // Example:
 //
-//	cpu := &CPU{A: 0x10, flags: Flags{}}
-//	cpu.add(0x20, true)
+//	cpu := &CPU{A: 0x10}
+//	cpu.add(0x20, 1)
 //	// cpu.A is 0x31
-//	// cpu.flags are updated based on the result
+//
+//	cpu := &CPU{A: 0x10}
+//	cpu.add(0x10, 0)
+//	// cpu.A is 0x20
 func (cpu *CPU) add(register byte, carry byte) {
 	// Calculate the result, but capture the overflow by, casting to a word (uint16).
 	result := word(cpu.A) + word(register) + word(carry)
 
-	// Set the carry flag, by checking whether we've got an overflow into bit 8.
-	cpu.flags.Carry = result > 0xFF
+	// Set the carry flag, by checking whether we've got an overflow into bit eight.
+	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
 
-	// Set the auxillary carry flag, by checking whether our addition result in a carry into bit 4.
-	auxCarrySum := (cpu.A&0x0F + register&0x0F + carry&0x0F)
-	cpu.flags.AuxCarry = auxCarrySum > 0x0F
+	// Set the auxillary carry flag, by checking whether our addition results in a carry-out from bit four.
+	auxCarrySum := (cpu.A&0b1111 + register&0b1111 + carry&0b1111)
+	cpu.flags.AuxCarry = auxCarrySum > 0b1111 // (0x0F)
 
 	// Set the sign, zero and parity flags, based on the LSB only, given we've already
-	// taken note of whether there was a carry into bit 8 above.
+	// taken note of whether there was a carry-in to bit eight above.
 	cpu.setSignZeroParityFlags(byte(result))
 
-	// Return the 7 LSBs only
+	// Return the eight least significant bits (LSB) only
 	cpu.A = byte(result)
 }
 
