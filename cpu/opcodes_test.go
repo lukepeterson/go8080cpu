@@ -1276,22 +1276,22 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{H: 0xFF, L: 0xFF},
 		},
 		{
-			name: "ADD B (zero flag)",
+			name: "ADD B (no carry or overflow)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x12, B: 0x34, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x46, B: 0x34},
+		},
+		{
+			name: "ADD B (zero result)",
 			code: `
 				ADD B
 				HLT
 				`,
 			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
-		},
-		{
-			name: "ADD B (non zero)",
-			code: `
-				ADD B
-				HLT
-				`,
-			initCPU: &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0x02, B: 0x01},
+			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
 			name: "ADD B (carry)",
@@ -1320,6 +1320,25 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0x0F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0x10, B: 0x01, flags: Flags{AuxCarry: true}},
 		},
+		{
+			name: "ADD B (parity)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, B: 0x01, flags: Flags{Parity: true}},
+		},
+		{
+			name: "ADD B (maximum result without carry)",
+			code: `
+				ADD B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x7E, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x7F, B: 0x01},
+		},
+
 		{
 			name: "ADD C",
 			code: `
