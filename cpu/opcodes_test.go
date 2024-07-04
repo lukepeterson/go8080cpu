@@ -1294,7 +1294,7 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
-			name: "ADD B (carry out on bit-8)",
+			name: "ADD B (carry out on bit eight)",
 			code: `
 				ADD B
 				HLT
@@ -1693,6 +1693,251 @@ func TestCPUInstructions(t *testing.T) {
 			`,
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0xFF, B: 0xFE, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}, stackPointer: 0xFFFF},
+		},
+		{
+			name: "SUB B (no carry or overflow)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, B: 0x01},
+		},
+		{
+			name: "SUB B (zero result)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "SUB B (carry in on bit eight)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x00, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SUB B (aux carry with sign)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x80, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x7F, B: 0x01, flags: Flags{AuxCarry: true}},
+		},
+		{
+			name: "SUB B (aux carry without sign)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x10, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x0F, B: 0x01, flags: Flags{AuxCarry: true, Parity: true}},
+		},
+		{
+			name: "SUB B (parity)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0x04, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, B: 0x01, flags: Flags{Parity: true}},
+		},
+		{
+			name: "SUB B (maximum result without carry)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFE, B: 0x01, flags: Flags{Sign: true}},
+		},
+		{
+			name: "SUB B (maximum result with carry)",
+			code: `
+				SUB B
+				HLT
+				`,
+			initCPU: &CPU{A: 0xFE, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SUB C",
+			code: `
+				SUB C
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, C: 0x01},
+		},
+		{
+			name: "SUB D",
+			code: `
+				SUB D
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, D: 0x01},
+		},
+		{
+			name: "SUB E",
+			code: `
+				SUB E
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, E: 0x01},
+		},
+		{
+			name: "SUB H",
+			code: `
+				SUB H
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, H: 0x01},
+		},
+		{
+			name: "SUB L",
+			code: `
+				SUB L
+				HLT
+				`,
+			initCPU: &CPU{A: 0x02, L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, L: 0x01},
+		},
+		{
+			name: "SUB M",
+			code: `
+				MVI M, 0x55
+				SUB M
+				HLT
+				`,
+			initCPU: &CPU{A: 0x99, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0x44, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "SUB A",
+			code: `
+				SUB A
+				HLT
+				`,
+			initCPU: &CPU{A: 0x3E, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "SBB B (borrow in with zero flag)",
+			code: `
+				SBB B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB B (borrow in with carry out)",
+			code: `
+				SBB B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0x80, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB B (borrow in with no carry out + zero result)",
+			code: `
+				SBB B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "SBB C (borrow in with zero flag)",
+			code: `
+				SBB C
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB D (borrow in with zero flag)",
+			code: `
+				SBB D
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB E (borrow in with zero flag)",
+			code: `
+				SBB E
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB H (borrow in with zero flag)",
+			code: `
+				SBB H
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB L (borrow in with zero flag)",
+			code: `
+				SBB L
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SBB M",
+			code: `
+				MVI M, 0x55
+				SBB M
+				HLT
+				`,
+			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0xAB, H: 0x01, L: 0x02, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
+		},
+		{
+			name: "SBB A (borrow in with zero flag)",
+			code: `
+				SBB A
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "SUI",
+			code: `
+				SUI 0x01
+				HLT
+			`,
+			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
+		},
+		{
+			name: "SBI",
+			code: `
+				SBI 0x02
+				HLT
+			`,
+			initCPU: &CPU{A: 0x04, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01},
 		},
 	}
 	for _, tc := range testCases {

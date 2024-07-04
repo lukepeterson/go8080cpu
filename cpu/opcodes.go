@@ -602,41 +602,57 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// SUBTRACT
 	case 0x90: // SUB B
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.B, NOCARRY)
 	case 0x91: // SUB C
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.C, NOCARRY)
 	case 0x92: // SUB D
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.D, NOCARRY)
 	case 0x93: // SUB E
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.E, NOCARRY)
 	case 0x94: // SUB H
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.H, NOCARRY)
 	case 0x95: // SUB L
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.L, NOCARRY)
 	case 0x96: // SUB M
-		return ErrNotImplemented(opCode)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.sub(readByte, NOCARRY)
 	case 0x97: // SUB A
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.A, NOCARRY)
 	case 0x98: // SBB B
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.B, WITHCARRY)
 	case 0x99: // SBB C
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.C, WITHCARRY)
 	case 0x9A: // SBB D
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.D, WITHCARRY)
 	case 0x9B: // SBB E
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.E, WITHCARRY)
 	case 0x9C: // SBB H
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.H, WITHCARRY)
 	case 0x9D: // SBB L
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.L, WITHCARRY)
 	case 0x9E: // SBB M
-		return ErrNotImplemented(opCode)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.sub(readByte, WITHCARRY)
 	case 0x9F: // SBB A
-		return ErrNotImplemented(opCode)
+		cpu.sub(cpu.A, WITHCARRY)
 	case 0xD6: // SUI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.sub(fetchedByte, NOCARRY)
 	case 0xDE: // SBI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.sub(fetchedByte, WITHCARRY)
 
 	// LOGICAL
 	case 0xA0: // ANA B
@@ -866,16 +882,16 @@ func (cpu *CPU) dcr(register *byte) {
 // updating the accumulator and the CPU flags accordingly.
 //
 // This method performs the following steps:
-// 1. Adds the accumulator, register value, and the carry-in value.
-// 3. Checks for carry-out and auxiliary carry-out, updating the corresponding flags.
+// 1. Adds the accumulator, register value, and the carry-in value, allowing for overflow
+// 3. Checks for carry-out and auxiliary carry-out, updating the corresponding flags
 // 2. Sets the sign, zero, and parity flags based on the result
-// 4. Updates the accumulator with the result.
+// 4. Updates the accumulator with the result
 //
 // Parameters:
-// - register (byte): The value of the register to be added to the accumulator.
+// - register (byte): The value of the register to be added to the accumulator
 // - carry (byte): A byte indicating if there is an initial carry-in (used by ADC opcodes)
 //
-// Example:
+// Examples:
 //
 //	cpu := &CPU{A: 0x10}
 //	cpu.add(0x20, 1)
@@ -885,15 +901,56 @@ func (cpu *CPU) dcr(register *byte) {
 //	cpu.add(0x10, 0)
 //	// cpu.A is 0x20
 func (cpu *CPU) add(register byte, carry byte) {
-	// Calculate the result, but capture the overflow by, casting to a word (uint16).
+	// Calculate the result but capture the overflow by casting to a word (uint16).
 	result := word(cpu.A) + word(register) + word(carry)
 
-	// Set the carry flag, by checking whether we've got an overflow into bit eight.
+	// Set the carry flag by checking whether we've got an overflow into bit eight.
 	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
 
-	// Set the auxillary carry flag, by checking whether our addition results in a carry-out from bit four.
+	// Set the auxillary carry flag by checking whether our addition results in a carry-out from bit four.
 	auxCarrySum := (cpu.A&0b1111 + register&0b1111 + carry&0b1111)
 	cpu.flags.AuxCarry = auxCarrySum > 0b1111 // (0x0F)
+
+	// Set the sign, zero and parity flags, based on the LSB only, given we've already
+	// taken note of whether there was a carry-in to bit eight above.
+	cpu.setSignZeroParityFlags(byte(result))
+
+	// Return the eight least significant bits (LSB) only
+	cpu.A = byte(result)
+}
+
+// sub subtracts the value of a register and an optional borrow-in from the accumulator,
+// updating the accumulator and the CPU flags accordingly.
+//
+// This method performs the following steps:
+// 1. Subtracts the accumulator, register value, and the borrow-in value, allowing for underflow
+// 3. Checks for carry-out and auxiliary carry-out, updating the corresponding flags
+// 2. Sets the sign, zero, and parity flags based on the result
+// 4. Updates the accumulator with the result
+//
+// Parameters:
+// - register (byte): The value of the register to be subtracted from the accumulator
+// - carry (byte): A byte indicating if there is an initial borrow-in (used by ADC opcodes)
+//
+// Examples:
+//
+//	cpu := &CPU{A: 0x10}
+//	cpu.sub(0x01, 1)
+//	// cpu.A is 0x0A
+//
+//	cpu := &CPU{A: 0x10}
+//	cpu.sub(0x03, 0)
+//	// cpu.A is 0x0D
+func (cpu *CPU) sub(register byte, borrow byte) {
+	// Calculate the result but capture the underflow by casting to a word (uint16).
+	result := word(cpu.A) - word(register) - word(borrow)
+
+	// Set the carry flag by checking whether we've got an underflow from bit eight.
+	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
+
+	// Set the auxillary carry flag by checking whether our addition results in a carry-in to bit four.
+	auxBorrowSum := (cpu.A&0b1111 - register&0b1111 - borrow&0b1111)
+	cpu.flags.AuxCarry = auxBorrowSum&0b0001_0000 != 0 // 0b0001_0000 = 0x10
 
 	// Set the sign, zero and parity flags, based on the LSB only, given we've already
 	// taken note of whether there was a carry-in to bit eight above.
