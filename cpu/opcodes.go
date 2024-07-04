@@ -267,11 +267,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.Bus.WriteByteAt(fetchedWord, cpu.A)
 	case 0x3A: // LDA - Load A direct
-		fetchedWord, err := cpu.fetchWord()
+		address, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
-		readByte, err := cpu.Bus.ReadByteAt(fetchedWord)
+		readByte, err := cpu.Bus.ReadByteAt(address)
 		if err != nil {
 			return err
 		}
@@ -281,15 +281,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-		address := fetchedWord
-		cpu.Bus.WriteByteAt(address, cpu.L)
-		cpu.Bus.WriteByteAt(address+1, cpu.H)
+		cpu.Bus.WriteByteAt(fetchedWord, cpu.L)
+		cpu.Bus.WriteByteAt(fetchedWord+1, cpu.H)
 	case 0x2A: // LHLD - Load H&L direct
-		fetchedWord, err := cpu.fetchWord()
+		address, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
-		address := fetchedWord
 		readByte, err := cpu.Bus.ReadByteAt(address)
 		if err != nil {
 			return err
@@ -396,11 +394,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// JUMP
 	case 0xC3: // JMP - Jump unconditional
-		fetchedWord, err := cpu.fetchWord()
+		address, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
-		cpu.programCounter = fetchedWord
+		cpu.programCounter = address
 	case 0xDA: // JC - Jump on carry
 		return ErrNotImplemented(opCode)
 	case 0xD2: // JNC - Jump on no carry
