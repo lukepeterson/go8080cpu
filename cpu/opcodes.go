@@ -654,21 +654,59 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// LOGICAL
 	case 0xA0: // ANA B
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.B
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA1: // ANA C
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.C
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA2: // ANA D
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.D
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA3: // ANA E
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.E
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA4: // ANA H
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.H
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA5: // ANA L
-		return ErrNotImplemented(opCode)
+		result := cpu.A & cpu.L
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA6: // ANA M
-		return ErrNotImplemented(opCode)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		result := cpu.A & readByte
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA7: // ANA A
-		return ErrNotImplemented(opCode)
+		//lint:ignore SA4000 identical expressions on the left and right side of the '&' operator
+		result := cpu.A & cpu.A
+		fmt.Printf("result: 0x%02X, %08b\n", result, result)
+		cpu.setSignZeroParityFlags(result)
+		cpu.flags.AuxCarry = false
+		cpu.flags.Carry = false
+		cpu.A = result
 	case 0xA8: // XRA B
 		return ErrNotImplemented(opCode)
 	case 0xA9: // XRA C
