@@ -1949,6 +1949,15 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0b0000_0000, B: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
+			name: "ANA B (one bit set)",
+			code: `
+				ANA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_1101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, B: 0b1010_1010},
+		},
+		{
 			name: "ANA B (no bits set)",
 			code: `
 				ANA B
@@ -1972,8 +1981,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA C
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, C: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0000_0000, C: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0b0101_1101, C: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, C: 0b1010_1010},
 		},
 		{
 			name: "ANA D",
@@ -1981,8 +1990,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA D
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, D: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0000_0000, D: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0b0101_1101, D: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, D: 0b1010_1010},
 		},
 		{
 			name: "ANA E",
@@ -1990,8 +1999,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA E
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, E: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0000_0000, E: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0b0101_1101, E: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, E: 0b1010_1010},
 		},
 		{
 			name: "ANA H",
@@ -1999,8 +2008,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, H: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0000_0000, H: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0b0101_1101, H: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, H: 0b1010_1010},
 		},
 		{
 			name: "ANA L",
@@ -2008,8 +2017,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA L
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, L: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0000_0000, L: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
+			initCPU: &CPU{A: 0b0101_1101, L: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1000, L: 0b1010_1010},
 		},
 		{
 			name: "ANA M",
@@ -2019,7 +2028,7 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				`,
 			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0x01, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0b0000_0001, H: 0x01, L: 0x02},
 		},
 		{
 			name: "ANA A",
@@ -2027,8 +2036,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA A
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0b0101_0101, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
 		},
 	}
 	for _, tc := range testCases {

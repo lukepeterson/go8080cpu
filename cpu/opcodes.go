@@ -654,59 +654,25 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// LOGICAL
 	case 0xA0: // ANA B
-		result := cpu.A & cpu.B
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.B)
 	case 0xA1: // ANA C
-		result := cpu.A & cpu.C
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.C)
 	case 0xA2: // ANA D
-		result := cpu.A & cpu.D
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.D)
 	case 0xA3: // ANA E
-		result := cpu.A & cpu.E
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.E)
 	case 0xA4: // ANA H
-		result := cpu.A & cpu.H
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.H)
 	case 0xA5: // ANA L
-		result := cpu.A & cpu.L
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.L)
 	case 0xA6: // ANA M
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		result := cpu.A & readByte
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(readByte)
 	case 0xA7: // ANA A
-		//lint:ignore SA4000 identical expressions on the left and right side of the '&' operator
-		result := cpu.A & cpu.A
-		fmt.Printf("result: 0x%02X, %08b\n", result, result)
-		cpu.setSignZeroParityFlags(result)
-		cpu.flags.AuxCarry = false
-		cpu.flags.Carry = false
-		cpu.A = result
+		cpu.ana(cpu.A)
 	case 0xA8: // XRA B
 		return ErrNotImplemented(opCode)
 	case 0xA9: // XRA C
@@ -994,6 +960,14 @@ func (cpu *CPU) sub(register byte, borrow byte) {
 
 	// Return the eight least significant bits (LSB) only
 	cpu.A = byte(result)
+}
+
+func (cpu *CPU) ana(register byte) {
+	result := cpu.A & register
+	cpu.setSignZeroParityFlags(result)
+	cpu.flags.AuxCarry = false
+	cpu.flags.Carry = false
+	cpu.A = result
 }
 
 // joinBytes combines two bytes into a 16-bit word.
