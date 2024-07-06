@@ -713,41 +713,41 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.ora(readByte)
 	case 0xB7: // ORA A - OR register with A
 		cpu.ora(cpu.A)
-	case 0xB8: // CMP B
+	case 0xB8: // CMP B - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xB9: // CMP C
+	case 0xB9: // CMP C - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xBA: // CMP D
+	case 0xBA: // CMP D - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xBB: // CMP E
+	case 0xBB: // CMP E - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xBC: // CMP H
+	case 0xBC: // CMP H - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xBD: // CMP L
+	case 0xBD: // CMP L - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xBE: // CMP M
+	case 0xBE: // CMP M - Compare memory with A
 		return ErrNotImplemented(opCode)
-	case 0xBF: // CMP A
+	case 0xBF: // CMP A - Compare register with A
 		return ErrNotImplemented(opCode)
-	case 0xE6: // ANI
+	case 0xE6: // ANI - AND immediate with A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.ana(fetchedByte)
-	case 0xEE: // XRI
+	case 0xEE: // XRI - XOR immediate with A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.xra(fetchedByte)
-	case 0xF6: // ORI
+	case 0xF6: // ORI - OR immediate with A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.ora(fetchedByte)
-	case 0xFE: // CPI
+	case 0xFE: // CPI - Compare immediate with A
 		return ErrNotImplemented(opCode)
 
 	// ROTATE
