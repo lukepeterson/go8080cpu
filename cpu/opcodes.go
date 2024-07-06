@@ -477,101 +477,101 @@ func (cpu *CPU) Execute(opCode byte) error {
 		return ErrNotImplemented(opCode)
 
 	// INCREMENT AND DECREMENT
-	case 0x04: // INR B
+	case 0x04: // INR B - Increment register
 		cpu.inr(&cpu.B)
-	case 0x0C: // INR C
+	case 0x0C: // INR C - Increment register
 		cpu.inr(&cpu.C)
-	case 0x14: // INR D
+	case 0x14: // INR D - Increment register
 		cpu.inr(&cpu.D)
-	case 0x1C: // INR E
+	case 0x1C: // INR E - Increment register
 		cpu.inr(&cpu.E)
-	case 0x24: // INR H
+	case 0x24: // INR H - Increment register
 		cpu.inr(&cpu.H)
-	case 0x2C: // INR L
+	case 0x2C: // INR L - Increment register
 		cpu.inr(&cpu.L)
-	case 0x34: // INR M
+	case 0x34: // INR M - Increment memory
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.inr(&readByte)
 		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
-	case 0x3C: // INR A
+	case 0x3C: // INR A - Increment register
 		cpu.inr(&cpu.A)
-	case 0x05: // DCR B
+	case 0x05: // DCR B - Decrement register
 		cpu.dcr(&cpu.B)
-	case 0x0D: // DCR C
+	case 0x0D: // DCR C - Decrement register
 		cpu.dcr(&cpu.C)
-	case 0x15: // DCR D
+	case 0x15: // DCR D - Decrement register
 		cpu.dcr(&cpu.D)
-	case 0x1D: // DCR E
+	case 0x1D: // DCR E - Decrement register
 		cpu.dcr(&cpu.E)
-	case 0x25: // DCR H
+	case 0x25: // DCR H - Decrement register
 		cpu.dcr(&cpu.H)
-	case 0x2D: // DCR L
+	case 0x2D: // DCR L - Decrement register
 		cpu.dcr(&cpu.L)
-	case 0x35: // DCR M
+	case 0x35: // DCR M - Decrement memory
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.dcr(&readByte)
 		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
-	case 0x3D: // DCR A
+	case 0x3D: // DCR A - Decrement register
 		cpu.dcr(&cpu.A)
-	case 0x03: // INX B
+	case 0x03: // INX B - Increment B&C registers
 		cpu.B, cpu.C = splitWord(cpu.getBC() + 1)
-	case 0x13: // INX D
+	case 0x13: // INX D - Increment D&E registers
 		cpu.D, cpu.E = splitWord(cpu.getDE() + 1)
-	case 0x23: // INX H
+	case 0x23: // INX H - Increment H&L registers
 		cpu.H, cpu.L = splitWord(cpu.getHL() + 1)
-	case 0x0B: // DCX B
+	case 0x0B: // DCX B - Decrement B&C registers
 		cpu.B, cpu.C = splitWord(cpu.getBC() - 1)
-	case 0x1B: // DCX D
+	case 0x1B: // DCX D - Decrement D&E registers
 		cpu.D, cpu.E = splitWord(cpu.getDE() - 1)
-	case 0x2B: // DCX H
+	case 0x2B: // DCX H - Decrement H&L registers
 		cpu.H, cpu.L = splitWord(cpu.getHL() - 1)
 
 	// ADD
-	case 0x80: // ADD B
+	case 0x80: // ADD B - Add register to A
 		cpu.add(cpu.B, NOCARRY)
-	case 0x81: // ADD C
+	case 0x81: // ADD C - Add register to A
 		cpu.add(cpu.C, NOCARRY)
-	case 0x82: // ADD D
+	case 0x82: // ADD D - Add register to A
 		cpu.add(cpu.D, NOCARRY)
-	case 0x83: // ADD E
+	case 0x83: // ADD E - Add register to A
 		cpu.add(cpu.E, NOCARRY)
-	case 0x84: // ADD H
+	case 0x84: // ADD H - Add register to A
 		cpu.add(cpu.H, NOCARRY)
-	case 0x85: // ADD L
+	case 0x85: // ADD L - Add register to A
 		cpu.add(cpu.L, NOCARRY)
-	case 0x86: // ADD M
+	case 0x86: // ADD M - Add memory to A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.add(readByte, NOCARRY)
-	case 0x87: // ADD A
+	case 0x87: // ADD A - Add register to A
 		cpu.add(cpu.A, NOCARRY)
-	case 0x88: // ADC B
+	case 0x88: // ADC B - Add register to A with carry
 		cpu.add(cpu.B, WITHCARRY)
-	case 0x89: // ADC C
+	case 0x89: // ADC C - Add register to A with carry
 		cpu.add(cpu.C, WITHCARRY)
-	case 0x8A: // ADC D
+	case 0x8A: // ADC D - Add register to A with carry
 		cpu.add(cpu.D, WITHCARRY)
-	case 0x8B: // ADC E
+	case 0x8B: // ADC E - Add register to A with carry
 		cpu.add(cpu.E, WITHCARRY)
-	case 0x8C: // ADC H
+	case 0x8C: // ADC H - Add register to A with carry
 		cpu.add(cpu.H, WITHCARRY)
-	case 0x8D: // ADC L
+	case 0x8D: // ADC L - Add register to A with carry
 		cpu.add(cpu.L, WITHCARRY)
-	case 0x8E: // ADC M
+	case 0x8E: // ADC M - Add memory to A with carry
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.add(readByte, WITHCARRY)
-	case 0x8F: // ADC A
+	case 0x8F: // ADC A - Add register to A with carry
 		cpu.add(cpu.A, WITHCARRY)
 	case 0xC6: // ADI
 		fetchedByte, err := cpu.fetchByte()
@@ -599,53 +599,53 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.stackPointer)
 
 	// SUBTRACT
-	case 0x90: // SUB B
+	case 0x90: // SUB B - Subtract register from A
 		cpu.sub(cpu.B, NOCARRY)
-	case 0x91: // SUB C
+	case 0x91: // SUB C - Subtract register from A
 		cpu.sub(cpu.C, NOCARRY)
-	case 0x92: // SUB D
+	case 0x92: // SUB D - Subtract register from A
 		cpu.sub(cpu.D, NOCARRY)
-	case 0x93: // SUB E
+	case 0x93: // SUB E - Subtract register from A
 		cpu.sub(cpu.E, NOCARRY)
-	case 0x94: // SUB H
+	case 0x94: // SUB H - Subtract register from A
 		cpu.sub(cpu.H, NOCARRY)
-	case 0x95: // SUB L
+	case 0x95: // SUB L - Subtract register from A
 		cpu.sub(cpu.L, NOCARRY)
-	case 0x96: // SUB M
+	case 0x96: // SUB M - Subtract memory from A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.sub(readByte, NOCARRY)
-	case 0x97: // SUB A
+	case 0x97: // SUB A - Subtract register from A
 		cpu.sub(cpu.A, NOCARRY)
-	case 0x98: // SBB B
+	case 0x98: // SBB B - Subtract register from A with borrow
 		cpu.sub(cpu.B, WITHCARRY)
-	case 0x99: // SBB C
+	case 0x99: // SBB C - Subtract register from A with borrow
 		cpu.sub(cpu.C, WITHCARRY)
-	case 0x9A: // SBB D
+	case 0x9A: // SBB D - Subtract register from A with borrow
 		cpu.sub(cpu.D, WITHCARRY)
-	case 0x9B: // SBB E
+	case 0x9B: // SBB E - Subtract register from A with borrow
 		cpu.sub(cpu.E, WITHCARRY)
-	case 0x9C: // SBB H
+	case 0x9C: // SBB H - Subtract register from A with borrow
 		cpu.sub(cpu.H, WITHCARRY)
-	case 0x9D: // SBB L
+	case 0x9D: // SBB L - Subtract register from A with borrow
 		cpu.sub(cpu.L, WITHCARRY)
-	case 0x9E: // SBB M
+	case 0x9E: // SBB M - Subtract memory from A with borrow
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.sub(readByte, WITHCARRY)
-	case 0x9F: // SBB A
+	case 0x9F: // SBB A - Subtract register from A with borrow
 		cpu.sub(cpu.A, WITHCARRY)
-	case 0xD6: // SUI
+	case 0xD6: // SUI - Subtract immediate from A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.sub(fetchedByte, NOCARRY)
-	case 0xDE: // SBI
+	case 0xDE: // SBI - Subtract immediate from A with borrow
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
@@ -653,25 +653,25 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.sub(fetchedByte, WITHCARRY)
 
 	// LOGICAL
-	case 0xA0: // ANA B
+	case 0xA0: // ANA B - AND register with A
 		cpu.ana(cpu.B)
-	case 0xA1: // ANA C
+	case 0xA1: // ANA C - AND register with A
 		cpu.ana(cpu.C)
-	case 0xA2: // ANA D
+	case 0xA2: // ANA D - AND register with A
 		cpu.ana(cpu.D)
-	case 0xA3: // ANA E
+	case 0xA3: // ANA E - AND register with A
 		cpu.ana(cpu.E)
-	case 0xA4: // ANA H
+	case 0xA4: // ANA H - AND register with A
 		cpu.ana(cpu.H)
-	case 0xA5: // ANA L
+	case 0xA5: // ANA L - AND register with A
 		cpu.ana(cpu.L)
-	case 0xA6: // ANA M
+	case 0xA6: // ANA M - AND memory with A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.ana(readByte)
-	case 0xA7: // ANA A
+	case 0xA7: // ANA A - AND register with A
 		cpu.ana(cpu.A)
 	case 0xA8: // XRA B
 		return ErrNotImplemented(opCode)
