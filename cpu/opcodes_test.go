@@ -2157,6 +2157,142 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0b0000_0000, flags: Flags{Zero: true, Parity: true}},
 		},
+		{
+			name: "ORA B (zero result)",
+			code: `
+				ORA B
+				HLT
+			`,
+			initCPU: &CPU{B: 0b0000_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "ORA B (non-zero result)",
+			code: `
+				ORA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, B: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "ORA B (mixed nibbles)",
+			code: `
+				ORA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_0000, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "ORA B (one bit set)",
+			code: `
+				ORA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, B: 0b0000_0100},
+		},
+		{
+			name: "ORA B (all bits set)",
+			code: `
+				ORA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "ORA C",
+			code: `
+				ORA C
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, C: 0b0000_0100},
+		},
+		{
+			name: "ORA D",
+			code: `
+				ORA D
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, D: 0b0000_0100},
+		},
+		{
+			name: "ORA E",
+			code: `
+				ORA E
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, E: 0b0000_0100},
+		},
+		{
+			name: "ORA H",
+			code: `
+				ORA H
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, H: 0b0000_0100},
+		},
+		{
+			name: "ORA L",
+			code: `
+				ORA L
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, L: 0b0000_0100},
+		},
+		{
+			name: "ORA M",
+			code: `
+				MVI M, 0x55
+				ORA M
+				HLT
+				`,
+			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0xFD, H: 0x01, L: 0x02, flags: Flags{Sign: true}},
+		},
+		{
+			name: "ORA A",
+			code: `
+				ORA A
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1001_1001, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "ANI",
+			code: `
+				ANI 55H
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0101_0100},
+		},
+		{
+			name: "XRI",
+			code: `
+				XRI 55H
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0001},
+		},
+		{
+			name: "ORI",
+			code: `
+				ORI AAH
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, flags: Flags{Sign: true, Parity: true}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

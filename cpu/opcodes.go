@@ -673,42 +673,46 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.ana(readByte)
 	case 0xA7: // ANA A - AND register with A
 		cpu.ana(cpu.A)
-	case 0xA8: // XRA B - OR register with A
+	case 0xA8: // XRA B - XOR register with A
 		cpu.xra(cpu.B)
-	case 0xA9: // XRA C - OR register with A
+	case 0xA9: // XRA C - XOR register with A
 		cpu.xra(cpu.C)
-	case 0xAA: // XRA D - OR register with A
+	case 0xAA: // XRA D - XOR register with A
 		cpu.xra(cpu.D)
-	case 0xAB: // XRA E - OR register with A
+	case 0xAB: // XRA E - XOR register with A
 		cpu.xra(cpu.E)
-	case 0xAC: // XRA H - OR register with A
+	case 0xAC: // XRA H - XOR register with A
 		cpu.xra(cpu.H)
-	case 0xAD: // XRA L - OR register with A
+	case 0xAD: // XRA L - XOR register with A
 		cpu.xra(cpu.L)
-	case 0xAE: // XRA M - OR memory with A
+	case 0xAE: // XRA M - XOR memory with A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
 		cpu.xra(readByte)
-	case 0xAF: // XRA A - OR register with A
+	case 0xAF: // XRA A - XOR register with A
 		cpu.xra(cpu.A)
-	case 0xB0: // ORA B
-		return ErrNotImplemented(opCode)
-	case 0xB1: // ORA C
-		return ErrNotImplemented(opCode)
-	case 0xB2: // ORA D
-		return ErrNotImplemented(opCode)
-	case 0xB3: // ORA E
-		return ErrNotImplemented(opCode)
-	case 0xB4: // ORA H
-		return ErrNotImplemented(opCode)
-	case 0xB5: // ORA L
-		return ErrNotImplemented(opCode)
-	case 0xB6: // ORA M
-		return ErrNotImplemented(opCode)
-	case 0xB7: // ORA A
-		return ErrNotImplemented(opCode)
+	case 0xB0: // ORA B - OR register with A
+		cpu.ora(cpu.B)
+	case 0xB1: // ORA C - OR register with A
+		cpu.ora(cpu.C)
+	case 0xB2: // ORA D - OR register with A
+		cpu.ora(cpu.D)
+	case 0xB3: // ORA E - OR register with A
+		cpu.ora(cpu.E)
+	case 0xB4: // ORA H - OR register with A
+		cpu.ora(cpu.H)
+	case 0xB5: // ORA L - OR register with A
+		cpu.ora(cpu.L)
+	case 0xB6: // ORA M - OR memory with A
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.ora(readByte)
+	case 0xB7: // ORA A - OR register with A
+		cpu.ora(cpu.A)
 	case 0xB8: // CMP B
 		return ErrNotImplemented(opCode)
 	case 0xB9: // CMP C
@@ -726,11 +730,23 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xBF: // CMP A
 		return ErrNotImplemented(opCode)
 	case 0xE6: // ANI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.ana(fetchedByte)
 	case 0xEE: // XRI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.xra(fetchedByte)
 	case 0xF6: // ORI
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.ora(fetchedByte)
 	case 0xFE: // CPI
 		return ErrNotImplemented(opCode)
 
@@ -975,6 +991,13 @@ func (cpu *CPU) ana(register byte) {
 
 func (cpu *CPU) xra(register byte) {
 	cpu.A = cpu.A ^ register
+	cpu.setSignZeroParityFlags(cpu.A)
+	cpu.flags.AuxCarry = false
+	cpu.flags.Carry = false
+}
+
+func (cpu *CPU) ora(register byte) {
+	cpu.A = cpu.A | register
 	cpu.setSignZeroParityFlags(cpu.A)
 	cpu.flags.AuxCarry = false
 	cpu.flags.Carry = false
