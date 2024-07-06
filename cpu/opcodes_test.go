@@ -2267,6 +2267,160 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{A: 0b1001_1001, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
+			name: "CMP B (a = b, zero)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "CMP B (a = b, non-zero)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, B: 0x01, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "CMP B (A > B, positive)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, B: 0x00},
+		},
+		{
+			name: "CMP B (A < B, negative)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP B (A = max, nonzero)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xFF, B: 0x01, flags: Flags{Sign: true}},
+		},
+		{
+			name: "CMP B (B = max, nonzero)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, B: 0xFF, flags: Flags{AuxCarry: true, Carry: true}},
+		},
+		{
+			name: "CMP B (A max negative, B max positive)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x80, B: 0x7F, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x80, B: 0x7F, flags: Flags{AuxCarry: true}},
+		},
+		{
+			name: "CMP B (A max positive, B max negative)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x7F, B: 0x80, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x7F, B: 0x80, flags: Flags{Sign: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP B (A mixed, > B)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0xAA, B: 0x55, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xAA, B: 0x55, flags: Flags{Parity: true}},
+		},
+		{
+			name: "CMP B (B mixed, > A)",
+			code: `
+				CMP B
+				HLT
+			`,
+			initCPU: &CPU{A: 0x55, B: 0xAA, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x55, B: 0xAA, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
+		},
+		{
+			name: "CMP C",
+			code: `
+				CMP C
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, C: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP D",
+			code: `
+				CMP D
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, D: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP E",
+			code: `
+				CMP E
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, E: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP H",
+			code: `
+				CMP H
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, H: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP L",
+			code: `
+				CMP L
+				HLT
+			`,
+			initCPU: &CPU{A: 0x00, L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x00, L: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "CMP M",
+			code: `
+				MVI M, 0x55
+				CMP M
+				HLT
+				`,
+			initCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+		},
+		{
+			name: "CMP A",
+			code: `
+				CMP A
+				HLT
+			`,
+			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x01, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
 			name: "ANI",
 			code: `
 				ANI 55H
@@ -2292,6 +2446,15 @@ func TestCPUInstructions(t *testing.T) {
 			`,
 			initCPU: &CPU{A: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0b1111_1111, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "CPI",
+			code: `
+				CPI 55H
+				HLT
+			`,
+			initCPU: &CPU{A: 0xAA, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0xAA, flags: Flags{Parity: true}},
 		},
 	}
 	for _, tc := range testCases {

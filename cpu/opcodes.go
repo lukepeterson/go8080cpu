@@ -714,21 +714,25 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xB7: // ORA A - OR register with A
 		cpu.ora(cpu.A)
 	case 0xB8: // CMP B - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.B)
 	case 0xB9: // CMP C - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.C)
 	case 0xBA: // CMP D - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.D)
 	case 0xBB: // CMP E - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.E)
 	case 0xBC: // CMP H - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.H)
 	case 0xBD: // CMP L - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.L)
 	case 0xBE: // CMP M - Compare memory with A
-		return ErrNotImplemented(opCode)
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.cmp(readByte)
 	case 0xBF: // CMP A - Compare register with A
-		return ErrNotImplemented(opCode)
+		cpu.cmp(cpu.A)
 	case 0xE6: // ANI - AND immediate with A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
@@ -748,7 +752,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.ora(fetchedByte)
 	case 0xFE: // CPI - Compare immediate with A
-		return ErrNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.cmp(fetchedByte)
 
 	// ROTATE
 	case 0x07: // RLC
@@ -1001,6 +1009,12 @@ func (cpu *CPU) ora(register byte) {
 	cpu.setSignZeroParityFlags(cpu.A)
 	cpu.flags.AuxCarry = false
 	cpu.flags.Carry = false
+}
+
+func (cpu *CPU) cmp(register byte) {
+	tempA := cpu.A
+	cpu.sub(register, NOCARRY)
+	cpu.A = tempA
 }
 
 // joinBytes combines two bytes into a 16-bit word.
