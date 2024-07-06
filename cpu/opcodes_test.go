@@ -2039,6 +2039,124 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
 		},
+		{
+			name: "XRA B (zero result)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0101, B: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0000, B: 0b0101_0101, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "XRA B (non-zero result)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, B: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "XRA B (mixed nibbles)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_0000, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "XRA B (one bit set)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, B: 0b0000_0100},
+		},
+		{
+			name: "XRA B (no bits set)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "XRA B (all bits set)",
+			code: `
+				XRA B
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0000, B: 0b1111_1111, flags: Flags{Zero: true, Parity: true}},
+		},
+		{
+			name: "XRA C",
+			code: `
+				XRA C
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, C: 0b0000_0100},
+		},
+		{
+			name: "XRA D",
+			code: `
+				XRA D
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, D: 0b0000_0100},
+		},
+		{
+			name: "XRA E",
+			code: `
+				XRA E
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, E: 0b0000_0100},
+		},
+		{
+			name: "XRA H",
+			code: `
+				XRA H
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, H: 0b0000_0100},
+		},
+		{
+			name: "XRA L",
+			code: `
+				XRA L
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0100, L: 0b0000_0100},
+		},
+		{
+			name: "XRA M",
+			code: `
+				MVI M, 0x55
+				XRA M
+				HLT
+				`,
+			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
+			wantCPU: &CPU{A: 0xFC, H: 0x01, L: 0x02, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "XRA A",
+			code: `
+				XRA A
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_0000, flags: Flags{Zero: true, Parity: true}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

@@ -673,22 +673,26 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.ana(readByte)
 	case 0xA7: // ANA A - AND register with A
 		cpu.ana(cpu.A)
-	case 0xA8: // XRA B
-		return ErrNotImplemented(opCode)
-	case 0xA9: // XRA C
-		return ErrNotImplemented(opCode)
-	case 0xAA: // XRA D
-		return ErrNotImplemented(opCode)
-	case 0xAB: // XRA E
-		return ErrNotImplemented(opCode)
-	case 0xAC: // XRA H
-		return ErrNotImplemented(opCode)
-	case 0xAD: // XRA L
-		return ErrNotImplemented(opCode)
-	case 0xAE: // XRA M
-		return ErrNotImplemented(opCode)
-	case 0xAF: // XRA A
-		return ErrNotImplemented(opCode)
+	case 0xA8: // XRA B - OR register with A
+		cpu.xra(cpu.B)
+	case 0xA9: // XRA C - OR register with A
+		cpu.xra(cpu.C)
+	case 0xAA: // XRA D - OR register with A
+		cpu.xra(cpu.D)
+	case 0xAB: // XRA E - OR register with A
+		cpu.xra(cpu.E)
+	case 0xAC: // XRA H - OR register with A
+		cpu.xra(cpu.H)
+	case 0xAD: // XRA L - OR register with A
+		cpu.xra(cpu.L)
+	case 0xAE: // XRA M - OR memory with A
+		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		if err != nil {
+			return err
+		}
+		cpu.xra(readByte)
+	case 0xAF: // XRA A - OR register with A
+		cpu.xra(cpu.A)
 	case 0xB0: // ORA B
 		return ErrNotImplemented(opCode)
 	case 0xB1: // ORA C
@@ -963,11 +967,17 @@ func (cpu *CPU) sub(register byte, borrow byte) {
 }
 
 func (cpu *CPU) ana(register byte) {
-	result := cpu.A & register
-	cpu.setSignZeroParityFlags(result)
+	cpu.A = cpu.A & register
+	cpu.setSignZeroParityFlags(cpu.A)
 	cpu.flags.AuxCarry = false
 	cpu.flags.Carry = false
-	cpu.A = result
+}
+
+func (cpu *CPU) xra(register byte) {
+	cpu.A = cpu.A ^ register
+	cpu.setSignZeroParityFlags(cpu.A)
+	cpu.flags.AuxCarry = false
+	cpu.flags.Carry = false
 }
 
 // joinBytes combines two bytes into a 16-bit word.
