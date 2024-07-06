@@ -990,6 +990,10 @@ func (cpu *CPU) sub(register byte, borrow byte) {
 	cpu.A = byte(result)
 }
 
+// ana performs a logical AND with the A register.
+//
+// Parameters:
+// - register (byte): The value of the register to be ANDed with the A register
 func (cpu *CPU) ana(register byte) {
 	cpu.A = cpu.A & register
 	cpu.setSignZeroParityFlags(cpu.A)
@@ -997,6 +1001,10 @@ func (cpu *CPU) ana(register byte) {
 	cpu.flags.Carry = false
 }
 
+// xor performs a logical XOR (exclusive OR) with the A register.
+//
+// Parameters:
+// - register (byte): The value of the register to be XORed with the A register
 func (cpu *CPU) xra(register byte) {
 	cpu.A = cpu.A ^ register
 	cpu.setSignZeroParityFlags(cpu.A)
@@ -1004,6 +1012,10 @@ func (cpu *CPU) xra(register byte) {
 	cpu.flags.Carry = false
 }
 
+// ora performs a logical OR with the A register.
+//
+// Parameters:
+// - register (byte): The value of the register to be ORed with the A register
 func (cpu *CPU) ora(register byte) {
 	cpu.A = cpu.A | register
 	cpu.setSignZeroParityFlags(cpu.A)
@@ -1011,9 +1023,18 @@ func (cpu *CPU) ora(register byte) {
 	cpu.flags.Carry = false
 }
 
+// cmp performs a logical comparison with the A register.
+//
+// The comparison is performed by internally subtracting the contents of the register
+// from the accumulator (leaving both unchanged) and setting the condition bits according to the result.
+// We take a temporary copy of the A register first, then perform the subtraction to extra the bits,
+// then reset the A register to the temporary copy to preserve its contents.
+//
+// Parameters:
+// - register (byte): The value of the register to be compared with the A register
 func (cpu *CPU) cmp(register byte) {
 	tempA := cpu.A
-	cpu.sub(register, NOCARRY)
+	cpu.sub(register, NOCARRY) // We're only interested in the flags
 	cpu.A = tempA
 }
 
