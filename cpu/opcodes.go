@@ -785,29 +785,29 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.flags.Carry = (lsb == 1)
 
 	// SPECIALS
-	case 0x2F: // CMA
-		return ErrNotImplemented(opCode)
-	case 0x37: // STC
-		return ErrNotImplemented(opCode)
-	case 0x3F: // CMC
-		return ErrNotImplemented(opCode)
-	case 0x27: // DAA
+	case 0x2F: // CMA - Complement A
+		cpu.A = ^cpu.A
+	case 0x37: // STC - Set carry
+		cpu.flags.Carry = true
+	case 0x3F: // CMC - Complement carry
+		cpu.flags.Carry = !cpu.flags.Carry
+	case 0x27: // DAA - Decimal adjust A
 		return ErrNotImplemented(opCode)
 
 	// INPUT/OUTPUT
-	case 0xDB: // IN
+	case 0xDB: // IN - Input
 		return ErrNotImplemented(opCode)
-	case 0xD3: // OUT
+	case 0xD3: // OUT - Output
 		return ErrNotImplemented(opCode)
 
 	// CONTROL
-	case 0xFB: // EI
+	case 0xFB: // EI - Enable interrupts
 		return ErrNotImplemented(opCode)
-	case 0xF3: // DI
+	case 0xF3: // DI - Disable interrupts
 		return ErrNotImplemented(opCode)
-	case 0x00: // NOP
+	case 0x00: // NOP - No-operation
 		// Do nothing
-	case 0x76: // HLT
+	case 0x76: // HLT - Halt
 		cpu.halted = true
 
 	default:
