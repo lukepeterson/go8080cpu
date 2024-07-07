@@ -2456,6 +2456,114 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{A: 0xAA, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{A: 0xAA, flags: Flags{Parity: true}},
 		},
+		{
+			name: "RLC (with carry)",
+			code: `
+				RLC
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1110_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1101_0101, flags: Flags{Carry: true}},
+		},
+		{
+			name: "RLC (without carry)",
+			code: `
+				RLC
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0111_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1110_1000},
+		},
+		{
+			name: "RRC (with carry)",
+			code: `
+				RRC
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0111_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1011_1010, flags: Flags{Carry: true}},
+		},
+		{
+			name: "RRC (without carry)",
+			code: `
+				RRC
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1110_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0111_0101},
+		},
+		{
+			name: "RAL (with carry)",
+			code: `
+				RAL
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11010101, flags: Flags{Carry: true}},
+		},
+		{
+			name: "RAL (without carry)",
+			code: `
+				RAL
+				HLT
+			`,
+			initCPU: &CPU{A: 0b01110100, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11101000},
+		},
+		{
+			name: "RAL (carry propagated)",
+			code: `
+				RAL
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11010101, flags: Flags{Carry: true}},
+		},
+		{
+			name: "RAL (carry not propagated)",
+			code: `
+				RAL
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11010100, flags: Flags{Carry: true}},
+		},
+		{
+			name: "RAR (with carry)",
+			code: `
+				RAR
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11110101, flags: Flags{Carry: false}},
+		},
+		{
+			name: "RAR (without carry)",
+			code: `
+				RAR
+				HLT
+			`,
+			initCPU: &CPU{A: 0b01110100, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b00111010, flags: Flags{Carry: false}},
+		},
+		{
+			name: "RAR (carry propagated)",
+			code: `
+				RAR
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b11110101, flags: Flags{Carry: false}},
+		},
+		{
+			name: "RAR (carry not propagated)",
+			code: `
+				RAR
+				HLT
+			`,
+			initCPU: &CPU{A: 0b11101010, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b01110101, flags: Flags{Carry: false}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

@@ -759,14 +759,30 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.cmp(fetchedByte)
 
 	// ROTATE
-	case 0x07: // RLC
-		return ErrNotImplemented(opCode)
-	case 0x0F: // RRC
-		return ErrNotImplemented(opCode)
-	case 0x17: // RAL
-		return ErrNotImplemented(opCode)
-	case 0x1F: // RAR
-		return ErrNotImplemented(opCode)
+	case 0x07: // RLC - Rotate A left
+		msb := cpu.A >> 7 // Isolate the MSB (bit 7)
+		cpu.A <<= 1       // Shift everything one bit to the left
+		cpu.A |= msb      // Replace the LSB (bit 0) with the MSB (bit 7)
+		cpu.flags.Carry = (msb == 1)
+	case 0x0F: // RRC - Rotate A right
+		lsb := cpu.A & 1  // Isolate the LSB (bit 0)
+		cpu.A >>= 1       // Shift everything one bit to the right
+		cpu.A |= lsb << 7 // Replace the MSB (bit 7) with the LSB (bit 0)
+		cpu.flags.Carry = (lsb == 1)
+	case 0x17: // RAL - Rotate A left through carry
+		msb := cpu.A >> 7 // Isolate the MSB (bit 7)
+		cpu.A <<= 1       // Shift everything one bit to the left
+		if cpu.flags.Carry {
+			cpu.A |= 0b0000_0001 // Replace the LSB (bit 0) with the carry flag
+		}
+		cpu.flags.Carry = (msb == 1)
+	case 0x1F: // RAR - Rotate A right through carry
+		lsb := cpu.A & 1 // Isolate the LSB (bit 0)
+		cpu.A >>= 1      // Shift everything one bit to the right
+		if cpu.flags.Carry {
+			cpu.A |= 0b1000_0000 // Replace the MSB (bit 7) with the carry flag
+		}
+		cpu.flags.Carry = (lsb == 1)
 
 	// SPECIALS
 	case 0x2F: // CMA
@@ -805,7 +821,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 // getFlags returns the current state of the CPU flags packed into a single byte, for use in
 // functions such as PUSH PSW.  The flags are ordered from MSB (bit 7) to LSB (bit 0).
 //
-// This methods performs the following steps:
+// This method performs the following steps:
 // 1. Generates a slice of eight bools for the flag storage
 // 2. Iterates through each bit in the slice, shifting the bits to the left if set
 //
@@ -835,7 +851,7 @@ func (cpu CPU) getFlags() byte {
 	return result
 }
 
-// setFlags updates the CPU flags based on provided flags byte.
+// setFlags updates the CPU flags based on the provided flags byte.
 func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Sign = (flags & (1 << 7)) != 0
 	cpu.flags.Zero = (flags & (1 << 6)) != 0
