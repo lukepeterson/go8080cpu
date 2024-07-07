@@ -2627,6 +2627,102 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
 			wantCPU: &CPU{flags: Flags{Carry: false}},
 		},
+		{
+			name: "DAA - lower nibble less than 9, with auxillary carry",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_1000, flags: Flags{AuxCarry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0000_1110},
+		},
+		{
+			name: "DAA - upper nibble less than 9, with carry",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1000_0000, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1110_0000, flags: Flags{Sign: true}},
+		},
+		{
+			name: "DAA - upper and lower nibble less than 9, with auxillary carry and carry",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1000_1000, flags: Flags{AuxCarry: true, Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1110_1110, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "DAA - upper and lower nibbles less than 9",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1000_1000, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1000_1000, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "DAA - upper and lower nibbles equal to 9",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b1001_1001, flags: Flags{Sign: true, Parity: true}},
+		},
+		{
+			name: "DAA - lower nibble greater than 9",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b0000_1011, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0001_0001, flags: Flags{AuxCarry: true, Parity: true}},
+		},
+		{
+			name: "DAA - upper nibble greater than 9",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1011_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0001_0000, flags: Flags{Carry: true}},
+		},
+		{
+			name: "DAA - upper and lower nibbles greater than 9",
+			code: `
+				DAA
+				HLT
+			`,
+			initCPU: &CPU{A: 0b1011_1011, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0b0010_0001, flags: Flags{AuxCarry: true, Parity: true, Carry: true}},
+		},
+		{
+			name: "DAA - perform addition example from the 8080 manual (2985 + 4936 = 7921)",
+			code: `
+				MVI A, 29H
+				MVI B, 49H
+				ADD B
+				DAA
+				MOV B, A
+
+				MVI A, 85H
+				MVI C, 36H
+				ADD C
+				DAA
+				MOV C, A
+
+				MOV A, B
+				ADI 01H
+
+				MOV B, A
+				HLT
+			`,
+			initCPU: &CPU{flags: Flags{}, Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x79, B: 0x79, C: 0x21, flags: Flags{}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

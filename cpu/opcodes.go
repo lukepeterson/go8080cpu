@@ -792,7 +792,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x3F: // CMC - Complement carry
 		cpu.flags.Carry = !cpu.flags.Carry
 	case 0x27: // DAA - Decimal adjust A
-		return ErrNotImplemented(opCode)
+		cpu.daa()
 
 	// INPUT/OUTPUT
 	case 0xDB: // IN - Input
@@ -1037,6 +1037,31 @@ func (cpu *CPU) ora(register byte) {
 	cpu.setSignZeroParityFlags(cpu.A)
 	cpu.flags.AuxCarry = false
 	cpu.flags.Carry = false
+}
+
+// daa adjusts the eight-bit value in the accumulator to form two four-bit binary coded decimal digits.
+//
+// This method performs the following steps:
+// 1. If the least significant four bits of the accumulator have a value greater than nine,
+// or if the auxiliary carry flag is set, DAA adds six to the accumulator.
+// 2. If the most significant four bits of the accumulator have a value greater than nine,
+// or if the carry flag is set, DAA adds six to the most significant four bits of the accumulator.
+func (cpu *CPU) daa() {
+	// Adjust lower nibble
+	lowerNibble := cpu.A & 0b0000_1111 // Isolate the four LSBs
+	if lowerNibble > 9 || cpu.flags.AuxCarry {
+		cpu.flags.AuxCarry = lowerNibble > 9
+		cpu.A += 0x06 // Add 6 to the lower nibble of the accumulator
+	}
+
+	// Adjust higher nibble
+	upperNibble := cpu.A >> 4 // Isolate the four MSBs
+	if upperNibble > 9 || cpu.flags.Carry {
+		cpu.flags.Carry = upperNibble > 9
+		cpu.A += 0x60 // Add 6 to the upper nibble of the accumulator
+	}
+
+	cpu.setSignZeroParityFlags(cpu.A)
 }
 
 // cmp performs a logical comparison with the A register.
