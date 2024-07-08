@@ -937,16 +937,207 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{stackPointer: 0x0000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{stackPointer: 0xFFFF},
 		},
-		// JMP - Jump unconditional
-		// JC - Jump on carry
-		// JNC - Jump on no carry
-		// JZ - Jump on zero
-		// JNZ - Jump on no zero
-		// JP - Jump on positive
-		// JM - Jump on minus
-		// JPE - Jump on parity even
-		// JPO - Jump on parity odd
-		// PCHL - H&L to program counter
+		{
+			name: "JMP",
+			code: `
+				JMP 0x04
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0005},
+		},
+		{
+			name: "JC (carry set - jump)",
+			code: `
+				STC
+				JC 0x05
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
+		},
+		{
+			name: "JC (carry not set - don't jump)",
+			code: `
+				JC 0x04
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "JNC (carry set - don't jump)",
+			code: `
+				STC
+				JNC 0x05
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+		},
+		{
+			name: "JNC (carry not set - jump)",
+			code: `
+				JNC 0x04
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0005},
+		},
+		{
+			name: "JZ (zero set - jump)",
+			code: `
+				CMP A
+				JZ 0x05
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
+		},
+		{
+			name: "JZ (zero not set - don't jump)",
+			code: `
+				JZ 0x04
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "JNZ (zero set - jump)",
+			code: `
+				CMP A
+				JNZ 0x05
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+		},
+		{
+			name: "JNZ (zero not set - jump)",
+			code: `
+				JNZ 0x04
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0005},
+		},
+		{
+			name: "JP (sign flag set - don't jump)",
+			code: `
+				MVI A, 0x7F
+				INR A
+				JP 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+		},
+		{
+			name: "JP (sign flag not set - jump)",
+			code: `
+				MVI A, 0x7E
+				INR A
+				JP 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0008},
+		},
+		{
+			name: "JM (sign flag set - jump)",
+			code: `
+				MVI A, 0x7F
+				INR A
+				JM 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
+		},
+		{
+			name: "JM (sign flag not set - don't jump)",
+			code: `
+				MVI A, 0x7E
+				INR A
+				JM 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
+		},
+		{
+			name: "JPE (parity even - jump)",
+			code: `
+				MVI A, 0x02
+				INR A
+				JPE 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
+		},
+		{
+			name: "JPE (parity odd - don't jump)",
+			code: `
+				MVI A, 0x01
+				INR A
+				JPE 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
+		},
+		{
+			name: "JPO (parity even - don't jump)",
+			code: `
+				MVI A, 0x02
+				INR A
+				JPO 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+		},
+		{
+			name: "JPO (parity odd - jump)",
+			code: `
+				MVI A, 0x01
+				INR A
+				JPO 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
+		},
+		{
+			name: "PCHL",
+			code: `
+				LXI H, 0x0005
+				PCHL
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{L: 0x05, programCounter: 0x0006},
+		},
 		{
 			name: "INR A from 0x01",
 			code: `
@@ -2737,6 +2928,12 @@ func TestCPUInstructions(t *testing.T) {
 			runErr := gotCPU.Run()
 			if runErr != nil {
 				t.Errorf("%s", runErr)
+			}
+
+			if tc.wantCPU.programCounter != 0 {
+				if gotCPU.programCounter != tc.wantCPU.programCounter {
+					t.Errorf("%s \ngotProgramCounter  0x%04X,\nwantProgramCounter 0x%04X", tc.name, gotCPU.programCounter, tc.wantCPU.programCounter)
+				}
 			}
 
 			if !gotCPU.registersEqual(tc.wantCPU) {

@@ -400,23 +400,71 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.programCounter = address
 	case 0xDA: // JC - Jump on carry
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Carry {
+			cpu.programCounter = address
+		}
 	case 0xD2: // JNC - Jump on no carry
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Carry {
+			cpu.programCounter = address
+		}
 	case 0xCA: // JZ - Jump on zero
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Zero {
+			cpu.programCounter = address
+		}
 	case 0xC2: // JNZ - Jump on no zero
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Zero {
+			cpu.programCounter = address
+		}
 	case 0xF2: // JP - Jump on positive
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Sign {
+			cpu.programCounter = address
+		}
 	case 0xFA: // JM - Jump on minus
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Sign {
+			cpu.programCounter = address
+		}
 	case 0xEA: // JPE - Jump on parity even
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Parity {
+			cpu.programCounter = address
+		}
 	case 0xE2: // JPO - Jump on parity odd
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Parity {
+			cpu.programCounter = address
+		}
 	case 0xE9: // PCHL - H&L to program counter
-		return ErrNotImplemented(opCode)
+		cpu.programCounter = joinBytes(cpu.H, cpu.L)
 
 	// CALL
 	case 0xCD: // CALL
