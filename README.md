@@ -17,7 +17,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 ## Instructions supported
 - :white_check_mark: Move, load and store (84 instructions)
 - :white_check_mark: Stack operations (13 instructions)
-- :x: Jump (10 instructions)
+- :white_check_mark: Jump (10 instructions)
 - :x: Call (9 instructions)
 - :x: Return (9 instructions)
 - :x: Restart (8 instructions)
