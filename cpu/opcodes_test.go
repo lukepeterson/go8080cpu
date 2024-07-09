@@ -1138,6 +1138,49 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{L: 0x05, programCounter: 0x0006},
 		},
+
+		// {
+		// 	name: "CALL",
+		// 	code: `
+		// 		CALL 0x0005      ; Call subroutine at address 0x0006
+		// 		NOP              ; This instruction should be executed after the subroutine returns
+		// 		HLT              ; Halt here after subroutine returns
+		// 		POP B
+		// 		HLT              ; Halt within subroutine (to check the jump)
+		// 		`,
+		// 	initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+		// 	wantCPU: &CPU{B: 0x00, C: 0x03, programCounter: 0x0007},
+		// },
+
+		// CALL
+		// CC
+		// CNC
+		// CZ
+		// CNZ
+		// CP
+		// CM
+		// CPE
+		// CPO
+
+		// RET
+		// RC
+		// RNC
+		// RZ
+		// RNZ
+		// RP
+		// RM
+		// RPE
+		// RPO
+
+		// RST 0
+		// RST 1
+		// RST 2
+		// RST 3
+		// RST 4
+		// RST 5
+		// RST 6
+		// RST 7
+
 		{
 			name: "INR A from 0x01",
 			code: `
