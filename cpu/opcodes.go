@@ -318,10 +318,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 	case 0xF5: // PUSH PSW - Push register A and flags to stack
-		high, low := splitWord(joinBytes(cpu.A, cpu.getFlags()))
-		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
-		cpu.stackPointer -= 2
+		err := cpu.pushStack(cpu.getAPSW())
+		if err != nil {
+			return err
+		}
 	case 0xC1: // POP B - Pop register pair B&C off stack
 		readWord, err := cpu.popStack()
 		if err != nil {
@@ -1204,4 +1204,6 @@ func (cpu CPU) getHL() word {
 	return joinBytes(cpu.H, cpu.L)
 }
 
-// TODO: Something for A + PSW
+func (cpu CPU) getAPSW() word {
+	return joinBytes(cpu.A, cpu.getFlags())
+}
