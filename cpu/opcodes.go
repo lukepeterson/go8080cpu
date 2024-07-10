@@ -450,7 +450,12 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// CALL
 	case 0xCD: // CALL
-		return ErrNotImplemented(opCode)
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = address
 	case 0xDC: // CC
 		return ErrNotImplemented(opCode)
 	case 0xD4: // CNC
@@ -470,7 +475,11 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// RETURN
 	case 0xC9: // RET
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		cpu.programCounter = address
 	case 0xD8: // RC
 		return ErrNotImplemented(opCode)
 	case 0xD0: // RNC
