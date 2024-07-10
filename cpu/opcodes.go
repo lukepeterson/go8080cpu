@@ -303,68 +303,50 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// STACK OPERATIONS
 	case 0xC5: // PUSH B - Push register pair B&C to stack
-		high, low := splitWord(cpu.getBC())
-		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
-		cpu.stackPointer -= 2
+		err := cpu.pushStack(cpu.getBC())
+		if err != nil {
+			return err
+		}
 	case 0xD5: // PUSH D - Push register pair D&E to stack
-		high, low := splitWord(cpu.getDE())
-		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
-		cpu.stackPointer -= 2
+		err := cpu.pushStack(cpu.getDE())
+		if err != nil {
+			return err
+		}
 	case 0xE5: // PUSH H - Push register pair H&L to stack
-		high, low := splitWord(cpu.getHL())
-		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
-		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
-		cpu.stackPointer -= 2
+		err := cpu.pushStack(cpu.getHL())
+		if err != nil {
+			return err
+		}
 	case 0xF5: // PUSH PSW - Push register A and flags to stack
 		high, low := splitWord(joinBytes(cpu.A, cpu.getFlags()))
 		cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
 		cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 		cpu.stackPointer -= 2
 	case 0xC1: // POP B - Pop register pair B&C off stack
-		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		readWord, err := cpu.popStack()
 		if err != nil {
 			return err
 		}
-		cpu.B = readByte
-		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
-		if err != nil {
-			return err
-		}
-		cpu.C = readByte
-		cpu.stackPointer += 2
+		cpu.B, cpu.C = splitWord(readWord)
 	case 0xD1: // POP D - Pop register pair D&E off stack
-		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		readWord, err := cpu.popStack()
 		if err != nil {
 			return err
 		}
-		cpu.D = readByte
-		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
-		if err != nil {
-			return err
-		}
-		cpu.E = readByte
-		cpu.stackPointer += 2
+		cpu.D, cpu.E = splitWord(readWord)
 	case 0xE1: // POP H - Pop register pair H&L off stack
-		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		readWord, err := cpu.popStack()
 		if err != nil {
 			return err
 		}
-		cpu.H = readByte
-		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
-		if err != nil {
-			return err
-		}
-		cpu.L = readByte
-		cpu.stackPointer += 2
+		cpu.H, cpu.L = splitWord(readWord)
 	case 0xF1: // POP PSW - Pop register A and flags off stack
 		readWord, err := cpu.popStack()
 		if err != nil {
 			return err
 		}
-		a, flags := splitWord(readWord)
-		cpu.A = a
+		var flags byte
+		cpu.A, flags = splitWord(readWord)
 		cpu.setFlags(flags)
 	case 0xE3: // XTHL - Exchange top of stack with H&L
 		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
@@ -911,17 +893,29 @@ func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }
 
+func (cpu *CPU) pushStack(address word) error {
+	high, low := splitWord(address)
+	err := cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
+	if err != nil {
+		return err
+	}
+	err = cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
+	if err != nil {
+		return err
+	}
+	cpu.stackPointer -= 2
+	return nil
+}
+
 func (cpu *CPU) popStack() (word, error) {
-	readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
+	low, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
 	if err != nil {
 		return 0, err
 	}
-	low := readByte
-	readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+	high, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
 	if err != nil {
 		return 0, err
 	}
-	high := readByte
 	cpu.stackPointer += 2
 	return joinBytes(high, low), nil
 }

@@ -4,7 +4,7 @@ import "fmt"
 
 type Bus interface {
 	ReadByteAt(address word) (byte, error)
-	WriteByteAt(address word, data byte)
+	WriteByteAt(address word, data byte) error
 	length() uint16
 }
 
@@ -18,10 +18,14 @@ func NewMemory(size uint16) *Memory {
 	}
 }
 
-func (cpu *CPU) Load(data []byte) {
+func (cpu *CPU) Load(data []byte) error {
 	for addr, value := range data {
-		cpu.Bus.WriteByteAt(word(addr), value)
+		err := cpu.Bus.WriteByteAt(word(addr), value)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (memory Memory) ReadByteAt(address word) (byte, error) {
@@ -31,8 +35,12 @@ func (memory Memory) ReadByteAt(address word) (byte, error) {
 	return memory.Data[address], nil
 }
 
-func (memory *Memory) WriteByteAt(address word, data byte) {
+func (memory *Memory) WriteByteAt(address word, data byte) error {
+	if int(address) >= len(memory.Data) {
+		return fmt.Errorf("address 0x%04X out of bounds", address)
+	}
 	memory.Data[address] = data
+	return nil
 }
 
 func (memory Memory) length() uint16 {
