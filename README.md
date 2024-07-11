@@ -18,7 +18,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :white_check_mark: Move, load and store (84 instructions)
 - :white_check_mark: Stack operations (13 instructions)
 - :white_check_mark: Jump (10 instructions)
-- :x: Call (9 instructions)
+- :white_check_mark: Call (9 instructions)
 - :x: Return (9 instructions)
 - :x: Restart (8 instructions)
 - :white_check_mark: Increment and decrement (22 instructions)
@@ -37,6 +37,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - Consider splitting apart the tests.  200+ tests in one file is tricky to navigate.
 - Move memory and CPU into separate packages.
 - Add comments for unnecessary linter static checks.
+- Replace the memory locations with labels once the assembler supports them.
 
 # Running tests
 Run `go test ./...`.

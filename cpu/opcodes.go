@@ -449,70 +449,126 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.programCounter = joinBytes(cpu.H, cpu.L)
 
 	// CALL
-	case 0xCD: // CALL
+	case 0xCD: // CALL - Call unconditional
 		address, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
 		cpu.pushStack(cpu.programCounter)
 		cpu.programCounter = address
-	case 0xDC: // CC
-		return ErrNotImplemented(opCode)
-	case 0xD4: // CNC
-		return ErrNotImplemented(opCode)
-	case 0xCC: // CZ
-		return ErrNotImplemented(opCode)
-	case 0xC4: // CNZ
-		return ErrNotImplemented(opCode)
-	case 0xF4: // CP
-		return ErrNotImplemented(opCode)
-	case 0xFC: // CM
-		return ErrNotImplemented(opCode)
-	case 0xEC: // CPE
-		return ErrNotImplemented(opCode)
-	case 0xE4: // CPO
-		return ErrNotImplemented(opCode)
+	case 0xDC: // CC - Call on carry
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Carry {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xD4: // CNC - Call on no carry
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Carry {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xCC: // CZ - Call on zero
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Zero {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xC4: // CNZ - Call on no zero
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Zero {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xF4: // CP - Call on positive
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Sign {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xFC: // CM - Call on minus
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Sign {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xEC: // CPE - Call on parity even
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Parity {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
+	case 0xE4: // CPO - Call on parity odd
+		address, err := cpu.fetchWord()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Parity {
+			cpu.pushStack(cpu.programCounter)
+			cpu.programCounter = address
+		}
 
 	// RETURN
-	case 0xC9: // RET
+	case 0xC9: // RET - Return
 		address, err := cpu.popStack()
 		if err != nil {
 			return err
 		}
 		cpu.programCounter = address
-	case 0xD8: // RC
+	case 0xD8: // RC - Return on carry
 		return ErrNotImplemented(opCode)
-	case 0xD0: // RNC
+	case 0xD0: // RNC - Return on no carry
 		return ErrNotImplemented(opCode)
-	case 0xC8: // RZ
+	case 0xC8: // RZ - Return on zero
 		return ErrNotImplemented(opCode)
-	case 0xC0: // RNZ
+	case 0xC0: // RNZ - Return on no zero
 		return ErrNotImplemented(opCode)
-	case 0xF0: // RP
+	case 0xF0: // RP - Return on positive
 		return ErrNotImplemented(opCode)
-	case 0xF8: // RM
+	case 0xF8: // RM - Return on minus
 		return ErrNotImplemented(opCode)
-	case 0xE8: // RPE
+	case 0xE8: // RPE - Return on parity even
 		return ErrNotImplemented(opCode)
-	case 0xE0: // RPO
+	case 0xE0: // RPO - Return on parity odd
 		return ErrNotImplemented(opCode)
 
 	// RESTART
-	case 0xC7: // RST 0
+	case 0xC7: // RST 0 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xCF: // RST 1
+	case 0xCF: // RST 1 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xD7: // RST 2
+	case 0xD7: // RST 2 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xDF: // RST 3
+	case 0xDF: // RST 3 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xE7: // RST 4
+	case 0xE7: // RST 4 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xEF: // RST 5
+	case 0xEF: // RST 5 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xF7: // RST 6
+	case 0xF7: // RST 6 - Restart
 		return ErrNotImplemented(opCode)
-	case 0xFF: // RST 7
+	case 0xFF: // RST 7 - Restart
 		return ErrNotImplemented(opCode)
 
 	// INCREMENT AND DECREMENT
@@ -906,11 +962,11 @@ func (cpu *CPU) pushStack(address word) error {
 	high, low := splitWord(address)
 	err := cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer-1: %v", cpu.stackPointer-1, err)
 	}
 	err = cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer-2: %v", cpu.stackPointer-2, err)
 	}
 	cpu.stackPointer -= 2
 	return nil
@@ -919,11 +975,11 @@ func (cpu *CPU) pushStack(address word) error {
 func (cpu *CPU) popStack() (word, error) {
 	low, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("could not read from cpu.stackPointer: %v", err)
 	}
 	high, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("could not read from cpu.stackPointer + 1: %v", err)
 	}
 	cpu.stackPointer += 2
 	return joinBytes(high, low), nil

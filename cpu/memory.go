@@ -30,14 +30,14 @@ func (cpu *CPU) Load(data []byte) error {
 
 func (memory Memory) ReadByteAt(address word) (byte, error) {
 	if int(address) >= len(memory.Data) {
-		return 0, fmt.Errorf("address 0x%04X out of bounds", address)
+		return 0, fmt.Errorf("could not read from address 0x%04X (out of bounds as memory size is 0x%04X)", address, len(memory.Data))
 	}
 	return memory.Data[address], nil
 }
 
 func (memory *Memory) WriteByteAt(address word, data byte) error {
 	if int(address) >= len(memory.Data) {
-		return fmt.Errorf("address 0x%04X out of bounds", address)
+		return fmt.Errorf("could not write to address 0x%04X (out of bounds as memory size is 0x%04X)", address, len(memory.Data))
 	}
 	memory.Data[address] = data
 	return nil

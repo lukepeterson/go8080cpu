@@ -1011,7 +1011,7 @@ func TestCPUInstructions(t *testing.T) {
 			wantCPU: &CPU{programCounter: 0x0004},
 		},
 		{
-			name: "JNZ (zero set - jump)",
+			name: "JNZ (zero set - don't jump)",
 			code: `
 				CMP A
 				JNZ 0x05
@@ -1150,16 +1150,214 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
 			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
 		},
-
-		// CALL
-		// CC
-		// CNC
-		// CZ
-		// CNZ
-		// CP
-		// CM
-		// CPE
-		// CPO
+		{
+			name: "CC (carry not set - don't call)",
+			code: `
+				CC 0x0004
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "CC (carry set - call)",
+			code: `
+				STC
+				CC 0x0005
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x55, flags: Flags{Carry: true}, programCounter: 0x0005},
+		},
+		{
+			name: "CNC (carry not set - call)",
+			code: `
+				CNC 0x0004
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
+		},
+		{
+			name: "CNC (carry set - don't call)",
+			code: `
+				STC
+				CNC 0x0005
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+		},
+		{
+			name: "CZ (zero set - call)",
+			code: `
+				CMP A
+				CZ 0x0005
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+		},
+		{
+			name: "CZ (zero not set - don't call)",
+			code: `
+				CZ 0x0005
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "CNZ (zero set - don't call)",
+			code: `
+				CMP A
+				CNZ 0x0005
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+		},
+		{
+			name: "CNZ (zero not set - call)",
+			code: `
+				CNZ 0x0004
+				HLT
+				MVI A, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
+		},
+		{
+			name: "CP (sign flag set - don't call)",
+			code: `
+				MVI A, 0x7F
+				INR A
+				CP 0x0007
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+		},
+		{
+			name: "CP (sign flag not set - call)",
+			code: `
+				MVI A, 0x7E
+				INR A
+				CP 0x0007
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x7F, B: 0x55, programCounter: 0x0007},
+		},
+		{
+			name: "CM (sign flag set - call)",
+			code: `
+				MVI A, 0x7F
+				INR A
+				CM 0x0007
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+		},
+		{
+			name: "CM (sign flag not set - don't call)",
+			code: `
+				MVI A, 0x7E
+				INR A
+				CM 0x07
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
+		},
+		{
+			name: "CPE (parity even - call)",
+			code: `
+				MVI A, 0x02
+				INR A
+				CPE 0x07
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, programCounter: 0x0007},
+		},
+		{
+			name: "CPE (parity odd - don't call)",
+			code: `
+				MVI A, 0x01
+				INR A
+				CPE 0x07
+				HLT
+				MVI B, 0x55
+				RET
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
+		},
+		{
+			name: "CPO (parity even - don't call)",
+			code: `
+				MVI A, 0x02
+				INR A
+				CPO 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+		},
+		{
+			name: "CPO (parity odd - call)",
+			code: `
+				MVI A, 0x01
+				INR A
+				CPO 0x07
+				HLT
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
+		},
 
 		// RET
 		// RC
