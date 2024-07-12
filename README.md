@@ -20,7 +20,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :white_check_mark: Jump (10 instructions)
 - :white_check_mark: Call (9 instructions)
 - :white_check_mark: Return (9 instructions)
-- :x: Restart (8 instructions)
+- :white_check_mark: Restart (8 instructions)
 - :white_check_mark: Increment and decrement (22 instructions)
 - :white_check_mark: Add (22 instructions)
 - :white_check_mark: Subtract (18 instructions)
