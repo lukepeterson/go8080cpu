@@ -1554,16 +1554,64 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
 			wantCPU: &CPU{A: 0x02, programCounter: 0x0004},
 		},
-
-		// RST 0
-		// RST 1
-		// RST 2
-		// RST 3
-		// RST 4
-		// RST 5
-		// RST 6
-		// RST 7
-
+		{
+			name: "RST 0",
+			code: `
+				INR A
+				CPI 3
+				JZ 0x07
+				RST 0
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0000},
+		},
+		{
+			// RST instructions are tricky to test, as they have predetermined jump points set by the CPU
+			// for use by interrupts, starting at 0x0000 and finishing at 0x0038.  Our tests below simply
+			// confirm that each of the RST instructions jump to the correct HLT location, then
+			// testing that the programCounter matches the expected value.
+			name:    "RST 1",
+			code:    "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0009},
+		},
+		{
+			name:    "RST 2",
+			code:    "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0011},
+		},
+		{
+			name:    "RST 3",
+			code:    "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0019},
+		},
+		{
+			name:    "RST 4",
+			code:    "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0021},
+		},
+		{
+			name:    "RST 5",
+			code:    "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0029},
+		},
+		{
+			name:    "RST 6",
+			code:    "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0031},
+		},
+		{
+			name:    "RST 7",
+			code:    "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
+			wantCPU: &CPU{programCounter: 0x0039},
+		},
 		{
 			name: "INR A from 0x01",
 			code: `

@@ -603,21 +603,29 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// RESTART
 	case 0xC7: // RST 0 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x00
 	case 0xCF: // RST 1 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x08
 	case 0xD7: // RST 2 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x10
 	case 0xDF: // RST 3 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x18
 	case 0xE7: // RST 4 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x20
 	case 0xEF: // RST 5 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x28
 	case 0xF7: // RST 6 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x30
 	case 0xFF: // RST 7 - Restart
-		return ErrNotImplemented(opCode)
+		cpu.pushStack(cpu.programCounter)
+		cpu.programCounter = 0x38
 
 	// INCREMENT AND DECREMENT
 	case 0x04: // INR B - Increment register
