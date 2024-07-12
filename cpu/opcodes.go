@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"math/bits"
 )
 
 const (
@@ -1303,9 +1304,9 @@ func splitWord(address word) (high, low byte) {
 //	// cpu.flags.Zero is false
 //	// cpu.flags.Parity is true (0x80 has one 1 bit, which is odd, so Parity is false)
 func (cpu *CPU) setSignZeroParityFlags(input byte) {
-	cpu.flags.Sign = input&(1<<7) > 0
+	cpu.flags.Sign = input >= 0b1000_0000
 	cpu.flags.Zero = input == 0
-	cpu.flags.Parity = getParity(input)
+	cpu.flags.Parity = bits.OnesCount8(input)%2 == 0 // Is parity even?
 }
 
 // temporary function to be removed when all instructions are implemented

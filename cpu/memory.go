@@ -78,12 +78,3 @@ func boolToInt(in bool) int {
 
 	return 0
 }
-
-func getParity(b byte) bool {
-	var count int
-	for b != 0 {
-		count += int(b & 1)
-		b >>= 1
-	}
-	return count%2 == 0
-}
