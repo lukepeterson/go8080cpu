@@ -537,21 +537,69 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.programCounter = address
 	case 0xD8: // RC - Return on carry
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Carry {
+			cpu.programCounter = address
+		}
 	case 0xD0: // RNC - Return on no carry
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Carry {
+			cpu.programCounter = address
+		}
 	case 0xC8: // RZ - Return on zero
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Zero {
+			cpu.programCounter = address
+		}
 	case 0xC0: // RNZ - Return on no zero
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Zero {
+			cpu.programCounter = address
+		}
 	case 0xF0: // RP - Return on positive
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Sign {
+			cpu.programCounter = address
+		}
 	case 0xF8: // RM - Return on minus
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Sign {
+			cpu.programCounter = address
+		}
 	case 0xE8: // RPE - Return on parity even
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if cpu.flags.Parity {
+			cpu.programCounter = address
+		}
 	case 0xE0: // RPO - Return on parity odd
-		return ErrNotImplemented(opCode)
+		address, err := cpu.popStack()
+		if err != nil {
+			return err
+		}
+		if !cpu.flags.Parity {
+			cpu.programCounter = address
+		}
 
 	// RESTART
 	case 0xC7: // RST 0 - Restart

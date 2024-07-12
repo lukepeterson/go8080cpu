@@ -1130,7 +1130,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "PCHL",
 			code: `
-				LXI H, 0x0005
+				LXI H, 0x05
 				PCHL
 				HLT
 				HLT
@@ -1141,7 +1141,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "CALL and RET",
 			code: `
-				CALL 0x0004
+				CALL 0x04
 				HLT
 				MVI A, 0x55
 				RET
@@ -1153,7 +1153,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "CC (carry not set - don't call)",
 			code: `
-				CC 0x0004
+				CC 0x04
 				HLT
 				MVI A, 0x55
 				RET
@@ -1166,7 +1166,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "CC (carry set - call)",
 			code: `
 				STC
-				CC 0x0005
+				CC 0x05
 				HLT
 				MVI A, 0x55
 				RET
@@ -1178,7 +1178,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "CNC (carry not set - call)",
 			code: `
-				CNC 0x0004
+				CNC 0x04
 				HLT
 				MVI A, 0x55
 				RET
@@ -1191,7 +1191,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "CNC (carry set - don't call)",
 			code: `
 				STC
-				CNC 0x0005
+				CNC 0x05
 				HLT
 				MVI A, 0x55
 				RET
@@ -1204,7 +1204,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "CZ (zero set - call)",
 			code: `
 				CMP A
-				CZ 0x0005
+				CZ 0x05
 				HLT
 				MVI A, 0x55
 				RET
@@ -1216,7 +1216,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "CZ (zero not set - don't call)",
 			code: `
-				CZ 0x0005
+				CZ 0x05
 				HLT
 				MVI A, 0x55
 				RET
@@ -1229,7 +1229,7 @@ func TestCPUInstructions(t *testing.T) {
 			name: "CNZ (zero set - don't call)",
 			code: `
 				CMP A
-				CNZ 0x0005
+				CNZ 0x05
 				HLT
 				MVI A, 0x55
 				RET
@@ -1241,7 +1241,7 @@ func TestCPUInstructions(t *testing.T) {
 		{
 			name: "CNZ (zero not set - call)",
 			code: `
-				CNZ 0x0004
+				CNZ 0x04
 				HLT
 				MVI A, 0x55
 				RET
@@ -1255,7 +1255,7 @@ func TestCPUInstructions(t *testing.T) {
 			code: `
 				MVI A, 0x7F
 				INR A
-				CP 0x0007
+				CP 0x07
 				HLT
 				MVI B, 0x55
 				RET
@@ -1269,7 +1269,7 @@ func TestCPUInstructions(t *testing.T) {
 			code: `
 				MVI A, 0x7E
 				INR A
-				CP 0x0007
+				CP 0x07
 				HLT
 				MVI B, 0x55
 				RET
@@ -1283,7 +1283,7 @@ func TestCPUInstructions(t *testing.T) {
 			code: `
 				MVI A, 0x7F
 				INR A
-				CM 0x0007
+				CM 0x07
 				HLT
 				MVI B, 0x55
 				RET
@@ -1358,16 +1358,202 @@ func TestCPUInstructions(t *testing.T) {
 			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
 			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
 		},
-
-		// RET
-		// RC
-		// RNC
-		// RZ
-		// RNZ
-		// RP
-		// RM
-		// RPE
-		// RPO
+		{
+			name: "RC (carry not set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				RC
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0006},
+		},
+		{
+			name: "RC (carry set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				STC
+				RC
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0004},
+		},
+		{
+			name: "RNC (carry not set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				RNC
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "RNC (carry set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				STC
+				RNC
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0007},
+		},
+		{
+			name: "RZ (zero set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				CMP A
+				RZ
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0004},
+		},
+		{
+			name: "RZ (zero not set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				RZ
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0006},
+		},
+		{
+			name: "RNZ (zero set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				CMP A
+				RNZ
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0007},
+		},
+		{
+			name: "RNZ (zero not set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				RNZ
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{programCounter: 0x0004},
+		},
+		{
+			name: "RP (sign flag set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x7F
+				INR A
+				RP
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0009},
+		},
+		{
+			name: "RP (sign flag not set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x7E
+				INR A
+				RP
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0004},
+		},
+		{
+			name: "RM (sign flag set - return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x7F
+				INR A
+				RM
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0004},
+		},
+		{
+			name: "RM (sign flag not set - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x7E
+				INR A
+				RM
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0009},
+		},
+		{
+			name: "RPE (parity even - return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x02
+				INR A
+				RPE
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0004},
+		},
+		{
+			name: "RPE (parity odd - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x01
+				INR A
+				RPE
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0009},
+		},
+		{
+			name: "RPO (parity even - don't return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x02
+				INR A
+				RPO
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0009},
+		},
+		{
+			name: "RPO (parity odd - return)",
+			code: `
+				CALL 0x04
+				HLT
+				MVI A, 0x01
+				INR A
+				RPO
+				HLT
+				`,
+			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0004},
+		},
 
 		// RST 0
 		// RST 1
