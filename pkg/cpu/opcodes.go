@@ -1306,7 +1306,7 @@ func splitWord(address word) (high, low byte) {
 func (cpu *CPU) setSignZeroParityFlags(input byte) {
 	cpu.flags.Sign = input >= 0b1000_0000
 	cpu.flags.Zero = input == 0
-	cpu.flags.Parity = bits.OnesCount8(input)%2 == 0 // Is parity even?
+	cpu.flags.Parity = bits.OnesCount8(input)%2 == 0 // Check if parity is even
 }
 
 // temporary function to be removed when all instructions are implemented
