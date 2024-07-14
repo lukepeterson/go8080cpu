@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/lukepeterson/go8080assembler/assembler"
-	"github.com/lukepeterson/go8080cpu/cpu"
+	"github.com/lukepeterson/go8080cpu/pkg/cpu"
 )
 
 func main() {
