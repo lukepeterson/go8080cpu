@@ -4,15 +4,17 @@ import (
 	"testing"
 
 	"github.com/lukepeterson/go8080assembler/assembler"
+	"github.com/lukepeterson/go8080cpu/pkg/memory"
 )
 
 func TestCPUInstructions(t *testing.T) {
 	testCases := []struct {
-		name    string
-		code    string
-		initCPU *CPU
-		wantCPU *CPU
-		wantErr bool
+		name       string
+		code       string
+		memorySize uint
+		initCPU    *CPU
+		wantCPU    *CPU
+		wantErr    bool
 	}{
 		{
 			name: "MOV B, B",
@@ -20,7 +22,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01},
 		},
 		{
@@ -29,7 +31,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x02},
 			wantCPU: &CPU{B: 0x02, C: 0x02},
 		},
 		{
@@ -38,7 +40,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{B: 0x01, D: 0x01},
 		},
 		{
@@ -47,7 +49,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{B: 0x01, E: 0x01},
 		},
 		{
@@ -56,7 +58,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{B: 0x01, H: 0x01},
 		},
 		{
@@ -65,7 +67,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x02},
 			wantCPU: &CPU{B: 0x02, L: 0x02},
 		},
 		{
@@ -75,8 +77,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{B: 0x055, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{H: 0x01, L: 0x01},
+			wantCPU:    &CPU{B: 0x055, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV B, A",
@@ -84,7 +87,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{B: 0x01, A: 0x01},
 		},
 		{
@@ -93,7 +96,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, C: 0x01},
 		},
 		{
@@ -102,7 +105,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x01},
 		},
 		{
@@ -111,7 +114,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{C: 0x01, D: 0x01},
 		},
 		{
@@ -120,7 +123,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{C: 0x01, E: 0x01},
 		},
 		{
@@ -129,7 +132,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{C: 0x01, H: 0x01},
 		},
 		{
@@ -138,7 +141,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{C: 0x01, L: 0x01},
 		},
 		{
@@ -148,8 +151,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, M
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{C: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{H: 0x01, L: 0x01},
+			wantCPU:    &CPU{C: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV C, A",
@@ -157,7 +161,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, C: 0x01},
 		},
 		{
@@ -166,7 +170,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, D: 0x01},
 		},
 		{
@@ -175,7 +179,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x01, D: 0x01},
 		},
 		{
@@ -184,7 +188,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{D: 0x01},
 		},
 		{
@@ -193,7 +197,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{D: 0x01, E: 0x01},
 		},
 		{
@@ -202,7 +206,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{D: 0x01, H: 0x01},
 		},
 		{
@@ -211,7 +215,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{D: 0x01, L: 0x01},
 		},
 		{
@@ -221,8 +225,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, M
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{D: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{H: 0x01, L: 0x01},
+			wantCPU:    &CPU{D: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV D, A",
@@ -230,7 +235,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, D: 0x01},
 		},
 		{
@@ -239,7 +244,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, E: 0x01},
 		},
 		{
@@ -248,7 +253,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x01, E: 0x01},
 		},
 		{
@@ -257,7 +262,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{D: 0x01, E: 0x01},
 		},
 		{
@@ -266,7 +271,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{E: 0x01},
 		},
 		{
@@ -275,7 +280,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{E: 0x01, H: 0x01},
 		},
 		{
@@ -284,7 +289,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{E: 0x01, L: 0x01},
 		},
 		{
@@ -294,8 +299,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, M
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{E: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{H: 0x01, L: 0x01},
+			wantCPU:    &CPU{E: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV E, A",
@@ -303,7 +309,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, E: 0x01},
 		},
 		{
@@ -312,7 +318,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, H: 0x01},
 		},
 		{
@@ -321,7 +327,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x01, H: 0x01},
 		},
 		{
@@ -330,7 +336,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{D: 0x01, H: 0x01},
 		},
 		{
@@ -339,7 +345,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{E: 0x01, H: 0x01},
 		},
 		{
@@ -348,7 +354,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{H: 0x01},
 		},
 		{
@@ -357,7 +363,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{H: 0x01, L: 0x01},
 		},
 		{
@@ -368,8 +374,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{H: 0x02, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x02, L: 0x01},
 		},
 		{
 			name: "MOV H, A",
@@ -377,7 +384,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, H: 0x01},
 		},
 		{
@@ -386,7 +393,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, L: 0x01},
 		},
 		{
@@ -395,7 +402,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x01, L: 0x01},
 		},
 		{
@@ -404,7 +411,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{D: 0x01, L: 0x01},
 		},
 		{
@@ -413,7 +420,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{E: 0x01, L: 0x01},
 		},
 		{
@@ -422,7 +429,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{H: 0x01, L: 0x01},
 		},
 		{
@@ -431,7 +438,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{L: 0x01},
 		},
 		{
@@ -442,8 +449,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{H: 0x01, L: 0x02},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x01, L: 0x02},
 		},
 		{
 			name: "MOV L, A",
@@ -451,7 +459,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, L: 0x01},
 		},
 		{
@@ -463,8 +471,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, C",
@@ -475,8 +484,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x55, C: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, C: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, D",
@@ -487,8 +497,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x55, D: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, D: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, E",
@@ -499,8 +510,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x55, E: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, E: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, H",
@@ -510,8 +522,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV M, H
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFF+2)}},
-			wantCPU: &CPU{H: 0x02, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x02, L: 0x01},
 		},
 		{
 			name: "MOV M, L",
@@ -521,8 +534,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV M, L
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{H: 0x01, L: 0x02},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x01, L: 0x02},
 		},
 		{
 			name: "MOV M, A",
@@ -533,8 +547,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x02, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV A, B",
@@ -542,7 +557,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x01, A: 0x01},
 		},
 		{
@@ -551,7 +566,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{A: 0x01, C: 0x01},
 		},
 		{
@@ -560,7 +575,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{A: 0x01, D: 0x01},
 		},
 		{
@@ -569,7 +584,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{A: 0x01, E: 0x01},
 		},
 		{
@@ -578,7 +593,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{A: 0x01, H: 0x01},
 		},
 		{
@@ -587,7 +602,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{A: 0x01, L: 0x01},
 		},
 		{
@@ -597,8 +612,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x01, Bus: &Memory{Data: make([]byte, 0xFF+3)}},
-			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFF + 3,
+			initCPU:    &CPU{H: 0x01, L: 0x01},
+			wantCPU:    &CPU{A: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV A, A",
@@ -606,7 +622,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01},
 		},
 
@@ -616,8 +632,9 @@ func TestCPUInstructions(t *testing.T) {
 				LXI B, 0x3344
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{B: 0x33, C: 0x44},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{B: 0x33, C: 0x44},
 		},
 		{
 			name: "LXI D",
@@ -625,8 +642,9 @@ func TestCPUInstructions(t *testing.T) {
 				LXI D, 0x3344
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{D: 0x33, E: 0x44},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{D: 0x33, E: 0x44},
 		},
 		{
 			name: "LXI H",
@@ -634,8 +652,9 @@ func TestCPUInstructions(t *testing.T) {
 				LXI H, 0x3344
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{H: 0x33, L: 0x44},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x33, L: 0x44},
 		},
 		{
 			name: "STAX B",
@@ -647,8 +666,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "STAX D",
@@ -660,8 +680,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "LDAX B",
@@ -672,8 +693,9 @@ func TestCPUInstructions(t *testing.T) {
 				LDAX B
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "LDAX D",
@@ -684,8 +706,9 @@ func TestCPUInstructions(t *testing.T) {
 				LDAX D
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "STA",
@@ -696,8 +719,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x33, L: 0x44},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, B: 0x55, H: 0x33, L: 0x44},
 		},
 		{
 			name: "LDA",
@@ -707,8 +731,9 @@ func TestCPUInstructions(t *testing.T) {
 				LDA 0x0101
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "SHLD",
@@ -723,8 +748,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, A
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
 		},
 		{
 			name: "LHLD",
@@ -736,8 +762,9 @@ func TestCPUInstructions(t *testing.T) {
 				LHLD 0x2000
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x44, H: 0x44, L: 0x33},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x44, H: 0x44, L: 0x33},
 		},
 		{
 			name: "XCHG",
@@ -745,8 +772,9 @@ func TestCPUInstructions(t *testing.T) {
 				XCHG
 				HLT
 			`,
-			initCPU: &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66},
+			wantCPU:    &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
 		},
 		{
 			name: "PUSH B",
@@ -761,8 +789,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x34, B: 0x12, C: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x34, B: 0x12, C: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
 		{
 			name: "PUSH D",
@@ -777,8 +806,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x34, B: 0x12, D: 0x12, E: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x34, B: 0x12, D: 0x12, E: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
 		{
 			name: "PUSH H",
@@ -793,8 +823,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
 		{
 			name: "PUSH PSW",
@@ -808,8 +839,9 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{Sign: true, Parity: true}, Bus: &Memory{Data: make([]byte, 0x10000)}},
-			wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{flags: Flags{Sign: true, Parity: true}},
+			wantCPU:    &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
 		},
 		{
 			name: "POP B",
@@ -822,8 +854,9 @@ func TestCPUInstructions(t *testing.T) {
 				POP B
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
-			wantCPU: &CPU{B: 0x34, C: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+			memorySize: 0xFFFF + 1,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{B: 0x34, C: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
 		},
 		{
 			name: "POP D",
@@ -836,8 +869,9 @@ func TestCPUInstructions(t *testing.T) {
 				POP D
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
-			wantCPU: &CPU{D: 0x34, E: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+			memorySize: 0xFFFF + 1,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{D: 0x34, E: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
 		},
 		{
 			name: "POP H",
@@ -850,8 +884,9 @@ func TestCPUInstructions(t *testing.T) {
 				POP H
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
-			wantCPU: &CPU{H: 0x34, L: 0x12, stackPointer: 0},
+			memorySize: 0xFFFF + 1,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0x34, L: 0x12, stackPointer: 0},
 		},
 		{
 			name: "POP PSW",
@@ -864,8 +899,9 @@ func TestCPUInstructions(t *testing.T) {
 				POP PSW
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+1)}},
-			wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
+			memorySize: 0xFFFF + 1,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
 		},
 		{
 			name: "XTHL",
@@ -879,8 +915,9 @@ func TestCPUInstructions(t *testing.T) {
 				XTHL
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
 		},
 		{
 			name: "SPHL",
@@ -889,8 +926,9 @@ func TestCPUInstructions(t *testing.T) {
 				SPHL
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{H: 0xFF, L: 0xEE, stackPointer: 0xFFEE},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{H: 0xFF, L: 0xEE, stackPointer: 0xFFEE},
 		},
 		{
 			name: "LXI SP",
@@ -898,8 +936,9 @@ func TestCPUInstructions(t *testing.T) {
 				LXI SP, 0x1234
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{stackPointer: 0x1234},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{stackPointer: 0x1234},
 		},
 		{
 			name: "INX SP from 0x1000",
@@ -907,8 +946,9 @@ func TestCPUInstructions(t *testing.T) {
 				INX SP
 				HLT
 			`,
-			initCPU: &CPU{stackPointer: 0x1000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{stackPointer: 0x1001},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{stackPointer: 0x1000},
+			wantCPU:    &CPU{stackPointer: 0x1001},
 		},
 		{
 			name: "INX SP from 0xFFFF (test overflow works)",
@@ -916,8 +956,9 @@ func TestCPUInstructions(t *testing.T) {
 				INX SP
 				HLT
 			`,
-			initCPU: &CPU{stackPointer: 0xFFFF, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{stackPointer: 0x0000},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{stackPointer: 0xFFFF},
+			wantCPU:    &CPU{stackPointer: 0x0000},
 		},
 		{
 			name: "DCX SP from 0x1000",
@@ -925,8 +966,9 @@ func TestCPUInstructions(t *testing.T) {
 				DCX SP
 				HLT
 			`,
-			initCPU: &CPU{stackPointer: 0x1000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{stackPointer: 0x0FFF},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{stackPointer: 0x1000},
+			wantCPU:    &CPU{stackPointer: 0x0FFF},
 		},
 		{
 			name: "DCX SP from 0x0000 (test underflow works)",
@@ -934,8 +976,9 @@ func TestCPUInstructions(t *testing.T) {
 				DCX SP
 				HLT
 			`,
-			initCPU: &CPU{stackPointer: 0x0000, Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{stackPointer: 0xFFFF},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{stackPointer: 0x0000},
+			wantCPU:    &CPU{stackPointer: 0xFFFF},
 		},
 		{
 			name: "JMP",
@@ -944,8 +987,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0005},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JC (carry set - jump)",
@@ -955,8 +999,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
 		},
 		{
 			name: "JC (carry not set - don't jump)",
@@ -965,8 +1010,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "JNC (carry set - don't jump)",
@@ -976,8 +1022,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
 		},
 		{
 			name: "JNC (carry not set - jump)",
@@ -986,8 +1033,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0005},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JZ (zero set - jump)",
@@ -997,8 +1045,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
 		},
 		{
 			name: "JZ (zero not set - don't jump)",
@@ -1007,8 +1056,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "JNZ (zero set - don't jump)",
@@ -1018,8 +1068,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
 		},
 		{
 			name: "JNZ (zero not set - jump)",
@@ -1028,8 +1079,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0005},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JP (sign flag set - don't jump)",
@@ -1040,8 +1092,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
 		},
 		{
 			name: "JP (sign flag not set - jump)",
@@ -1052,8 +1105,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x7F, programCounter: 0x0008},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0008},
 		},
 		{
 			name: "JM (sign flag set - jump)",
@@ -1064,8 +1118,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
 		},
 		{
 			name: "JM (sign flag not set - don't jump)",
@@ -1076,8 +1131,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0007},
 		},
 		{
 			name: "JPE (parity even - jump)",
@@ -1088,8 +1144,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
 		},
 		{
 			name: "JPE (parity odd - don't jump)",
@@ -1100,8 +1157,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0007},
 		},
 		{
 			name: "JPO (parity even - don't jump)",
@@ -1112,8 +1170,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
 		},
 		{
 			name: "JPO (parity odd - jump)",
@@ -1124,8 +1183,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0008},
 		},
 		{
 			name: "PCHL",
@@ -1135,8 +1195,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{L: 0x05, programCounter: 0x0006},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{L: 0x05, programCounter: 0x0006},
 		},
 		{
 			name: "CALL and RET",
@@ -1147,8 +1208,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
 		},
 		{
 			name: "CC (carry not set - don't call)",
@@ -1159,8 +1221,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "CC (carry set - call)",
@@ -1172,8 +1235,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x55, flags: Flags{Carry: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, flags: Flags{Carry: true}, programCounter: 0x0005},
 		},
 		{
 			name: "CNC (carry not set - call)",
@@ -1184,8 +1248,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
 		},
 		{
 			name: "CNC (carry set - don't call)",
@@ -1197,8 +1262,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
 		},
 		{
 			name: "CZ (zero set - call)",
@@ -1210,8 +1276,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
 		},
 		{
 			name: "CZ (zero not set - don't call)",
@@ -1222,8 +1289,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "CNZ (zero set - don't call)",
@@ -1235,8 +1303,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
 		},
 		{
 			name: "CNZ (zero not set - call)",
@@ -1247,8 +1316,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x55, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
 		},
 		{
 			name: "CP (sign flag set - don't call)",
@@ -1261,8 +1331,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
 		},
 		{
 			name: "CP (sign flag not set - call)",
@@ -1275,8 +1346,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x7F, B: 0x55, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, B: 0x55, programCounter: 0x0007},
 		},
 		{
 			name: "CM (sign flag set - call)",
@@ -1289,8 +1361,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
 		},
 		{
 			name: "CM (sign flag not set - don't call)",
@@ -1303,8 +1376,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0007},
 		},
 		{
 			name: "CPE (parity even - call)",
@@ -1317,8 +1391,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, programCounter: 0x0007},
 		},
 		{
 			name: "CPE (parity odd - don't call)",
@@ -1331,8 +1406,9 @@ func TestCPUInstructions(t *testing.T) {
 				RET
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0007},
 		},
 		{
 			name: "CPO (parity even - don't call)",
@@ -1343,8 +1419,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
 		},
 		{
 			name: "CPO (parity odd - call)",
@@ -1355,8 +1432,9 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0008},
 		},
 		{
 			name: "RC (carry not set - don't return)",
@@ -1366,8 +1444,9 @@ func TestCPUInstructions(t *testing.T) {
 				RC
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0006},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0006},
 		},
 		{
 			name: "RC (carry set - return)",
@@ -1378,8 +1457,9 @@ func TestCPUInstructions(t *testing.T) {
 				RC
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0004},
 		},
 		{
 			name: "RNC (carry not set - return)",
@@ -1389,8 +1469,9 @@ func TestCPUInstructions(t *testing.T) {
 				RNC
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "RNC (carry set - don't return)",
@@ -1401,8 +1482,9 @@ func TestCPUInstructions(t *testing.T) {
 				RNC
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0007},
 		},
 		{
 			name: "RZ (zero set - return)",
@@ -1413,8 +1495,9 @@ func TestCPUInstructions(t *testing.T) {
 				RZ
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0004},
 		},
 		{
 			name: "RZ (zero not set - don't return)",
@@ -1424,8 +1507,9 @@ func TestCPUInstructions(t *testing.T) {
 				RZ
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0006},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0006},
 		},
 		{
 			name: "RNZ (zero set - don't return)",
@@ -1436,8 +1520,9 @@ func TestCPUInstructions(t *testing.T) {
 				RNZ
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0007},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0007},
 		},
 		{
 			name: "RNZ (zero not set - return)",
@@ -1447,8 +1532,9 @@ func TestCPUInstructions(t *testing.T) {
 				RNZ
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "RP (sign flag set - don't return)",
@@ -1460,8 +1546,9 @@ func TestCPUInstructions(t *testing.T) {
 				RP
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0009},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0009},
 		},
 		{
 			name: "RP (sign flag not set - return)",
@@ -1473,8 +1560,9 @@ func TestCPUInstructions(t *testing.T) {
 				RP
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x7F, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0004},
 		},
 		{
 			name: "RM (sign flag set - return)",
@@ -1486,8 +1574,9 @@ func TestCPUInstructions(t *testing.T) {
 				RM
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0004},
 		},
 		{
 			name: "RM (sign flag not set - don't return)",
@@ -1499,8 +1588,9 @@ func TestCPUInstructions(t *testing.T) {
 				RM
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x7F, programCounter: 0x0009},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0009},
 		},
 		{
 			name: "RPE (parity even - return)",
@@ -1512,8 +1602,9 @@ func TestCPUInstructions(t *testing.T) {
 				RPE
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0004},
 		},
 		{
 			name: "RPE (parity odd - don't return)",
@@ -1525,8 +1616,9 @@ func TestCPUInstructions(t *testing.T) {
 				RPE
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0009},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0009},
 		},
 		{
 			name: "RPO (parity even - don't return)",
@@ -1538,8 +1630,9 @@ func TestCPUInstructions(t *testing.T) {
 				RPO
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0009},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0009},
 		},
 		{
 			name: "RPO (parity odd - return)",
@@ -1551,8 +1644,9 @@ func TestCPUInstructions(t *testing.T) {
 				RPO
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF+2)}},
-			wantCPU: &CPU{A: 0x02, programCounter: 0x0004},
+			memorySize: 0xFFFF + 2,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{A: 0x02, programCounter: 0x0004},
 		},
 		{
 			name: "RST 0",
@@ -1563,7 +1657,7 @@ func TestCPUInstructions(t *testing.T) {
 				RST 0
 				HLT
 				`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0000},
 		},
 		{
@@ -1571,46 +1665,53 @@ func TestCPUInstructions(t *testing.T) {
 			// for use by interrupts, starting at 0x0000 and finishing at 0x0038.  Our tests below simply
 			// confirm that each of the RST instructions jump to the correct HLT location, then
 			// testing that the programCounter matches the expected value.
-			name:    "RST 1",
-			code:    "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0009},
+			name:       "RST 1",
+			code:       "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0009},
 		},
 		{
-			name:    "RST 2",
-			code:    "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0011},
+			name:       "RST 2",
+			code:       "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0011},
 		},
 		{
-			name:    "RST 3",
-			code:    "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0019},
+			name:       "RST 3",
+			code:       "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0019},
 		},
 		{
-			name:    "RST 4",
-			code:    "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0021},
+			name:       "RST 4",
+			code:       "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0021},
 		},
 		{
-			name:    "RST 5",
-			code:    "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0029},
+			name:       "RST 5",
+			code:       "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0029},
 		},
 		{
-			name:    "RST 6",
-			code:    "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0031},
+			name:       "RST 6",
+			code:       "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0031},
 		},
 		{
-			name:    "RST 7",
-			code:    "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 0xFFFF)}},
-			wantCPU: &CPU{programCounter: 0x0039},
+			name:       "RST 7",
+			code:       "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			memorySize: 0xFFFF,
+			initCPU:    &CPU{},
+			wantCPU:    &CPU{programCounter: 0x0039},
 		},
 		{
 			name: "INR A from 0x01",
@@ -1618,7 +1719,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x02},
 		},
 		{
@@ -1627,7 +1728,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x03},
 			wantCPU: &CPU{A: 0x02},
 		},
 		{
@@ -1636,7 +1737,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
 		},
 		{
@@ -1645,7 +1746,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x04, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x04},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}},
 		},
 		{
@@ -1654,7 +1755,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x7F, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x7F},
 			wantCPU: &CPU{A: 0x80, flags: Flags{AuxCarry: true, Sign: true}},
 		},
 		{
@@ -1663,7 +1764,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x81, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x81},
 			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true}},
 		},
 		{
@@ -1672,7 +1773,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x80, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x80},
 			wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -1681,7 +1782,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x82, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x82},
 			wantCPU: &CPU{A: 0x81, flags: Flags{Sign: true, Parity: true}},
 		},
 
@@ -1691,7 +1792,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF},
 			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true}},
 		},
 		{
@@ -1700,7 +1801,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -1709,7 +1810,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01},
 			wantCPU: &CPU{B: 0x02},
 		},
 		{
@@ -1718,7 +1819,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x03},
 			wantCPU: &CPU{B: 0x02},
 		},
 		{
@@ -1727,7 +1828,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x01},
 			wantCPU: &CPU{C: 0x02},
 		},
 		{
@@ -1736,7 +1837,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR C
 				HLT
 				`,
-			initCPU: &CPU{C: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{C: 0x03},
 			wantCPU: &CPU{C: 0x02},
 		},
 		{
@@ -1745,7 +1846,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01},
 			wantCPU: &CPU{D: 0x02},
 		},
 		{
@@ -1754,7 +1855,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x03},
 			wantCPU: &CPU{D: 0x02},
 		},
 		{
@@ -1763,7 +1864,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x01},
 			wantCPU: &CPU{E: 0x02},
 		},
 		{
@@ -1772,7 +1873,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR E
 				HLT
 				`,
-			initCPU: &CPU{E: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{E: 0x03},
 			wantCPU: &CPU{E: 0x02},
 		},
 		{
@@ -1780,7 +1881,7 @@ func TestCPUInstructions(t *testing.T) {
 			code: ` INR H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01},
 			wantCPU: &CPU{H: 0x02},
 		},
 		{
@@ -1789,7 +1890,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x03},
 			wantCPU: &CPU{H: 0x02},
 		},
 		{
@@ -1798,7 +1899,7 @@ func TestCPUInstructions(t *testing.T) {
 				INR L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x01},
 			wantCPU: &CPU{L: 0x02},
 		},
 		{
@@ -1807,7 +1908,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCR L
 				HLT
 				`,
-			initCPU: &CPU{L: 0x03, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x03},
 			wantCPU: &CPU{L: 0x02},
 		},
 		{
@@ -1818,7 +1919,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{L: 0x16, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x16},
 			wantCPU: &CPU{A: 0x02, L: 0x16},
 		},
 		{
@@ -1829,7 +1930,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			initCPU: &CPU{L: 0x16, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{L: 0x16},
 			wantCPU: &CPU{A: 0x02, L: 0x16},
 		},
 		{
@@ -1838,7 +1939,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x00, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x00, C: 0xFF},
 			wantCPU: &CPU{B: 0x01, C: 0x00},
 		},
 		{
@@ -1847,7 +1948,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX B
 				HLT
 				`,
-			initCPU: &CPU{B: 0xFF, C: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0xFF, C: 0xFF},
 			wantCPU: &CPU{B: 0x00, C: 0x00},
 		},
 		{
@@ -1856,7 +1957,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x00, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x00, E: 0xFF},
 			wantCPU: &CPU{D: 0x01, E: 0x00},
 		},
 		{
@@ -1865,7 +1966,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX D
 				HLT
 				`,
-			initCPU: &CPU{D: 0xFF, E: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0xFF, E: 0xFF},
 			wantCPU: &CPU{D: 0x00, E: 0x00},
 		},
 		{
@@ -1874,7 +1975,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x00, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x00, L: 0xFF},
 			wantCPU: &CPU{H: 0x01, L: 0x00},
 		},
 		{
@@ -1883,7 +1984,7 @@ func TestCPUInstructions(t *testing.T) {
 				INX H
 				HLT
 				`,
-			initCPU: &CPU{H: 0xFF, L: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0xFF, L: 0xFF},
 			wantCPU: &CPU{H: 0x00, L: 0x00},
 		},
 		{
@@ -1892,7 +1993,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x01, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x01, C: 0x00},
 			wantCPU: &CPU{B: 0x00, C: 0xFF},
 		},
 		{
@@ -1901,7 +2002,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX B
 				HLT
 				`,
-			initCPU: &CPU{B: 0x00, C: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0x00, C: 0x00},
 			wantCPU: &CPU{B: 0xFF, C: 0xFF},
 		},
 		{
@@ -1910,7 +2011,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x01, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x01, E: 0x00},
 			wantCPU: &CPU{D: 0x00, E: 0xFF},
 		},
 		{
@@ -1919,7 +2020,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX D
 				HLT
 				`,
-			initCPU: &CPU{D: 0x00, E: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{D: 0x00, E: 0x00},
 			wantCPU: &CPU{D: 0xFF, E: 0xFF},
 		},
 		{
@@ -1928,7 +2029,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x01, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x01, L: 0x00},
 			wantCPU: &CPU{H: 0x00, L: 0xFF},
 		},
 		{
@@ -1937,7 +2038,7 @@ func TestCPUInstructions(t *testing.T) {
 				DCX H
 				HLT
 				`,
-			initCPU: &CPU{H: 0x00, L: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{H: 0x00, L: 0x00},
 			wantCPU: &CPU{H: 0xFF, L: 0xFF},
 		},
 		{
@@ -1946,7 +2047,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x12, B: 0x34, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x12, B: 0x34},
 			wantCPU: &CPU{A: 0x46, B: 0x34},
 		},
 		{
@@ -1955,7 +2056,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x00},
 			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -1964,7 +2065,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF, B: 0x01},
 			wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -1973,7 +2074,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x7F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x7F, B: 0x01},
 			wantCPU: &CPU{A: 0x80, B: 0x01, flags: Flags{AuxCarry: true, Sign: true}},
 		},
 		{
@@ -1982,7 +2083,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x0F, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x0F, B: 0x01},
 			wantCPU: &CPU{A: 0x10, B: 0x01, flags: Flags{AuxCarry: true}},
 		},
 		{
@@ -1991,7 +2092,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, B: 0x01},
 			wantCPU: &CPU{A: 0x03, B: 0x01, flags: Flags{Parity: true}},
 		},
 		{
@@ -2000,7 +2101,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x7E, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x7E, B: 0x01},
 			wantCPU: &CPU{A: 0x7F, B: 0x01},
 		},
 		{
@@ -2009,7 +2110,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD B
 				HLT
 				`,
-			initCPU: &CPU{A: 0xFF, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF, B: 0xFF},
 			wantCPU: &CPU{A: 0xFE, B: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
 		},
 		{
@@ -2018,7 +2119,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD C
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, C: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, C: 0x02},
 			wantCPU: &CPU{A: 0x03, C: 0x02, flags: Flags{Parity: true}},
 		},
 		{
@@ -2027,7 +2128,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD D
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, D: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, D: 0x02},
 			wantCPU: &CPU{A: 0x03, D: 0x02, flags: Flags{Parity: true}},
 		},
 		{
@@ -2036,7 +2137,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD E
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, E: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, E: 0x02},
 			wantCPU: &CPU{A: 0x03, E: 0x02, flags: Flags{Parity: true}},
 		},
 		{
@@ -2045,7 +2146,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD H
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, H: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, H: 0x02},
 			wantCPU: &CPU{A: 0x03, H: 0x02, flags: Flags{Parity: true}},
 		},
 		{
@@ -2054,7 +2155,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD L
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, L: 0x02},
 			wantCPU: &CPU{A: 0x03, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
@@ -2064,8 +2165,9 @@ func TestCPUInstructions(t *testing.T) {
 				ADD M
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0x01, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "ADD A",
@@ -2073,7 +2175,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADD A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02},
 			wantCPU: &CPU{A: 0x04},
 		},
 		{
@@ -2082,7 +2184,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2091,7 +2193,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01, B: 0x80, flags: Flags{Carry: true}},
 		},
 		{
@@ -2100,7 +2202,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, B: 0x02, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, B: 0x02, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x04, B: 0x02},
 		},
 		{
@@ -2109,7 +2211,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC B
 				HLT
 			`,
-			initCPU: &CPU{A: 0xFF, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF, B: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2118,7 +2220,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC C
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, C: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, C: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2127,7 +2229,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC D
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, D: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, D: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2136,7 +2238,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC E
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, E: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, E: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2145,7 +2247,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC H
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, H: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, H: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2154,7 +2256,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC L
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, L: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, L: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2164,8 +2266,9 @@ func TestCPUInstructions(t *testing.T) {
 				ADC M
 				HLT
 				`,
-			initCPU: &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}},
+			wantCPU:    &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "ADC A (carry in with zero flag)",
@@ -2173,7 +2276,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADC A
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2182,7 +2285,7 @@ func TestCPUInstructions(t *testing.T) {
 				ADI 0x02
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00},
 			wantCPU: &CPU{A: 0x02},
 		},
 		{
@@ -2191,7 +2294,7 @@ func TestCPUInstructions(t *testing.T) {
 				ACI 0x20
 				HLT
 			`,
-			initCPU: &CPU{A: 0x10, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x10},
 			wantCPU: &CPU{A: 0x31},
 		},
 		{
@@ -2204,7 +2307,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x30, B: 0x00, H: 0x30, L: 0x00},
 		},
 		{
@@ -2217,7 +2320,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
 		},
 		{
@@ -2230,7 +2333,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
 		},
 		{
@@ -2243,7 +2346,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0xFF, B: 0xFE, C: 0xFF, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}},
 		},
 		{
@@ -2256,7 +2359,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x30, B: 0x00, D: 0x10, H: 0x30, L: 0x00},
 		},
 		{
@@ -2268,7 +2371,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x40, B: 0x00, H: 0x40, L: 0x00},
 		},
 		{
@@ -2280,7 +2383,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}},
 		},
 		{
@@ -2292,7 +2395,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x02, B: 0x00, H: 0x02, L: 0x00},
 		},
 		{
@@ -2304,7 +2407,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0xFF, B: 0xFE, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}},
 		},
 		{
@@ -2317,7 +2420,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x30, B: 0x00, H: 0x30, L: 0x00, stackPointer: 0x1000},
 		},
 		{
@@ -2330,7 +2433,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}, stackPointer: 0x8000},
 		},
 		{
@@ -2343,7 +2446,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x00, B: 0x00, H: 0x00, L: 0x00, flags: Flags{Carry: true}, stackPointer: 0xFF00},
 		},
 		{
@@ -2356,7 +2459,7 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, L
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0xFF, B: 0xFE, H: 0xFF, L: 0xFE, flags: Flags{Carry: true}, stackPointer: 0xFFFF},
 		},
 		{
@@ -2365,7 +2468,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, B: 0x01},
 			wantCPU: &CPU{A: 0x01, B: 0x01},
 		},
 		{
@@ -2374,7 +2477,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x00},
 			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2383,7 +2486,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x00, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x01},
 			wantCPU: &CPU{A: 0xFF, B: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2392,7 +2495,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x80, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x80, B: 0x01},
 			wantCPU: &CPU{A: 0x7F, B: 0x01, flags: Flags{AuxCarry: true}},
 		},
 		{
@@ -2401,7 +2504,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x10, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x10, B: 0x01},
 			wantCPU: &CPU{A: 0x0F, B: 0x01, flags: Flags{AuxCarry: true, Parity: true}},
 		},
 		{
@@ -2410,7 +2513,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0x04, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x04, B: 0x01},
 			wantCPU: &CPU{A: 0x03, B: 0x01, flags: Flags{Parity: true}},
 		},
 		{
@@ -2419,7 +2522,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF, B: 0x01},
 			wantCPU: &CPU{A: 0xFE, B: 0x01, flags: Flags{Sign: true}},
 		},
 		{
@@ -2428,7 +2531,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB B
 				HLT
 				`,
-			initCPU: &CPU{A: 0xFE, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFE, B: 0xFF},
 			wantCPU: &CPU{A: 0xFF, B: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2437,7 +2540,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB C
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, C: 0x01},
 			wantCPU: &CPU{A: 0x01, C: 0x01},
 		},
 		{
@@ -2446,7 +2549,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB D
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, D: 0x01},
 			wantCPU: &CPU{A: 0x01, D: 0x01},
 		},
 		{
@@ -2455,7 +2558,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB E
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, E: 0x01},
 			wantCPU: &CPU{A: 0x01, E: 0x01},
 		},
 		{
@@ -2464,7 +2567,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB H
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, H: 0x01},
 			wantCPU: &CPU{A: 0x01, H: 0x01},
 		},
 		{
@@ -2473,7 +2576,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB L
 				HLT
 				`,
-			initCPU: &CPU{A: 0x02, L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02, L: 0x01},
 			wantCPU: &CPU{A: 0x01, L: 0x01},
 		},
 		{
@@ -2483,8 +2586,9 @@ func TestCPUInstructions(t *testing.T) {
 				SUB M
 				HLT
 				`,
-			initCPU: &CPU{A: 0x99, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0x44, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0x99, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0x44, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "SUB A",
@@ -2492,7 +2596,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUB A
 				HLT
 				`,
-			initCPU: &CPU{A: 0x3E, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x3E},
 			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2501,7 +2605,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2510,7 +2614,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x80, B: 0x80, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, B: 0x80, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2519,7 +2623,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2528,7 +2632,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB C
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2537,7 +2641,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB D
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2546,7 +2650,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB E
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2555,7 +2659,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB H
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2564,7 +2668,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB L
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2574,8 +2678,9 @@ func TestCPUInstructions(t *testing.T) {
 				SBB M
 				HLT
 				`,
-			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0xAB, H: 0x01, L: 0x02, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0x01, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0xAB, H: 0x01, L: 0x02, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
 		},
 		{
 			name: "SBB A (borrow in with zero flag)",
@@ -2583,7 +2688,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBB A
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0xFF, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2592,7 +2697,7 @@ func TestCPUInstructions(t *testing.T) {
 				SUI 0x01
 				HLT
 			`,
-			initCPU: &CPU{A: 0x02, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x02},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2601,7 +2706,7 @@ func TestCPUInstructions(t *testing.T) {
 				SBI 0x02
 				HLT
 			`,
-			initCPU: &CPU{A: 0x04, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x04},
 			wantCPU: &CPU{A: 0x01},
 		},
 		{
@@ -2610,7 +2715,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_0000, B: 0b1010_1010, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2619,7 +2724,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, B: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, B: 0b1010_1010},
 		},
 		{
@@ -2628,7 +2733,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1111_1111},
 			wantCPU: &CPU{A: 0b0000_0000, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2637,7 +2742,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_1111},
 			wantCPU: &CPU{A: 0b0000_1111, B: 0b1111_1111, flags: Flags{Parity: true}},
 		},
 		{
@@ -2646,7 +2751,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA C
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, C: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, C: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, C: 0b1010_1010},
 		},
 		{
@@ -2655,7 +2760,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA D
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, D: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, D: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, D: 0b1010_1010},
 		},
 		{
@@ -2664,7 +2769,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA E
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, E: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, E: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, E: 0b1010_1010},
 		},
 		{
@@ -2673,7 +2778,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, H: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, H: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, H: 0b1010_1010},
 		},
 		{
@@ -2682,7 +2787,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA L
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_1101, L: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_1101, L: 0b1010_1010},
 			wantCPU: &CPU{A: 0b0000_1000, L: 0b1010_1010},
 		},
 		{
@@ -2692,8 +2797,9 @@ func TestCPUInstructions(t *testing.T) {
 				ANA M
 				HLT
 				`,
-			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0b0000_0001, H: 0x01, L: 0x02},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0b0000_0001, H: 0x01, L: 0x02},
 		},
 		{
 			name: "ANA A",
@@ -2701,7 +2807,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANA A
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1010_1010},
 			wantCPU: &CPU{A: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2710,7 +2816,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, B: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0101, B: 0b0101_0101},
 			wantCPU: &CPU{A: 0b0000_0000, B: 0b0101_0101, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2719,7 +2825,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010},
 			wantCPU: &CPU{A: 0b1111_1111, B: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2728,7 +2834,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000},
 			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_0000, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2737,7 +2843,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, B: 0b0000_0100},
 		},
 		{
@@ -2746,7 +2852,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2755,7 +2861,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111},
 			wantCPU: &CPU{A: 0b0000_0000, B: 0b1111_1111, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2764,7 +2870,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA C
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, C: 0b0000_0100},
 		},
 		{
@@ -2773,7 +2879,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA D
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, D: 0b0000_0100},
 		},
 		{
@@ -2782,7 +2888,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA E
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, E: 0b0000_0100},
 		},
 		{
@@ -2791,7 +2897,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, H: 0b0000_0100},
 		},
 		{
@@ -2800,7 +2906,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA L
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, L: 0b0000_0100},
 		},
 		{
@@ -2810,8 +2916,9 @@ func TestCPUInstructions(t *testing.T) {
 				XRA M
 				HLT
 				`,
-			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0xFC, H: 0x01, L: 0x02, flags: Flags{Sign: true, Parity: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0xFC, H: 0x01, L: 0x02, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
 			name: "XRA A",
@@ -2819,7 +2926,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRA A
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1001_1001},
 			wantCPU: &CPU{A: 0b0000_0000, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2828,7 +2935,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA B
 				HLT
 			`,
-			initCPU: &CPU{B: 0b0000_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{B: 0b0000_0000},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2837,7 +2944,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0101, B: 0b1010_1010},
 			wantCPU: &CPU{A: 0b1111_1111, B: 0b1010_1010, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2846,7 +2953,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_1111, B: 0b1111_0000},
 			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_0000, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2855,7 +2962,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, B: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, B: 0b0000_0100},
 		},
 		{
@@ -2864,7 +2971,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA B
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111},
 			wantCPU: &CPU{A: 0b1111_1111, B: 0b1111_1111, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2873,7 +2980,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA C
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, C: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, C: 0b0000_0100},
 		},
 		{
@@ -2882,7 +2989,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA D
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, D: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, D: 0b0000_0100},
 		},
 		{
@@ -2891,7 +2998,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA E
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, E: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, E: 0b0000_0100},
 		},
 		{
@@ -2900,7 +3007,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, H: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, H: 0b0000_0100},
 		},
 		{
@@ -2909,7 +3016,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA L
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000, L: 0b0000_0100},
 			wantCPU: &CPU{A: 0b0000_0100, L: 0b0000_0100},
 		},
 		{
@@ -2919,8 +3026,9 @@ func TestCPUInstructions(t *testing.T) {
 				ORA M
 				HLT
 				`,
-			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0xFD, H: 0x01, L: 0x02, flags: Flags{Sign: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0xFD, H: 0x01, L: 0x02, flags: Flags{Sign: true}},
 		},
 		{
 			name: "ORA A",
@@ -2928,7 +3036,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORA A
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1001_1001},
 			wantCPU: &CPU{A: 0b1001_1001, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -2937,7 +3045,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x00},
 			wantCPU: &CPU{A: 0x00, B: 0x00, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2946,7 +3054,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, B: 0x01},
 			wantCPU: &CPU{A: 0x01, B: 0x01, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -2955,7 +3063,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, B: 0x00, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, B: 0x00},
 			wantCPU: &CPU{A: 0x01, B: 0x00},
 		},
 		{
@@ -2964,7 +3072,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, B: 0x01},
 			wantCPU: &CPU{A: 0x00, B: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -2973,7 +3081,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0xFF, B: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xFF, B: 0x01},
 			wantCPU: &CPU{A: 0xFF, B: 0x01, flags: Flags{Sign: true}},
 		},
 		{
@@ -2982,7 +3090,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, B: 0xFF, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01, B: 0xFF},
 			wantCPU: &CPU{A: 0x01, B: 0xFF, flags: Flags{AuxCarry: true, Carry: true}},
 		},
 		{
@@ -2991,7 +3099,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x80, B: 0x7F, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x80, B: 0x7F},
 			wantCPU: &CPU{A: 0x80, B: 0x7F, flags: Flags{AuxCarry: true}},
 		},
 		{
@@ -3000,7 +3108,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x7F, B: 0x80, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x7F, B: 0x80},
 			wantCPU: &CPU{A: 0x7F, B: 0x80, flags: Flags{Sign: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3009,7 +3117,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0xAA, B: 0x55, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xAA, B: 0x55},
 			wantCPU: &CPU{A: 0xAA, B: 0x55, flags: Flags{Parity: true}},
 		},
 		{
@@ -3018,7 +3126,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP B
 				HLT
 			`,
-			initCPU: &CPU{A: 0x55, B: 0xAA, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x55, B: 0xAA},
 			wantCPU: &CPU{A: 0x55, B: 0xAA, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
 		},
 		{
@@ -3027,7 +3135,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP C
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, C: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, C: 0x01},
 			wantCPU: &CPU{A: 0x00, C: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3036,7 +3144,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP D
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, D: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, D: 0x01},
 			wantCPU: &CPU{A: 0x00, D: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3045,7 +3153,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP E
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, E: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, E: 0x01},
 			wantCPU: &CPU{A: 0x00, E: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3054,7 +3162,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP H
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, H: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, H: 0x01},
 			wantCPU: &CPU{A: 0x00, H: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3063,7 +3171,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP L
 				HLT
 			`,
-			initCPU: &CPU{A: 0x00, L: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x00, L: 0x01},
 			wantCPU: &CPU{A: 0x00, L: 0x01, flags: Flags{Sign: true, AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3073,8 +3181,9 @@ func TestCPUInstructions(t *testing.T) {
 				CMP M
 				HLT
 				`,
-			initCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02, Bus: &Memory{Data: make([]byte, 0xFF+4)}},
-			wantCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			memorySize: 0xFF + 4,
+			initCPU:    &CPU{A: 0xAA, H: 0x01, L: 0x02},
+			wantCPU:    &CPU{A: 0xAA, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "CMP A",
@@ -3082,7 +3191,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMP A
 				HLT
 			`,
-			initCPU: &CPU{A: 0x01, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0x01},
 			wantCPU: &CPU{A: 0x01, flags: Flags{Zero: true, Parity: true}},
 		},
 		{
@@ -3091,7 +3200,7 @@ func TestCPUInstructions(t *testing.T) {
 				ANI 55H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0100},
 			wantCPU: &CPU{A: 0b0101_0100},
 		},
 		{
@@ -3100,7 +3209,7 @@ func TestCPUInstructions(t *testing.T) {
 				XRI 55H
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0100},
 			wantCPU: &CPU{A: 0b0000_0001},
 		},
 		{
@@ -3109,7 +3218,7 @@ func TestCPUInstructions(t *testing.T) {
 				ORI AAH
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0101_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0101_0101},
 			wantCPU: &CPU{A: 0b1111_1111, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -3118,7 +3227,7 @@ func TestCPUInstructions(t *testing.T) {
 				CPI 55H
 				HLT
 			`,
-			initCPU: &CPU{A: 0xAA, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0xAA},
 			wantCPU: &CPU{A: 0xAA, flags: Flags{Parity: true}},
 		},
 		{
@@ -3127,7 +3236,7 @@ func TestCPUInstructions(t *testing.T) {
 				RLC
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010},
 			wantCPU: &CPU{A: 0b1101_0101, flags: Flags{Carry: true}},
 		},
 		{
@@ -3136,7 +3245,7 @@ func TestCPUInstructions(t *testing.T) {
 				RLC
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0111_0100, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0111_0100},
 			wantCPU: &CPU{A: 0b1110_1000},
 		},
 		{
@@ -3145,7 +3254,7 @@ func TestCPUInstructions(t *testing.T) {
 				RRC
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0111_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0111_0101},
 			wantCPU: &CPU{A: 0b1011_1010, flags: Flags{Carry: true}},
 		},
 		{
@@ -3154,7 +3263,7 @@ func TestCPUInstructions(t *testing.T) {
 				RRC
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010},
 			wantCPU: &CPU{A: 0b0111_0101},
 		},
 		{
@@ -3163,7 +3272,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAL
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0b1101_0101, flags: Flags{Carry: true}},
 		},
 		{
@@ -3172,7 +3281,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAL
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0111_0100, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0111_0100, flags: Flags{Carry: false}},
 			wantCPU: &CPU{A: 0b1110_1000},
 		},
 		{
@@ -3181,7 +3290,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAL
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0b1101_0101, flags: Flags{Carry: true}},
 		},
 		{
@@ -3190,7 +3299,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAL
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: false}},
 			wantCPU: &CPU{A: 0b1101_0100, flags: Flags{Carry: true}},
 		},
 		{
@@ -3199,7 +3308,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAR
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0b1111_0101, flags: Flags{Carry: false}},
 		},
 		{
@@ -3208,7 +3317,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAR
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0111_0100, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0111_0100, flags: Flags{Carry: false}},
 			wantCPU: &CPU{A: 0b0011_1010, flags: Flags{Carry: false}},
 		},
 		{
@@ -3217,7 +3326,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAR
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0b1111_0101, flags: Flags{Carry: false}},
 		},
 		{
@@ -3226,7 +3335,7 @@ func TestCPUInstructions(t *testing.T) {
 				RAR
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1110_1010, flags: Flags{Carry: false}},
 			wantCPU: &CPU{A: 0b0111_0101, flags: Flags{Carry: false}},
 		},
 		{
@@ -3235,7 +3344,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_0000},
 			wantCPU: &CPU{A: 0b1111_1111},
 		},
 		{
@@ -3244,7 +3353,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1111_1111, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1111_1111},
 			wantCPU: &CPU{A: 0b0000_0000},
 		},
 		{
@@ -3253,7 +3362,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1011_0101, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1011_0101},
 			wantCPU: &CPU{A: 0b0100_1010},
 		},
 		{
@@ -3262,7 +3371,7 @@ func TestCPUInstructions(t *testing.T) {
 				STC
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{flags: Flags{Carry: false}},
 			wantCPU: &CPU{flags: Flags{Carry: true}},
 		},
 		{
@@ -3271,7 +3380,7 @@ func TestCPUInstructions(t *testing.T) {
 				STC
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{flags: Flags{Carry: true}},
 			wantCPU: &CPU{flags: Flags{Carry: true}},
 		},
 		{
@@ -3280,7 +3389,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMC
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{Carry: false}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{flags: Flags{Carry: false}},
 			wantCPU: &CPU{flags: Flags{Carry: true}},
 		},
 		{
@@ -3289,7 +3398,7 @@ func TestCPUInstructions(t *testing.T) {
 				CMC
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{flags: Flags{Carry: true}},
 			wantCPU: &CPU{flags: Flags{Carry: false}},
 		},
 		{
@@ -3298,7 +3407,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_1000, flags: Flags{AuxCarry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_1000, flags: Flags{AuxCarry: true}},
 			wantCPU: &CPU{A: 0b0000_1110},
 		},
 		{
@@ -3307,7 +3416,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1000_0000, flags: Flags{Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1000_0000, flags: Flags{Carry: true}},
 			wantCPU: &CPU{A: 0b1110_0000, flags: Flags{Sign: true}},
 		},
 		{
@@ -3316,7 +3425,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1000_1000, flags: Flags{AuxCarry: true, Carry: true}, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1000_1000, flags: Flags{AuxCarry: true, Carry: true}},
 			wantCPU: &CPU{A: 0b1110_1110, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -3325,7 +3434,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1000_1000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1000_1000},
 			wantCPU: &CPU{A: 0b1000_1000, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -3334,7 +3443,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1001_1001, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1001_1001},
 			wantCPU: &CPU{A: 0b1001_1001, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
@@ -3343,7 +3452,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b0000_1011, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b0000_1011},
 			wantCPU: &CPU{A: 0b0001_0001, flags: Flags{AuxCarry: true, Parity: true}},
 		},
 		{
@@ -3352,7 +3461,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1011_0000, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1011_0000},
 			wantCPU: &CPU{A: 0b0001_0000, flags: Flags{Carry: true}},
 		},
 		{
@@ -3361,7 +3470,7 @@ func TestCPUInstructions(t *testing.T) {
 				DAA
 				HLT
 			`,
-			initCPU: &CPU{A: 0b1011_1011, Bus: &Memory{Data: make([]byte, 32)}},
+			initCPU: &CPU{A: 0b1011_1011},
 			wantCPU: &CPU{A: 0b0010_0001, flags: Flags{AuxCarry: true, Parity: true, Carry: true}},
 		},
 		{
@@ -3385,13 +3494,20 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, A
 				HLT
 			`,
-			initCPU: &CPU{flags: Flags{}, Bus: &Memory{Data: make([]byte, 32)}},
-			wantCPU: &CPU{A: 0x79, B: 0x79, C: 0x21, flags: Flags{}},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x79, B: 0x79, C: 0x21},
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			if tc.memorySize == 0 {
+				tc.memorySize = 32
+			}
 			gotCPU := tc.initCPU
+			gotCPU.Bus = memory.New(tc.memorySize)
+			wantCPU := tc.wantCPU
+			wantCPU.Bus = memory.New(tc.memorySize)
+
 			a := assembler.Assembler{}
 			err := a.Assemble(tc.code)
 			if (err != nil) != tc.wantErr {
@@ -3404,14 +3520,14 @@ func TestCPUInstructions(t *testing.T) {
 				t.Errorf("%s", runErr)
 			}
 
-			if tc.wantCPU.programCounter != 0 {
-				if gotCPU.programCounter != tc.wantCPU.programCounter {
-					t.Errorf("%s \ngotProgramCounter  0x%04X,\nwantProgramCounter 0x%04X", tc.name, gotCPU.programCounter, tc.wantCPU.programCounter)
+			if wantCPU.programCounter != 0 {
+				if gotCPU.programCounter != wantCPU.programCounter {
+					t.Errorf("%s \ngotProgramCounter  0x%04X,\nwantProgramCounter 0x%04X", tc.name, gotCPU.programCounter, wantCPU.programCounter)
 				}
 			}
 
-			if !gotCPU.registersEqual(tc.wantCPU) {
-				t.Errorf("%s \ngotCPU  %+v,\nwantCPU %+v", tc.name, gotCPU, tc.wantCPU)
+			if !gotCPU.registersEqual(wantCPU) {
+				t.Errorf("%s \ngotCPU  %+v,\nwantCPU %+v", tc.name, gotCPU, wantCPU)
 			}
 		})
 	}

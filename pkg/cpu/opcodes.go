@@ -3,6 +3,8 @@ package cpu
 import (
 	"fmt"
 	"math/bits"
+
+	"github.com/lukepeterson/go8080cpu/pkg/types"
 )
 
 const (
@@ -1015,7 +1017,7 @@ func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }
 
-func (cpu *CPU) pushStack(address word) error {
+func (cpu *CPU) pushStack(address types.Word) error {
 	high, low := splitWord(address)
 	err := cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
 	if err != nil {
@@ -1029,7 +1031,7 @@ func (cpu *CPU) pushStack(address word) error {
 	return nil
 }
 
-func (cpu *CPU) popStack() (word, error) {
+func (cpu *CPU) popStack() (types.Word, error) {
 	low, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
 	if err != nil {
 		return 0, fmt.Errorf("could not read from cpu.stackPointer: %v", err)
@@ -1112,7 +1114,7 @@ func (cpu *CPU) dcr(register *byte) {
 //	// cpu.A is 0x20
 func (cpu *CPU) add(register byte, carry byte) {
 	// Calculate the result but capture the overflow by casting to a word (uint16).
-	result := word(cpu.A) + word(register) + word(carry)
+	result := types.Word(cpu.A) + types.Word(register) + types.Word(carry)
 
 	// Set the carry flag by checking whether we've got an overflow into bit eight.
 	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
@@ -1153,7 +1155,7 @@ func (cpu *CPU) add(register byte, carry byte) {
 //	// cpu.A is 0x0D
 func (cpu *CPU) sub(register byte, borrow byte) {
 	// Calculate the result but capture the underflow by casting to a word (uint16).
-	result := word(cpu.A) - word(register) - word(borrow)
+	result := types.Word(cpu.A) - types.Word(register) - types.Word(borrow)
 
 	// Set the carry flag by checking whether we've got an underflow from bit eight.
 	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
@@ -1260,8 +1262,8 @@ func (cpu *CPU) cmp(register byte) {
 //
 //	word := joinBytes(0x12, 0x34)
 //	// word is 0x1234
-func joinBytes(high, low byte) word {
-	return word(high)<<8 | word(low)
+func joinBytes(high, low byte) types.Word {
+	return types.Word(high)<<8 | types.Word(low)
 }
 
 // splitWord splits a 16-bit word into its high and low bytes.
@@ -1281,7 +1283,7 @@ func joinBytes(high, low byte) word {
 //	high, low := splitWord(0x1234)
 //	// high is 0x12
 //	// low is 0x34
-func splitWord(address word) (high, low byte) {
+func splitWord(address types.Word) (high, low byte) {
 	return byte(address >> 8), byte(address)
 }
 
@@ -1314,18 +1316,18 @@ func ErrNotImplemented(opCode byte) error {
 	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
 }
 
-func (cpu CPU) getBC() word {
+func (cpu CPU) getBC() types.Word {
 	return joinBytes(cpu.B, cpu.C)
 }
 
-func (cpu CPU) getDE() word {
+func (cpu CPU) getDE() types.Word {
 	return joinBytes(cpu.D, cpu.E)
 }
 
-func (cpu CPU) getHL() word {
+func (cpu CPU) getHL() types.Word {
 	return joinBytes(cpu.H, cpu.L)
 }
 
-func (cpu CPU) getAPSW() word {
+func (cpu CPU) getAPSW() types.Word {
 	return joinBytes(cpu.A, cpu.getFlags())
 }

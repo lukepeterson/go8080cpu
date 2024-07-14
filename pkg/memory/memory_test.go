@@ -1,13 +1,17 @@
-package cpu
+package memory
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/lukepeterson/go8080cpu/pkg/types"
+)
 
 func TestReadByteAt(t *testing.T) {
 	memory := Memory{
 		Data: []byte{0xAA, 0xBB, 0xCC},
 	}
 	tests := []struct {
-		address word
+		address types.Word
 		want    byte
 		wantErr bool
 	}{
