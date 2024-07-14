@@ -25,7 +25,7 @@ func main() {
 		HLT
 	`
 
-	assembler := &assembler.Assembler{}
+	assembler := assembler.New()
 	err := assembler.Assemble(code)
 	if err != nil {
 		log.Fatal(err)
