@@ -16,7 +16,9 @@ const (
 // Grouped by instruction set group as per "Table 2. Instruction Set Summary",
 // in the Intel 8080A 8-BIT N-CHANNEL MICROPROCESSOR datasheet.
 func (cpu *CPU) Execute(opCode byte) error {
-	// fmt.Printf("Executing instruction: 0x%02X\n", opCode)
+	if cpu.DebugMode {
+		fmt.Printf("Executing instruction: 0x%02X\n", opCode)
+	}
 
 	switch opCode {
 	// MOVE, LOAD AND STORE
