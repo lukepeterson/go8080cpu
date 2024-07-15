@@ -1417,6 +1417,8 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				CPO 0x07
 				HLT
+				MVI B, 0x55
+				RET
 				HLT
 				`,
 			memorySize: 0xFFFF + 2,
@@ -1430,11 +1432,13 @@ func TestCPUInstructions(t *testing.T) {
 				INR A
 				CPO 0x07
 				HLT
+				MVI B, 0x55
+				RET
 				HLT
 				`,
-			memorySize: 0xFFFF,
+			memorySize: 0xFFFF + 2,
 			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0008},
+			wantCPU:    &CPU{A: 0x02, B: 0x55, programCounter: 0x0007},
 		},
 		{
 			name: "RC (carry not set - don't return)",

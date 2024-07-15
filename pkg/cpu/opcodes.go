@@ -459,16 +459,20 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = address
+		err = cpu.call(address)
+		if err != nil {
+			return err
+		}
 	case 0xDC: // CC - Call on carry
 		address, err := cpu.fetchWord()
 		if err != nil {
 			return err
 		}
 		if cpu.flags.Carry {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xD4: // CNC - Call on no carry
 		address, err := cpu.fetchWord()
@@ -476,8 +480,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if !cpu.flags.Carry {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xCC: // CZ - Call on zero
 		address, err := cpu.fetchWord()
@@ -485,8 +491,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if cpu.flags.Zero {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xC4: // CNZ - Call on no zero
 		address, err := cpu.fetchWord()
@@ -494,8 +502,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if !cpu.flags.Zero {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xF4: // CP - Call on positive
 		address, err := cpu.fetchWord()
@@ -503,8 +513,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if !cpu.flags.Sign {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xFC: // CM - Call on minus
 		address, err := cpu.fetchWord()
@@ -512,8 +524,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if cpu.flags.Sign {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xEC: // CPE - Call on parity even
 		address, err := cpu.fetchWord()
@@ -521,17 +535,21 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		if cpu.flags.Parity {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return err
+			}
 		}
 	case 0xE4: // CPO - Call on parity odd
 		address, err := cpu.fetchWord()
 		if err != nil {
-			return err
+			return fmt.Errorf("could not fetchWord() within CPO instruction: %v", err)
 		}
 		if !cpu.flags.Parity {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
+			err = cpu.call(address)
+			if err != nil {
+				return fmt.Errorf("could not call() within CPO instruction: %v", err)
+			}
 		}
 
 	// RETURN
@@ -1245,6 +1263,15 @@ func (cpu *CPU) cmp(register byte) {
 	tempA := cpu.A
 	cpu.sub(register, NOCARRY) // We're only interested in the flags
 	cpu.A = tempA
+}
+
+func (cpu *CPU) call(address types.Word) error {
+	err := cpu.pushStack(cpu.programCounter)
+	if err != nil {
+		return fmt.Errorf("could not call() address 0x%04X: %v", address, err)
+	}
+	cpu.programCounter = address
+	return nil
 }
 
 // joinBytes combines two bytes into a 16-bit word.
