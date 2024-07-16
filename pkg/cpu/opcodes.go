@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	NOCARRY   = 0
-	WITHCARRY = 1
+	NoCarry   = 0
+	WithCarry = 1
 )
 
 // Execute executes the 8-bit instruction passed in via opCode
@@ -381,229 +381,145 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// JUMP
 	case 0xC3: // JMP - Jump unconditional
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(true) // Always jump
 		if err != nil {
 			return err
 		}
-		cpu.programCounter = address
 	case 0xDA: // JC - Jump on carry
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xD2: // JNC - Jump on no carry
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xCA: // JZ - Jump on zero
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xC2: // JNZ - Jump on no zero
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xF2: // JP - Jump on positive
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xFA: // JM - Jump on minus
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xEA: // JPE - Jump on parity even
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE2: // JPO - Jump on parity odd
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE9: // PCHL - H&L to program counter
 		cpu.programCounter = joinBytes(cpu.H, cpu.L)
 
 	// CALL
 	case 0xCD: // CALL - Call unconditional
-		address, err := cpu.fetchWord()
+		err := cpu.call(true) // Always call
 		if err != nil {
 			return err
 		}
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = address
 	case 0xDC: // CC - Call on carry
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xD4: // CNC - Call on no carry
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xCC: // CZ - Call on zero
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xC4: // CNZ - Call on no zero
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xF4: // CP - Call on positive
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xFC: // CM - Call on minus
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xEC: // CPE - Call on parity even
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Parity {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 	case 0xE4: // CPO - Call on parity odd
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Parity {
-			cpu.pushStack(cpu.programCounter)
-			cpu.programCounter = address
 		}
 
 	// RETURN
 	case 0xC9: // RET - Return
-		address, err := cpu.popStack()
+		err := cpu.ret(true) // Always return
 		if err != nil {
 			return err
 		}
-		cpu.programCounter = address
 	case 0xD8: // RC - Return on carry
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xD0: // RNC - Return on no carry
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xC8: // RZ - Return on zero
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xC0: // RNZ - Return on no zero
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xF0: // RP - Return on positive
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xF8: // RM - Return on minus
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xE8: // RPE - Return on parity even
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE0: // RPO - Return on parity odd
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 
 	// RESTART
@@ -690,57 +606,57 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// ADD
 	case 0x80: // ADD B - Add register to A
-		cpu.add(cpu.B, NOCARRY)
+		cpu.add(cpu.B, NoCarry)
 	case 0x81: // ADD C - Add register to A
-		cpu.add(cpu.C, NOCARRY)
+		cpu.add(cpu.C, NoCarry)
 	case 0x82: // ADD D - Add register to A
-		cpu.add(cpu.D, NOCARRY)
+		cpu.add(cpu.D, NoCarry)
 	case 0x83: // ADD E - Add register to A
-		cpu.add(cpu.E, NOCARRY)
+		cpu.add(cpu.E, NoCarry)
 	case 0x84: // ADD H - Add register to A
-		cpu.add(cpu.H, NOCARRY)
+		cpu.add(cpu.H, NoCarry)
 	case 0x85: // ADD L - Add register to A
-		cpu.add(cpu.L, NOCARRY)
+		cpu.add(cpu.L, NoCarry)
 	case 0x86: // ADD M - Add memory to A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.add(readByte, NOCARRY)
+		cpu.add(readByte, NoCarry)
 	case 0x87: // ADD A - Add register to A
-		cpu.add(cpu.A, NOCARRY)
+		cpu.add(cpu.A, NoCarry)
 	case 0x88: // ADC B - Add register to A with carry
-		cpu.add(cpu.B, WITHCARRY)
+		cpu.add(cpu.B, WithCarry)
 	case 0x89: // ADC C - Add register to A with carry
-		cpu.add(cpu.C, WITHCARRY)
+		cpu.add(cpu.C, WithCarry)
 	case 0x8A: // ADC D - Add register to A with carry
-		cpu.add(cpu.D, WITHCARRY)
+		cpu.add(cpu.D, WithCarry)
 	case 0x8B: // ADC E - Add register to A with carry
-		cpu.add(cpu.E, WITHCARRY)
+		cpu.add(cpu.E, WithCarry)
 	case 0x8C: // ADC H - Add register to A with carry
-		cpu.add(cpu.H, WITHCARRY)
+		cpu.add(cpu.H, WithCarry)
 	case 0x8D: // ADC L - Add register to A with carry
-		cpu.add(cpu.L, WITHCARRY)
+		cpu.add(cpu.L, WithCarry)
 	case 0x8E: // ADC M - Add memory to A with carry
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.add(readByte, WITHCARRY)
+		cpu.add(readByte, WithCarry)
 	case 0x8F: // ADC A - Add register to A with carry
-		cpu.add(cpu.A, WITHCARRY)
+		cpu.add(cpu.A, WithCarry)
 	case 0xC6: // ADI
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.add(fetchedByte, NOCARRY)
+		cpu.add(fetchedByte, NoCarry)
 	case 0xCE: // ACI
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.add(fetchedByte, WITHCARRY)
+		cpu.add(fetchedByte, WithCarry)
 	case 0x09: // DAD B
 		cpu.flags.Carry = 0xFFFF-cpu.getBC() < cpu.getHL()
 		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.getBC())
@@ -756,57 +672,57 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// SUBTRACT
 	case 0x90: // SUB B - Subtract register from A
-		cpu.sub(cpu.B, NOCARRY)
+		cpu.sub(cpu.B, NoCarry)
 	case 0x91: // SUB C - Subtract register from A
-		cpu.sub(cpu.C, NOCARRY)
+		cpu.sub(cpu.C, NoCarry)
 	case 0x92: // SUB D - Subtract register from A
-		cpu.sub(cpu.D, NOCARRY)
+		cpu.sub(cpu.D, NoCarry)
 	case 0x93: // SUB E - Subtract register from A
-		cpu.sub(cpu.E, NOCARRY)
+		cpu.sub(cpu.E, NoCarry)
 	case 0x94: // SUB H - Subtract register from A
-		cpu.sub(cpu.H, NOCARRY)
+		cpu.sub(cpu.H, NoCarry)
 	case 0x95: // SUB L - Subtract register from A
-		cpu.sub(cpu.L, NOCARRY)
+		cpu.sub(cpu.L, NoCarry)
 	case 0x96: // SUB M - Subtract memory from A
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.sub(readByte, NOCARRY)
+		cpu.sub(readByte, NoCarry)
 	case 0x97: // SUB A - Subtract register from A
-		cpu.sub(cpu.A, NOCARRY)
+		cpu.sub(cpu.A, NoCarry)
 	case 0x98: // SBB B - Subtract register from A with borrow
-		cpu.sub(cpu.B, WITHCARRY)
+		cpu.sub(cpu.B, WithCarry)
 	case 0x99: // SBB C - Subtract register from A with borrow
-		cpu.sub(cpu.C, WITHCARRY)
+		cpu.sub(cpu.C, WithCarry)
 	case 0x9A: // SBB D - Subtract register from A with borrow
-		cpu.sub(cpu.D, WITHCARRY)
+		cpu.sub(cpu.D, WithCarry)
 	case 0x9B: // SBB E - Subtract register from A with borrow
-		cpu.sub(cpu.E, WITHCARRY)
+		cpu.sub(cpu.E, WithCarry)
 	case 0x9C: // SBB H - Subtract register from A with borrow
-		cpu.sub(cpu.H, WITHCARRY)
+		cpu.sub(cpu.H, WithCarry)
 	case 0x9D: // SBB L - Subtract register from A with borrow
-		cpu.sub(cpu.L, WITHCARRY)
+		cpu.sub(cpu.L, WithCarry)
 	case 0x9E: // SBB M - Subtract memory from A with borrow
 		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 		if err != nil {
 			return err
 		}
-		cpu.sub(readByte, WITHCARRY)
+		cpu.sub(readByte, WithCarry)
 	case 0x9F: // SBB A - Subtract register from A with borrow
-		cpu.sub(cpu.A, WITHCARRY)
+		cpu.sub(cpu.A, WithCarry)
 	case 0xD6: // SUI - Subtract immediate from A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.sub(fetchedByte, NOCARRY)
+		cpu.sub(fetchedByte, NoCarry)
 	case 0xDE: // SBI - Subtract immediate from A with borrow
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.sub(fetchedByte, WITHCARRY)
+		cpu.sub(fetchedByte, WithCarry)
 
 	// LOGICAL
 	case 0xA0: // ANA B - AND register with A
@@ -1243,8 +1159,68 @@ func (cpu *CPU) daa() {
 // - register (byte): The value of the register to be compared with the A register
 func (cpu *CPU) cmp(register byte) {
 	tempA := cpu.A
-	cpu.sub(register, NOCARRY) // We're only interested in the flags
+	cpu.sub(register, NoCarry) // We're only interested in the flags
 	cpu.A = tempA
+}
+
+// jmp causes a transfer of program control depending upon the condition being met.
+//
+// If the condition is true, program execution will continue at the memory location formed by
+// concatenating the third byte of the instruction with the second byte of the instruction (as
+// instructions are stored little endian, therefore, in reverse).
+// If the condition is false, program execution continues at the next instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to jump to the address specified in the third and
+//     second bytes of the instruction.
+func (cpu *CPU) jmp(condition bool) error {
+	address, err := cpu.fetchWord()
+	if err != nil {
+		return fmt.Errorf("could not jmp() to address 0x%04X: %v", address, err)
+	}
+	if condition {
+		cpu.programCounter = address
+	}
+	return nil
+}
+
+// call functions similarly to the JMP instruction, however, a return address is also pushed onto
+// the stack before jumping to the address specified in the third and second bytes of the instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to jump to the address specified in the third and
+//     second bytes of the instruction.
+func (cpu *CPU) call(condition bool) error {
+	address, err := cpu.fetchWord()
+	if err != nil {
+		return err
+	}
+	if condition {
+		err = cpu.pushStack(cpu.programCounter)
+		if err != nil {
+			return fmt.Errorf("could not call() to address 0x%04X: %v", address, err)
+		}
+		cpu.programCounter = address
+	}
+	return nil
+}
+
+// ret pops the last address saved on the stack into the program counter, causing a transfer of
+// program control to that address.  RET is typically called to return from a subroutine initiated by
+// a CALL instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to return to the address specified in the last two bytes
+//     popped off the stack.
+func (cpu *CPU) ret(condition bool) error {
+	address, err := cpu.popStack()
+	if err != nil {
+		return fmt.Errorf("could not ret() from address 0x%04X: %v", address, err)
+	}
+	if condition {
+		cpu.programCounter = address
+	}
+	return nil
 }
 
 // joinBytes combines two bytes into a 16-bit word.
