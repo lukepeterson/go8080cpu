@@ -381,247 +381,145 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// JUMP
 	case 0xC3: // JMP - Jump unconditional
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(true) // Always jump
 		if err != nil {
 			return err
 		}
-		cpu.programCounter = address
 	case 0xDA: // JC - Jump on carry
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xD2: // JNC - Jump on no carry
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xCA: // JZ - Jump on zero
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xC2: // JNZ - Jump on no zero
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xF2: // JP - Jump on positive
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xFA: // JM - Jump on minus
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xEA: // JPE - Jump on parity even
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE2: // JPO - Jump on parity odd
-		address, err := cpu.fetchWord()
+		err := cpu.jmp(!cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE9: // PCHL - H&L to program counter
 		cpu.programCounter = joinBytes(cpu.H, cpu.L)
 
 	// CALL
 	case 0xCD: // CALL - Call unconditional
-		address, err := cpu.fetchWord()
-		if err != nil {
-			return err
-		}
-		err = cpu.call(address)
+		err := cpu.call(true) // Always call
 		if err != nil {
 			return err
 		}
 	case 0xDC: // CC - Call on carry
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xD4: // CNC - Call on no carry
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xCC: // CZ - Call on zero
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xC4: // CNZ - Call on no zero
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xF4: // CP - Call on positive
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xFC: // CM - Call on minus
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
 		}
 	case 0xEC: // CPE - Call on parity even
-		address, err := cpu.fetchWord()
+		err := cpu.call(cpu.flags.Parity)
 		if err != nil {
 			return err
 		}
-		if cpu.flags.Parity {
-			err = cpu.call(address)
-			if err != nil {
-				return err
-			}
-		}
 	case 0xE4: // CPO - Call on parity odd
-		address, err := cpu.fetchWord()
+		err := cpu.call(!cpu.flags.Parity)
 		if err != nil {
-			return fmt.Errorf("could not fetchWord() within CPO instruction: %v", err)
-		}
-		if !cpu.flags.Parity {
-			err = cpu.call(address)
-			if err != nil {
-				return fmt.Errorf("could not call() within CPO instruction: %v", err)
-			}
+			return err
 		}
 
 	// RETURN
 	case 0xC9: // RET - Return
-		address, err := cpu.popStack()
+		err := cpu.ret(true) // Always return
 		if err != nil {
 			return err
 		}
-		cpu.programCounter = address
 	case 0xD8: // RC - Return on carry
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xD0: // RNC - Return on no carry
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Carry)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Carry {
-			cpu.programCounter = address
 		}
 	case 0xC8: // RZ - Return on zero
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xC0: // RNZ - Return on no zero
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Zero)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Zero {
-			cpu.programCounter = address
 		}
 	case 0xF0: // RP - Return on positive
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xF8: // RM - Return on minus
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Sign)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Sign {
-			cpu.programCounter = address
 		}
 	case 0xE8: // RPE - Return on parity even
-		address, err := cpu.popStack()
+		err := cpu.ret(cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 	case 0xE0: // RPO - Return on parity odd
-		address, err := cpu.popStack()
+		err := cpu.ret(!cpu.flags.Parity)
 		if err != nil {
 			return err
-		}
-		if !cpu.flags.Parity {
-			cpu.programCounter = address
 		}
 
 	// RESTART
@@ -1265,12 +1163,63 @@ func (cpu *CPU) cmp(register byte) {
 	cpu.A = tempA
 }
 
-func (cpu *CPU) call(address types.Word) error {
-	err := cpu.pushStack(cpu.programCounter)
+// jmp causes a transfer of program control depending upon the condition being met.
+//
+// If the condition is true, program execution will continue at the memory location formed by
+// concatenating the third byte of the instruction with the second byte of the instruction (as
+// instructions are stored little endian, therefore, in reverse).
+// If the condition is false, program execution continues at the next instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to jump to the address specified in the third and
+//     second bytes of the instruction.
+func (cpu *CPU) jmp(condition bool) error {
+	address, err := cpu.fetchWord()
 	if err != nil {
-		return fmt.Errorf("could not call() address 0x%04X: %v", address, err)
+		return fmt.Errorf("could not jmp() to address 0x%04X: %v", address, err)
 	}
-	cpu.programCounter = address
+	if condition {
+		cpu.programCounter = address
+	}
+	return nil
+}
+
+// call functions similarly to the JMP instruction, however, a return address is also pushed onto
+// the stack before jumping to the address specified in the third and second bytes of the instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to jump to the address specified in the third and
+//     second bytes of the instruction.
+func (cpu *CPU) call(condition bool) error {
+	address, err := cpu.fetchWord()
+	if err != nil {
+		return err
+	}
+	if condition {
+		err = cpu.pushStack(cpu.programCounter)
+		if err != nil {
+			return fmt.Errorf("could not call() to address 0x%04X: %v", address, err)
+		}
+		cpu.programCounter = address
+	}
+	return nil
+}
+
+// ret pops the last address saved on the stack into the program counter, causing a transfer of
+// program control to that address.  RET is typically called to return from a subroutine initiated by
+// a CALL instruction.
+//
+// Parameters:
+//   - condition (bool): determines whether to return to the address specified in the last two bytes
+//     popped off the stack.
+func (cpu *CPU) ret(condition bool) error {
+	address, err := cpu.popStack()
+	if err != nil {
+		return fmt.Errorf("could not ret() from address 0x%04X: %v", address, err)
+	}
+	if condition {
+		cpu.programCounter = address
+	}
 	return nil
 }
 
