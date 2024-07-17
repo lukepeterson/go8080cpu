@@ -6,13 +6,11 @@ import (
 
 	"github.com/lukepeterson/go8080assembler/assembler"
 	"github.com/lukepeterson/go8080cpu/pkg/cpu"
-	"github.com/lukepeterson/go8080cpu/pkg/memory"
 )
 
 func main() {
 
 	goCPU := cpu.New()
-	goCPU.Bus = memory.New(32)
 	// goCPU.DebugMode = true
 
 	code := `

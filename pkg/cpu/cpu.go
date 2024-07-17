@@ -3,6 +3,7 @@ package cpu
 import (
 	"fmt"
 
+	"github.com/lukepeterson/go8080cpu/pkg/memory"
 	"github.com/lukepeterson/go8080cpu/pkg/types"
 )
 
@@ -33,11 +34,12 @@ type CPU struct {
 type Bus interface {
 	ReadByteAt(address types.Word) (byte, error)
 	WriteByteAt(address types.Word, data byte) error
-	Length() uint16
 }
 
 func New() *CPU {
-	return &CPU{}
+	newCPU := &CPU{}
+	newCPU.Bus = memory.New()
+	return newCPU
 }
 
 func (cpu *CPU) Load(data []byte) error {
@@ -64,17 +66,17 @@ func (cpu *CPU) Run() error {
 
 		if cpu.DebugMode {
 			cpu.DumpRegisters()
-			cpu.DumpMemory(0x00, types.Word(cpu.Bus.Length()))
+			cpu.DumpMemory(0x0000, 0x0020) // Start of program code
+			cpu.DumpMemory(0xFFDF, 0xFFFF) // End of stack
 		}
 	}
-
 	return nil
 }
 
 func (cpu *CPU) fetchByte() (byte, error) {
 	readByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
 	if err != nil {
-		return 0, fmt.Errorf("could not read byte at 0x%04X: %v", cpu.programCounter, err)
+		return 0, fmt.Errorf("could not fetch byte at 0x%04X: %v", cpu.programCounter, err)
 	}
 
 	cpu.programCounter++

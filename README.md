@@ -31,11 +31,9 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :x: Control (4 instructions)
 
 ## Future enhancements
-- Fix out-of-range errors when working at edge of 16-bit address space (POP H needs 0xFFFF+1 to work).
 - Force some `wantErr` errors in the CPU and detect them.
 - Consider splitting apart the tests.  200+ tests in one file is tricky to navigate.
-- Add comments for unnecessary linter static checks.
-- Replace the memory locations with labels once the assembler supports them.
+- Replace the memory locations in tests with labels once the assembler supports them.
 - Write tests for WriteByteAt()
 
 # Running tests

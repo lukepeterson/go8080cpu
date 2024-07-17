@@ -9,12 +9,11 @@ import (
 
 func TestCPUInstructions(t *testing.T) {
 	testCases := []struct {
-		name       string
-		code       string
-		memorySize uint
-		initCPU    *CPU
-		wantCPU    *CPU
-		wantErr    bool
+		name    string
+		code    string
+		initCPU *CPU
+		wantCPU *CPU
+		wantErr bool
 	}{
 		{
 			name: "MOV B, B",
@@ -77,9 +76,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{H: 0x01, L: 0x01},
-			wantCPU:    &CPU{B: 0x055, H: 0x01, L: 0x01},
+			initCPU: &CPU{H: 0x01, L: 0x01},
+			wantCPU: &CPU{B: 0x055, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV B, A",
@@ -151,9 +149,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV C, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{H: 0x01, L: 0x01},
-			wantCPU:    &CPU{C: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{H: 0x01, L: 0x01},
+			wantCPU: &CPU{C: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV C, A",
@@ -225,9 +222,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{H: 0x01, L: 0x01},
-			wantCPU:    &CPU{D: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{H: 0x01, L: 0x01},
+			wantCPU: &CPU{D: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV D, A",
@@ -299,9 +295,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV E, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{H: 0x01, L: 0x01},
-			wantCPU:    &CPU{E: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{H: 0x01, L: 0x01},
+			wantCPU: &CPU{E: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV E, A",
@@ -374,9 +369,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV H, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x02, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x02, L: 0x01},
 		},
 		{
 			name: "MOV H, A",
@@ -449,9 +443,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV L, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x01, L: 0x02},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x01, L: 0x02},
 		},
 		{
 			name: "MOV L, A",
@@ -471,9 +464,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, C",
@@ -484,9 +476,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, C: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, C: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, D",
@@ -497,9 +488,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, D: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, D: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, E",
@@ -510,9 +500,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, E: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, E: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV M, H",
@@ -522,9 +511,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV M, H
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x02, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x02, L: 0x01},
 		},
 		{
 			name: "MOV M, L",
@@ -534,9 +522,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV M, L
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x01, L: 0x02},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x01, L: 0x02},
 		},
 		{
 			name: "MOV M, A",
@@ -547,9 +534,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV A, B",
@@ -612,9 +598,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFF + 3,
-			initCPU:    &CPU{H: 0x01, L: 0x01},
-			wantCPU:    &CPU{A: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{H: 0x01, L: 0x01},
+			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "MOV A, A",
@@ -632,9 +617,8 @@ func TestCPUInstructions(t *testing.T) {
 				LXI B, 0x3344
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{B: 0x33, C: 0x44},
+			initCPU: &CPU{},
+			wantCPU: &CPU{B: 0x33, C: 0x44},
 		},
 		{
 			name: "LXI D",
@@ -642,9 +626,8 @@ func TestCPUInstructions(t *testing.T) {
 				LXI D, 0x3344
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{D: 0x33, E: 0x44},
+			initCPU: &CPU{},
+			wantCPU: &CPU{D: 0x33, E: 0x44},
 		},
 		{
 			name: "LXI H",
@@ -652,9 +635,8 @@ func TestCPUInstructions(t *testing.T) {
 				LXI H, 0x3344
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x33, L: 0x44},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x33, L: 0x44},
 		},
 		{
 			name: "STAX B",
@@ -666,9 +648,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "STAX D",
@@ -680,9 +661,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV A, M
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "LDAX B",
@@ -693,9 +673,8 @@ func TestCPUInstructions(t *testing.T) {
 				LDAX B
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, B: 0x01, C: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "LDAX D",
@@ -706,9 +685,8 @@ func TestCPUInstructions(t *testing.T) {
 				LDAX D
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, D: 0x01, E: 0x01, H: 0x01, L: 0x01},
 		},
 		{
 			name: "STA",
@@ -719,9 +697,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, B: 0x55, H: 0x33, L: 0x44},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, B: 0x55, H: 0x33, L: 0x44},
 		},
 		{
 			name: "LDA",
@@ -731,9 +708,8 @@ func TestCPUInstructions(t *testing.T) {
 				LDA 0x0101
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, H: 0x01, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, H: 0x01, L: 0x01},
 		},
 		{
 			name: "SHLD",
@@ -748,9 +724,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV D, A
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x44, C: 0x55, D: 0x44, H: 0x20, L: 0x01},
 		},
 		{
 			name: "LHLD",
@@ -762,9 +737,8 @@ func TestCPUInstructions(t *testing.T) {
 				LHLD 0x2000
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x44, H: 0x44, L: 0x33},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x44, H: 0x44, L: 0x33},
 		},
 		{
 			name: "XCHG",
@@ -772,26 +746,24 @@ func TestCPUInstructions(t *testing.T) {
 				XCHG
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66},
-			wantCPU:    &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
+			initCPU: &CPU{D: 0x33, E: 0x44, H: 0x55, L: 0x66},
+			wantCPU: &CPU{D: 0x55, E: 0x66, H: 0x33, L: 0x44},
 		},
 		{
 			name: "PUSH B",
 			code: `
-				LXI SP, 0x1000
+				LXI SP, 0xFFFF
 				MVI B, 0x12
 				MVI C, 0x34
 				PUSH B
-				LXI H, 0x0FFE
+				LXI H, 0xFFFD
 				MOV A, M
-				LXI H, 0x0FFF
+				LXI H, 0xFFFE
 				MOV B, M
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x34, B: 0x12, C: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x34, B: 0x12, C: 0x34, H: 0xFF, L: 0xFE, stackPointer: 0xFFFD},
 		},
 		{
 			name: "PUSH D",
@@ -806,9 +778,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x34, B: 0x12, D: 0x12, E: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x34, B: 0x12, D: 0x12, E: 0x34, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
 		{
 			name: "PUSH H",
@@ -823,9 +794,8 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x34, B: 0x12, H: 0x0F, L: 0xFF, stackPointer: 0x0FFE},
 		},
 		{
 			name: "PUSH PSW",
@@ -839,69 +809,64 @@ func TestCPUInstructions(t *testing.T) {
 				MOV B, M
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{flags: Flags{Sign: true, Parity: true}},
-			wantCPU:    &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
+			initCPU: &CPU{flags: Flags{Sign: true, Parity: true}},
+			wantCPU: &CPU{A: 0x86, B: 0x12, H: 0x0F, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0x0FFE},
 		},
 		{
 			name: "POP B",
 			code: `
-				LXI H, 0xFFFE
+				LXI H, 0xFFFD
 				MVI M, 0x12
 				INX H
 				MVI M, 0x34
-				LXI SP, 0xFFFE
+				LXI SP, 0xFFFD
 				POP B
 				HLT
 			`,
-			memorySize: 0xFFFF + 1,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{B: 0x34, C: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+			initCPU: &CPU{},
+			wantCPU: &CPU{B: 0x34, C: 0x12, H: 0xFF, L: 0xFE, stackPointer: 0xFFFF},
 		},
 		{
 			name: "POP D",
 			code: `
-				LXI H, 0xFFFE
+				LXI H, 0xFFFD
 				MVI M, 0x12
 				INX H
 				MVI M, 0x34
-				LXI SP, 0xFFFE
+				LXI SP, 0xFFFD
 				POP D
 				HLT
 			`,
-			memorySize: 0xFFFF + 1,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{D: 0x34, E: 0x12, H: 0xFF, L: 0xFF, stackPointer: 0},
+			initCPU: &CPU{},
+			wantCPU: &CPU{D: 0x34, E: 0x12, H: 0xFF, L: 0xFE, stackPointer: 0xFFFF},
 		},
 		{
 			name: "POP H",
 			code: `
-				LXI H, 0xFFFE
+				LXI H, 0xFFFD
 				MVI M, 0x12
 				INX H
 				MVI M, 0x34
-				LXI SP, 0xFFFE
+				LXI SP, 0xFFFD
 				POP H
 				HLT
 			`,
-			memorySize: 0xFFFF + 1,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0x34, L: 0x12, stackPointer: 0},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0x34, L: 0x12, stackPointer: 0xFFFF},
 		},
 		{
 			name: "POP PSW",
 			code: `
-				LXI H, 0xFFFE
+				LXI H, 0xFFFD
 				MVI M, 0x86
 				INX H
 				MVI M, 0x34
-				LXI SP, 0xFFFE
+				LXI SP, 0xFFFD
 				POP PSW
 				HLT
 			`,
-			memorySize: 0xFFFF + 1,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x34, H: 0xFF, L: 0xFF, flags: Flags{Sign: true, Parity: true}, stackPointer: 0},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x34, H: 0xFF, L: 0xFE, flags: Flags{Sign: true, Parity: true}, stackPointer: 0xFFFF},
 		},
 		{
 			name: "XTHL",
@@ -915,9 +880,8 @@ func TestCPUInstructions(t *testing.T) {
 				XTHL
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
+			initCPU: &CPU{},
+			wantCPU: &CPU{B: 0x55, C: 0x66, H: 0x55, L: 0x66, stackPointer: 0xFFFB},
 		},
 		{
 			name: "SPHL",
@@ -926,9 +890,8 @@ func TestCPUInstructions(t *testing.T) {
 				SPHL
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{H: 0xFF, L: 0xEE, stackPointer: 0xFFEE},
+			initCPU: &CPU{},
+			wantCPU: &CPU{H: 0xFF, L: 0xEE, stackPointer: 0xFFEE},
 		},
 		{
 			name: "LXI SP",
@@ -936,9 +899,8 @@ func TestCPUInstructions(t *testing.T) {
 				LXI SP, 0x1234
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{stackPointer: 0x1234},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0x1234},
 		},
 		{
 			name: "INX SP from 0x1000",
@@ -946,9 +908,8 @@ func TestCPUInstructions(t *testing.T) {
 				INX SP
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{stackPointer: 0x1000},
-			wantCPU:    &CPU{stackPointer: 0x1001},
+			initCPU: &CPU{stackPointer: 0x1000},
+			wantCPU: &CPU{stackPointer: 0x1001},
 		},
 		{
 			name: "INX SP from 0xFFFF (test overflow works)",
@@ -956,9 +917,8 @@ func TestCPUInstructions(t *testing.T) {
 				INX SP
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{stackPointer: 0xFFFF},
-			wantCPU:    &CPU{stackPointer: 0x0000},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0x0000},
 		},
 		{
 			name: "DCX SP from 0x1000",
@@ -966,9 +926,8 @@ func TestCPUInstructions(t *testing.T) {
 				DCX SP
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{stackPointer: 0x1000},
-			wantCPU:    &CPU{stackPointer: 0x0FFF},
+			initCPU: &CPU{stackPointer: 0x1000},
+			wantCPU: &CPU{stackPointer: 0x0FFF},
 		},
 		{
 			name: "DCX SP from 0x0000 (test underflow works)",
@@ -976,9 +935,8 @@ func TestCPUInstructions(t *testing.T) {
 				DCX SP
 				HLT
 			`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{stackPointer: 0x0000},
-			wantCPU:    &CPU{stackPointer: 0xFFFF},
+			initCPU: &CPU{stackPointer: 0x0000},
+			wantCPU: &CPU{stackPointer: 0xFFFF},
 		},
 		{
 			name: "JMP",
@@ -987,9 +945,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JC (carry set - jump)",
@@ -999,9 +956,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
 		},
 		{
 			name: "JC (carry not set - don't jump)",
@@ -1010,9 +966,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "JNC (carry set - don't jump)",
@@ -1022,9 +977,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
 		},
 		{
 			name: "JNC (carry not set - jump)",
@@ -1033,9 +987,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JZ (zero set - jump)",
@@ -1045,9 +998,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
 		},
 		{
 			name: "JZ (zero not set - don't jump)",
@@ -1056,9 +1008,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "JNZ (zero set - don't jump)",
@@ -1068,9 +1019,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
 		},
 		{
 			name: "JNZ (zero not set - jump)",
@@ -1079,9 +1029,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0005},
 		},
 		{
 			name: "JP (sign flag set - don't jump)",
@@ -1092,9 +1041,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
 		},
 		{
 			name: "JP (sign flag not set - jump)",
@@ -1105,9 +1053,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0008},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0008},
 		},
 		{
 			name: "JM (sign flag set - jump)",
@@ -1118,9 +1065,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
 		},
 		{
 			name: "JM (sign flag not set - don't jump)",
@@ -1131,9 +1077,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
 		},
 		{
 			name: "JPE (parity even - jump)",
@@ -1144,9 +1089,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
 		},
 		{
 			name: "JPE (parity odd - don't jump)",
@@ -1157,9 +1101,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
 		},
 		{
 			name: "JPO (parity even - don't jump)",
@@ -1170,9 +1113,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
 		},
 		{
 			name: "JPO (parity odd - jump)",
@@ -1183,9 +1125,8 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0008},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
 		},
 		{
 			name: "PCHL",
@@ -1195,527 +1136,511 @@ func TestCPUInstructions(t *testing.T) {
 				HLT
 				HLT
 				`,
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{L: 0x05, programCounter: 0x0006},
+			initCPU: &CPU{},
+			wantCPU: &CPU{L: 0x05, programCounter: 0x0006},
 		},
 		{
 			name: "CALL and RET",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "CC (carry not set - don't call)",
 			code: `
-				CC 0x04
+				LXI SP, 0xFFFF
+				CC 0x07
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "CC (carry set - call)",
 			code: `
+				LXI SP, 0xFFFF
 				STC
-				CC 0x05
+				CC 0x08
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, flags: Flags{Carry: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
 		},
 		{
 			name: "CNC (carry not set - call)",
 			code: `
-				CNC 0x04
+				LXI SP, 0xFFFF
+				CNC 0x07
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "CNC (carry set - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				STC
-				CNC 0x05
+				CNC 0x08
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
 		},
 		{
 			name: "CZ (zero set - call)",
 			code: `
+				LXI SP, 0xFFFF
 				CMP A
-				CZ 0x05
+				CZ 0x08
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
 		},
 		{
 			name: "CZ (zero not set - don't call)",
 			code: `
-				CZ 0x05
+				LXI SP, 0xFFFF
+				CZ 0x08
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "CNZ (zero set - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				CMP A
-				CNZ 0x05
+				CNZ 0x08
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
 		},
 		{
 			name: "CNZ (zero not set - call)",
 			code: `
-				CNZ 0x04
+				LXI SP, 0xFFFF
+				CNZ 0x07
 				HLT
 				MVI A, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x55, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "CP (sign flag set - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x7F
 				INR A
-				CP 0x07
+				CP 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CP (sign flag not set - call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x7E
 				INR A
-				CP 0x07
+				CP 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, B: 0x55, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, B: 0x55, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CM (sign flag set - call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x7F
 				INR A
-				CM 0x07
+				CM 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CM (sign flag not set - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x7E
 				INR A
-				CM 0x07
+				CM 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CPE (parity even - call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x02
 				INR A
-				CPE 0x07
+				CPE 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CPE (parity odd - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x01
 				INR A
-				CPE 0x07
+				CPE 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CPO (parity even - don't call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x02
 				INR A
-				CPO 0x07
+				CPO 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "CPO (parity odd - call)",
 			code: `
+				LXI SP, 0xFFFF
 				MVI A, 0x01
 				INR A
-				CPO 0x07
+				CPO 0x0A
 				HLT
 				MVI B, 0x55
 				RET
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, B: 0x55, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, B: 0x55, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "RC (carry not set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				RC
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0006},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0009},
 		},
 		{
 			name: "RC (carry set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				STC
 				RC
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RNC (carry not set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				RNC
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RNC (carry set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				STC
 				RNC
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Carry: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "RZ (zero set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				CMP A
 				RZ
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RZ (zero not set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				RZ
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0006},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0009},
 		},
 		{
 			name: "RNZ (zero set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				CMP A
 				RNZ
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0007},
+			initCPU: &CPU{},
+			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
 		},
 		{
 			name: "RNZ (zero not set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				RNZ
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RP (sign flag set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x7F
 				INR A
 				RP
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0009},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x000C},
 		},
 		{
 			name: "RP (sign flag not set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x7E
 				INR A
 				RP
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RM (sign flag set - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x7F
 				INR A
 				RM
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RM (sign flag not set - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x7E
 				INR A
 				RM
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x7F, programCounter: 0x0009},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x7F, stackPointer: 0xFFFF, programCounter: 0x000C},
 		},
 		{
 			name: "RPE (parity even - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x02
 				INR A
 				RPE
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0004},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			name: "RPE (parity odd - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x01
 				INR A
 				RPE
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0009},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x02, stackPointer: 0xFFFF, programCounter: 0x000C},
 		},
 		{
 			name: "RPO (parity even - don't return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x02
 				INR A
 				RPO
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0009},
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000C},
 		},
 		{
 			name: "RPO (parity odd - return)",
 			code: `
-				CALL 0x04
+				LXI SP, 0xFFFF
+				CALL 0x07
 				HLT
 				MVI A, 0x01
 				INR A
 				RPO
 				HLT
 				`,
-			memorySize: 0xFFFF + 2,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{A: 0x02, programCounter: 0x0004},
-		},
-		{
-			name: "RST 0",
-			code: `
-				INR A
-				CPI 3
-				JZ 0x07
-				RST 0
-				HLT
-				`,
 			initCPU: &CPU{},
-			wantCPU: &CPU{A: 0x03, flags: Flags{Zero: true, Parity: true}, programCounter: 0x0000},
+			wantCPU: &CPU{A: 0x02, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
 			// RST instructions are tricky to test, as they have predetermined jump points set by the CPU
 			// for use by interrupts, starting at 0x0000 and finishing at 0x0038.  Our tests below simply
 			// confirm that each of the RST instructions jump to the correct HLT location, then
 			// testing that the programCounter matches the expected value.
-			name:       "RST 1",
-			code:       "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0009},
+			//
+			// RST 0 is missing from this list as it has a jump destination of 0x0000.  This makes
+			// it very difficult to test the RET from the instruction until we have a way to set the
+			// entry point of the bytecode with an ORG directive in the assembler.
+			name:    "RST 1",
+			code:    "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0009},
 		},
 		{
-			name:       "RST 2",
-			code:       "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0011},
+			name:    "RST 2",
+			code:    "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0011},
 		},
 		{
-			name:       "RST 3",
-			code:       "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0019},
+			name:    "RST 3",
+			code:    "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0019},
 		},
 		{
-			name:       "RST 4",
-			code:       "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0021},
+			name:    "RST 4",
+			code:    "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0021},
 		},
 		{
-			name:       "RST 5",
-			code:       "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0029},
+			name:    "RST 5",
+			code:    "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0029},
 		},
 		{
-			name:       "RST 6",
-			code:       "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0031},
+			name:    "RST 6",
+			code:    "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0031},
 		},
 		{
-			name:       "RST 7",
-			code:       "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			memorySize: 0xFFFF,
-			initCPU:    &CPU{},
-			wantCPU:    &CPU{programCounter: 0x0039},
+			name:    "RST 7",
+			code:    "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
+			initCPU: &CPU{},
+			wantCPU: &CPU{programCounter: 0x0039},
 		},
 		{
 			name: "INR A from 0x01",
@@ -2169,9 +2094,8 @@ func TestCPUInstructions(t *testing.T) {
 				ADD M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0x01, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "ADD A",
@@ -2270,9 +2194,8 @@ func TestCPUInstructions(t *testing.T) {
 				ADC M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}},
-			wantCPU:    &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0x00, H: 0x01, L: 0x02, flags: Flags{Carry: true}},
+			wantCPU: &CPU{A: 0x56, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "ADC A (carry in with zero flag)",
@@ -2590,9 +2513,8 @@ func TestCPUInstructions(t *testing.T) {
 				SUB M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0x99, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0x44, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0x99, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0x44, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "SUB A",
@@ -2682,9 +2604,8 @@ func TestCPUInstructions(t *testing.T) {
 				SBB M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0x01, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0xAB, H: 0x01, L: 0x02, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
+			initCPU: &CPU{A: 0x01, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0xAB, H: 0x01, L: 0x02, flags: Flags{Sign: true, AuxCarry: true, Carry: true}},
 		},
 		{
 			name: "SBB A (borrow in with zero flag)",
@@ -2801,9 +2722,8 @@ func TestCPUInstructions(t *testing.T) {
 				ANA M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0b0000_0001, H: 0x01, L: 0x02},
+			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0b0000_0001, H: 0x01, L: 0x02},
 		},
 		{
 			name: "ANA A",
@@ -2920,9 +2840,8 @@ func TestCPUInstructions(t *testing.T) {
 				XRA M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0xFC, H: 0x01, L: 0x02, flags: Flags{Sign: true, Parity: true}},
+			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0xFC, H: 0x01, L: 0x02, flags: Flags{Sign: true, Parity: true}},
 		},
 		{
 			name: "XRA A",
@@ -3030,9 +2949,8 @@ func TestCPUInstructions(t *testing.T) {
 				ORA M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0xA9, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0xFD, H: 0x01, L: 0x02, flags: Flags{Sign: true}},
+			initCPU: &CPU{A: 0xA9, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0xFD, H: 0x01, L: 0x02, flags: Flags{Sign: true}},
 		},
 		{
 			name: "ORA A",
@@ -3185,9 +3103,8 @@ func TestCPUInstructions(t *testing.T) {
 				CMP M
 				HLT
 				`,
-			memorySize: 0xFF + 4,
-			initCPU:    &CPU{A: 0xAA, H: 0x01, L: 0x02},
-			wantCPU:    &CPU{A: 0xAA, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
+			initCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02},
+			wantCPU: &CPU{A: 0xAA, H: 0x01, L: 0x02, flags: Flags{Parity: true}},
 		},
 		{
 			name: "CMP A",
@@ -3504,26 +3421,31 @@ func TestCPUInstructions(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.memorySize == 0 {
-				tc.memorySize = 32
-			}
+			// We don't new cpu.New() here as we don't (yet) have a better
+			// way to initialise the initial CPU state.
 			gotCPU := tc.initCPU
-			gotCPU.Bus = memory.New(tc.memorySize)
+			gotCPU.Bus = memory.New()
 			wantCPU := tc.wantCPU
-			wantCPU.Bus = memory.New(tc.memorySize)
+			wantCPU.Bus = memory.New()
 
-			a := assembler.Assembler{}
+			a := assembler.New()
 			err := a.Assemble(tc.code)
 			if (err != nil) != tc.wantErr {
 				t.Errorf("Assembler.Assemble() error = %v, wantErr %v", err, tc.wantErr)
 			}
 
-			gotCPU.Load(a.ByteCode)
-			runErr := gotCPU.Run()
-			if runErr != nil {
-				t.Errorf("%s", runErr)
+			err = gotCPU.Load(a.ByteCode)
+			if err != nil {
+				t.Errorf("error loading bytecode into CPU: %v", err)
 			}
 
+			err = gotCPU.Run()
+			if err != nil {
+				t.Errorf("error running cpu: %v", err)
+			}
+
+			// Most tests don't involve checking the program counter, so we only need
+			// to run the equality check when it's set to a non-zero value.
 			if wantCPU.programCounter != 0 {
 				if gotCPU.programCounter != wantCPU.programCounter {
 					t.Errorf("%s \ngotProgramCounter  0x%04X,\nwantProgramCounter 0x%04X", tc.name, gotCPU.programCounter, wantCPU.programCounter)
