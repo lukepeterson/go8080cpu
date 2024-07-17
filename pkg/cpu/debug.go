@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/lukepeterson/go8080cpu/pkg/types"
@@ -23,7 +24,7 @@ func (cpu CPU) DumpRegisters() {
 
 func (cpu *CPU) DumpMemory(startAddress, endAddress types.Word) error {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Memory: %v bytes, ", cpu.Bus.Length()))
+	sb.WriteString(fmt.Sprintf("Memory: %v bytes, ", math.MaxUint16))
 	sb.WriteString(fmt.Sprintf("Start: 0x%0004X, End: 0x%0004X\n", startAddress, endAddress))
 	sb.WriteString("    ")
 	for i := startAddress; i < endAddress; i++ {

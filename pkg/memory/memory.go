@@ -2,6 +2,7 @@ package memory
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/lukepeterson/go8080cpu/pkg/types"
 )
@@ -10,9 +11,11 @@ type Memory struct {
 	Data []byte
 }
 
-func New(size uint) *Memory {
+func New() *Memory {
 	return &Memory{
-		Data: make([]byte, size),
+		// The 8080 CPU has 64KB of memory, so 65,536 bytes starting from zero,
+		// accessed via memory locations 0x0000 to 0xFFFF.
+		Data: make([]byte, math.MaxUint16),
 	}
 }
 
@@ -29,8 +32,4 @@ func (memory *Memory) WriteByteAt(address types.Word, data byte) error {
 	}
 	memory.Data[address] = data
 	return nil
-}
-
-func (memory Memory) Length() uint16 {
-	return uint16(len(memory.Data))
 }
