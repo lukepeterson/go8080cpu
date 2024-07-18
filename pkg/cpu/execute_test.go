@@ -7,7 +7,7 @@ import (
 	"github.com/lukepeterson/go8080cpu/pkg/memory"
 )
 
-func TestCPUInstructions(t *testing.T) {
+func TestExecute(t *testing.T) {
 	testCases := []struct {
 		name    string
 		code    string
