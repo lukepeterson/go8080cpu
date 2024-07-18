@@ -3421,7 +3421,7 @@ func TestExecute(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// We don't new cpu.New() here as we don't (yet) have a better
+			// We don't use cpu.New() here as we don't (yet) have a better
 			// way to initialise the initial CPU state.
 			gotCPU := tc.initCPU
 			gotCPU.Bus = memory.New()
@@ -3444,7 +3444,7 @@ func TestExecute(t *testing.T) {
 				t.Errorf("error running cpu: %v", err)
 			}
 
-			// Most tests don't involve checking the program counter, so we only need
+			// Most tests don't involve the program counter, so we only need
 			// to run the equality check when it's set to a non-zero value.
 			if wantCPU.programCounter != 0 {
 				if gotCPU.programCounter != wantCPU.programCounter {

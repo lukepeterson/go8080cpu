@@ -12,67 +12,16 @@ const (
 	WithCarry = 1
 )
 
-// getFlags returns the current state of the CPU flags packed into a single byte, for use in
-// functions such as PUSH PSW.  The flags are ordered from MSB (bit 7) to LSB (bit 0).
-//
-// This method performs the following steps:
-// 1. Generates a slice of eight bools for the flag storage
-// 2. Iterates through each bit in the slice, shifting the bits to the left if set
-//
-// Example:
-//
-//	cpu := &CPU{flags: Flags{Sign: true, Parity: true}}
-//	result := cpu.getFlags()
-//	// result is 0b10000110 (0x86 or 134)
-func (cpu CPU) getFlags() byte {
-	flags := []bool{
-		cpu.flags.Sign,
-		cpu.flags.Zero,
-		false, // Bit 5 is always false
-		cpu.flags.AuxCarry,
-		false, // Bit 3 is always false
-		cpu.flags.Parity,
-		true, // Bit 1 is always true
-		cpu.flags.Carry,
-	}
-
-	var result byte
-	for i, flag := range flags {
-		if flag {
-			result |= 1 << (7 - i)
-		}
-	}
-
-	return result
-}
-
-// setFlags updates the CPU flags based on the provided flags byte.
-//
-// Example:
-//
-//	cpu.setFlags(0b10010110) // 0x96
-//	// cpu.flags = Flags{Sign: true, Zero: false, AuxCarry: true, Parity: true, Carry: false}
-func (cpu *CPU) setFlags(flags byte) {
-	cpu.flags.Sign = (flags & (1 << 7)) != 0
-	cpu.flags.Zero = (flags & (1 << 6)) != 0
-	// Bit 5 is always false
-	cpu.flags.AuxCarry = (flags & (1 << 4)) != 0
-	// Bit 3 is always false
-	cpu.flags.Parity = (flags & (1 << 2)) != 0
-	// Bit 1 is always true
-	cpu.flags.Carry = (flags & (1 << 0)) != 0
-}
-
-// pushStack 'pushes' the two byte word onto the stack, before decrementing the
+// push 'pushes' the two byte word onto the stack, before decrementing the
 // stack pointer by two.
 //
 // Example:
 //
-//	// Assuming the stack pointer was 0xFFFF prior to the pushStack instruction:
-//	cpu.pushStack(0x1234)
+//	// Assuming the stack pointer was 0xFFFF prior to the push instruction:
+//	cpu.push(0x1234)
 //	// Memory location 0xFFFE (stackPointer - 1) = 0x12
 //	// Memory location 0xFFFD (stackPointer - 2) = 0x34
-func (cpu *CPU) pushStack(value types.Word) error {
+func (cpu *CPU) push(value types.Word) error {
 	high, low := splitWord(value)
 
 	err := cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
@@ -89,17 +38,17 @@ func (cpu *CPU) pushStack(value types.Word) error {
 	return nil
 }
 
-// popStack 'pops' a two byte word from the stack, before incrementing the
+// pop 'pops' a two byte word from the stack, before incrementing the
 // stack pointer by two.
 //
 // Example:
 //
-// // Assuming the stack pointer was 0xFFFD prior to the popStack instruction, and:
+// // Assuming the stack pointer was 0xFFFD prior to the pop instruction, and:
 // // Memory location 0xFFFE (stackPointer - 1) = 0x12
 // // Memory location 0xFFFD (stackPointer - 2) = 0x34
-// poppedValue, _ := cpu.popStack()
+// poppedValue, _ := cpu.pop()
 // // poppedValue = 0x1234
-func (cpu *CPU) popStack() (types.Word, error) {
+func (cpu *CPU) pop() (types.Word, error) {
 	low, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
 	if err != nil {
 		return 0, fmt.Errorf("could not read byte from cpu.stackPointer (0x%04X): %v", cpu.stackPointer, err)
@@ -362,7 +311,7 @@ func (cpu *CPU) call(condition bool) error {
 	}
 
 	if condition {
-		err = cpu.pushStack(cpu.programCounter)
+		err = cpu.push(cpu.programCounter)
 		if err != nil {
 			return fmt.Errorf("could not call() to address 0x%04X: %v", address, err)
 		}
@@ -380,7 +329,7 @@ func (cpu *CPU) call(condition bool) error {
 //   - condition (bool): determines whether to return to the address specified in the last two bytes
 //     popped off the stack.
 func (cpu *CPU) ret(condition bool) error {
-	address, err := cpu.popStack()
+	address, err := cpu.pop()
 	if err != nil {
 		return fmt.Errorf("could not ret() from address 0x%04X: %v", address, err)
 	}
@@ -397,7 +346,7 @@ func (cpu *CPU) ret(condition bool) error {
 // The contents of the program counter are pushed onto the stack for later use by
 // a RET instruction.  The program counter is then set to the address parameter.
 func (cpu *CPU) rst(address types.Word) error {
-	err := cpu.pushStack(cpu.programCounter)
+	err := cpu.push(cpu.programCounter)
 	if err != nil {
 		return err
 	}
@@ -472,27 +421,27 @@ func (cpu *CPU) setSignZeroParityFlags(input byte) {
 	cpu.flags.Parity = bits.OnesCount8(input)%2 == 0 // Check if parity is even
 }
 
-// temporary function to be removed when all instructions are implemented
-func ErrNotImplemented(opCode byte) error {
-	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
-}
-
+// getBC returns a two byte word by joining the B and C registers
 func (cpu CPU) getBC() types.Word {
 	return joinBytes(cpu.B, cpu.C)
 }
 
+// getDE returns a two byte word by joining the D and E registers
 func (cpu CPU) getDE() types.Word {
 	return joinBytes(cpu.D, cpu.E)
 }
 
+// getHL returns a two byte word by joining the H and L registers
 func (cpu CPU) getHL() types.Word {
 	return joinBytes(cpu.H, cpu.L)
 }
 
-func (cpu CPU) getAPSW() types.Word {
+// getAWithFlags returns a two byte word by joining the A and flag registers
+func (cpu CPU) getAWithFlags() types.Word {
 	return joinBytes(cpu.A, cpu.getFlags())
 }
 
+// getM returns a byte stored in memory, pointed to by the H and L registers
 func (cpu CPU) getM() (byte, error) {
 	readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
 	if err != nil {
@@ -502,6 +451,7 @@ func (cpu CPU) getM() (byte, error) {
 	return readByte, nil
 }
 
+// setM stores a byte stored in memory, pointed to by the H and L registers
 func (cpu *CPU) setM(value byte) error {
 	err := cpu.Bus.WriteByteAt(cpu.getHL(), value)
 	if err != nil {
@@ -509,4 +459,9 @@ func (cpu *CPU) setM(value byte) error {
 	}
 
 	return nil
+}
+
+// ErrNotImplemented is a temporary function to be removed when all instructions are implemented
+func errNotImplemented(opCode byte) error {
+	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
 }

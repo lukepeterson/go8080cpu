@@ -297,45 +297,45 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// STACK OPERATIONS
 	case 0xC5: // PUSH B - Push register pair B&C to stack
-		err := cpu.pushStack(cpu.getBC())
+		err := cpu.push(cpu.getBC())
 		if err != nil {
 			return err
 		}
 	case 0xD5: // PUSH D - Push register pair D&E to stack
-		err := cpu.pushStack(cpu.getDE())
+		err := cpu.push(cpu.getDE())
 		if err != nil {
 			return err
 		}
 	case 0xE5: // PUSH H - Push register pair H&L to stack
-		err := cpu.pushStack(cpu.getHL())
+		err := cpu.push(cpu.getHL())
 		if err != nil {
 			return err
 		}
 	case 0xF5: // PUSH PSW - Push register A and flags to stack
-		err := cpu.pushStack(cpu.getAPSW())
+		err := cpu.push(cpu.getAWithFlags())
 		if err != nil {
 			return err
 		}
 	case 0xC1: // POP B - Pop register pair B&C off stack
-		readWord, err := cpu.popStack()
+		readWord, err := cpu.pop()
 		if err != nil {
 			return err
 		}
 		cpu.B, cpu.C = splitWord(readWord)
 	case 0xD1: // POP D - Pop register pair D&E off stack
-		readWord, err := cpu.popStack()
+		readWord, err := cpu.pop()
 		if err != nil {
 			return err
 		}
 		cpu.D, cpu.E = splitWord(readWord)
 	case 0xE1: // POP H - Pop register pair H&L off stack
-		readWord, err := cpu.popStack()
+		readWord, err := cpu.pop()
 		if err != nil {
 			return err
 		}
 		cpu.H, cpu.L = splitWord(readWord)
 	case 0xF1: // POP PSW - Pop register A and flags off stack
-		readWord, err := cpu.popStack()
+		readWord, err := cpu.pop()
 		if err != nil {
 			return err
 		}
@@ -872,15 +872,15 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// INPUT/OUTPUT
 	case 0xDB: // IN - Input
-		return ErrNotImplemented(opCode)
+		return errNotImplemented(opCode)
 	case 0xD3: // OUT - Output
-		return ErrNotImplemented(opCode)
+		return errNotImplemented(opCode)
 
 	// CONTROL
 	case 0xFB: // EI - Enable interrupts
-		return ErrNotImplemented(opCode)
+		return errNotImplemented(opCode)
 	case 0xF3: // DI - Disable interrupts
-		return ErrNotImplemented(opCode)
+		return errNotImplemented(opCode)
 	case 0x00: // NOP - No-operation
 		// Do nothing
 	case 0x76: // HLT - Halt
