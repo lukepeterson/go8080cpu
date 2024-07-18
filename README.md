@@ -31,8 +31,6 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :x: Control (4 instructions)
 
 ## Future enhancements
-- Force some `wantErr` errors in the CPU and detect them.
-- Consider splitting apart the tests.  200+ tests in one file is tricky to navigate.
 - Replace the memory locations in tests with labels once the assembler supports them.
 - Write tests for WriteByteAt()
 
