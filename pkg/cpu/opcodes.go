@@ -19,6 +19,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	if cpu.DebugMode {
 		fmt.Printf("Executing instruction: 0x%02X\n", opCode)
 	}
+	var err error
 
 	switch opCode {
 	// MOVE, LOAD AND STORE
@@ -36,11 +37,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x45: // MOV B,L - Move register to register
 		cpu.B = cpu.L
 	case 0x46: // MOV B,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.B, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.B = readByte
 	case 0x47: // MOV B,A - Move register to register
 		cpu.B = cpu.A
 	case 0x48: // MOV C,B - Move register to register
@@ -57,11 +57,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x4D: // MOV C,L - Move register to register
 		cpu.C = cpu.L
 	case 0x4E: // MOV C,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.C, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.C = readByte
 	case 0x4F: // MOV C,A - Move register to register
 		cpu.C = cpu.A
 	case 0x50: // MOV D,B - Move register to register
@@ -78,11 +77,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x55: // MOV D,L - Move register to register
 		cpu.D = cpu.L
 	case 0x56: // MOV D,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.D, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.D = readByte
 	case 0x57: // MOV D,A
 		cpu.D = cpu.A
 	case 0x58: // MOV E,B - Move register to register
@@ -99,11 +97,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x5D: // MOV E,L - Move register to register
 		cpu.E = cpu.L
 	case 0x5E: // MOV E,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.E, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.E = readByte
 	case 0x5F: // MOV E,A - Move register to register
 		cpu.E = cpu.A
 	case 0x60: // MOV H,B - Move register to register
@@ -120,11 +117,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x65: // MOV H,L - Move register to register
 		cpu.H = cpu.L
 	case 0x66: // MOV H,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.H, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.H = readByte
 	case 0x67: // MOV H,A - Move register to register
 		cpu.H = cpu.A
 	case 0x68: // MOV L,B - Move register to register
@@ -141,11 +137,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		temp := cpu.L
 		cpu.L = temp
 	case 0x6E: // MOV L,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.L, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.L = readByte
 	case 0x6F: // MOV L,A - Move register to register
 		cpu.L = cpu.A
 	case 0x70: // MOV M,B - Move register to memory
@@ -175,50 +170,43 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x7D: // MOV A,L - Move register to register
 		cpu.A = cpu.L
 	case 0x7E: // MOV A,M - Move memory to register
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		cpu.A, err = cpu.getM()
 		if err != nil {
 			return err
 		}
-		cpu.A = readByte
 	case 0x7F: // MOV A,A - Move register to register
 		temp := cpu.A
 		cpu.A = temp
 	case 0x06: // MVI B - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.B, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.B = fetchedByte
 	case 0x0E: // MVI C - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.C, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.C = fetchedByte
 	case 0x16: // MVI D - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.D, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.D = fetchedByte
 	case 0x1E: // MVI E - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.E, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.E = fetchedByte
 	case 0x26: // MVI H - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.H, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.H = fetchedByte
 	case 0x2E: // MVI L - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.L, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.L = fetchedByte
 	case 0x36: // MVI M - Move immediate memory
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
@@ -226,11 +214,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.Bus.WriteByteAt(cpu.getHL(), fetchedByte)
 	case 0x3E: // MVI A - Move immediate register
-		fetchedByte, err := cpu.fetchByte()
+		cpu.A, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-		cpu.A = fetchedByte
 	case 0x01: // LXI B - Load immediate register paid B&C
 		fetchedWord, err := cpu.fetchWord()
 		if err != nil {
@@ -254,17 +241,15 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x12: // STAX D - Store A indirect
 		cpu.Bus.WriteByteAt(cpu.getDE(), cpu.A)
 	case 0x0A: // LDAX B - Load A indirect
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getBC())
+		cpu.A, err = cpu.Bus.ReadByteAt(cpu.getBC())
 		if err != nil {
 			return err
 		}
-		cpu.A = readByte
 	case 0x1A: // LDAX D - Load A indirect
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getDE())
+		cpu.A, err = cpu.Bus.ReadByteAt(cpu.getDE())
 		if err != nil {
 			return err
 		}
-		cpu.A = readByte
 	case 0x32: // STA - Store A direct
 		fetchedWord, err := cpu.fetchWord()
 		if err != nil {
@@ -276,11 +261,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-		readByte, err := cpu.Bus.ReadByteAt(address)
+		cpu.A, err = cpu.Bus.ReadByteAt(address)
 		if err != nil {
 			return err
 		}
-		cpu.A = readByte
 	case 0x22: // SHLD - Store H&L direct
 		fetchedWord, err := cpu.fetchWord()
 		if err != nil {
@@ -293,16 +277,14 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-		readByte, err := cpu.Bus.ReadByteAt(address)
+		cpu.L, err = cpu.Bus.ReadByteAt(address)
 		if err != nil {
 			return err
 		}
-		cpu.L = readByte
-		readByte, err = cpu.Bus.ReadByteAt(address + 1)
+		cpu.H, err = cpu.Bus.ReadByteAt(address + 1)
 		if err != nil {
 			return err
 		}
-		cpu.H = readByte
 	case 0xEB: // XCHG - Exchange D&E, H&L registers
 		cpu.D, cpu.E, cpu.H, cpu.L = cpu.H, cpu.L, cpu.D, cpu.E
 
@@ -354,26 +336,23 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.A, flags = splitWord(readWord)
 		cpu.setFlags(flags)
 	case 0xE3: // XTHL - Exchange top of stack with H&L
-		readByte, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
+		cpu.H, err = cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
 		if err != nil {
 			return err
 		}
-		cpu.H = readByte
-		readByte, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
+		cpu.L, err = cpu.Bus.ReadByteAt(cpu.stackPointer)
 		if err != nil {
 			return err
 		}
-		cpu.L = readByte
 		cpu.Bus.WriteByteAt(cpu.stackPointer+1, cpu.H)
 		cpu.Bus.WriteByteAt(cpu.stackPointer, cpu.L)
 	case 0xF9: // SPHL - Load stack pointer from H&L
 		cpu.stackPointer = cpu.getHL()
 	case 0x31: // LXI SP - Load immediate stack pointer
-		fetchedWord, err := cpu.fetchWord()
+		cpu.stackPointer, err = cpu.fetchWord()
 		if err != nil {
 			return err
 		}
-		cpu.stackPointer = fetchedWord
 	case 0x33: // INX SP - Increment stack pointer
 		cpu.stackPointer++
 	case 0x3B: // DCX SP - Decrement stack pointer
@@ -524,29 +503,45 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// RESTART
 	case 0xC7: // RST 0 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x00
+		err := cpu.rst(0x0000)
+		if err != nil {
+			return err
+		}
 	case 0xCF: // RST 1 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x08
+		err := cpu.rst(0x0008)
+		if err != nil {
+			return err
+		}
 	case 0xD7: // RST 2 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x10
+		err := cpu.rst(0x0010)
+		if err != nil {
+			return err
+		}
 	case 0xDF: // RST 3 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x18
+		err := cpu.rst(0x0018)
+		if err != nil {
+			return err
+		}
 	case 0xE7: // RST 4 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x20
+		err := cpu.rst(0x0020)
+		if err != nil {
+			return err
+		}
 	case 0xEF: // RST 5 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x28
+		err := cpu.rst(0x0028)
+		if err != nil {
+			return err
+		}
 	case 0xF7: // RST 6 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x30
+		err := cpu.rst(0x0030)
+		if err != nil {
+			return err
+		}
 	case 0xFF: // RST 7 - Restart
-		cpu.pushStack(cpu.programCounter)
-		cpu.programCounter = 0x38
+		err := cpu.rst(0x0038)
+		if err != nil {
+			return err
+		}
 
 	// INCREMENT AND DECREMENT
 	case 0x04: // INR B - Increment register
@@ -562,7 +557,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x2C: // INR L - Increment register
 		cpu.inr(&cpu.L)
 	case 0x34: // INR M - Increment memory
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -583,7 +578,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x2D: // DCR L - Decrement register
 		cpu.dcr(&cpu.L)
 	case 0x35: // DCR M - Decrement memory
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -618,7 +613,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x85: // ADD L - Add register to A
 		cpu.add(cpu.L, NoCarry)
 	case 0x86: // ADD M - Add memory to A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -638,7 +633,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x8D: // ADC L - Add register to A with carry
 		cpu.add(cpu.L, WithCarry)
 	case 0x8E: // ADC M - Add memory to A with carry
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -684,7 +679,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x95: // SUB L - Subtract register from A
 		cpu.sub(cpu.L, NoCarry)
 	case 0x96: // SUB M - Subtract memory from A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -704,7 +699,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x9D: // SBB L - Subtract register from A with borrow
 		cpu.sub(cpu.L, WithCarry)
 	case 0x9E: // SBB M - Subtract memory from A with borrow
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -738,7 +733,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xA5: // ANA L - AND register with A
 		cpu.ana(cpu.L)
 	case 0xA6: // ANA M - AND memory with A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -758,7 +753,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xAD: // XRA L - XOR register with A
 		cpu.xra(cpu.L)
 	case 0xAE: // XRA M - XOR memory with A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -778,7 +773,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xB5: // ORA L - OR register with A
 		cpu.ora(cpu.L)
 	case 0xB6: // ORA M - OR memory with A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -798,7 +793,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0xBD: // CMP L - Compare register with A
 		cpu.cmp(cpu.L)
 	case 0xBE: // CMP M - Compare memory with A
-		readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+		readByte, err := cpu.getM()
 		if err != nil {
 			return err
 		}
@@ -924,6 +919,11 @@ func (cpu CPU) getFlags() byte {
 }
 
 // setFlags updates the CPU flags based on the provided flags byte.
+//
+// Example:
+//
+//	cpu.setFlags(0b10010110) // 0x96
+//	// cpu.flags = Flags{Sign: true, Zero: false, AuxCarry: true, Parity: true, Carry: false}
 func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Sign = (flags & (1 << 7)) != 0
 	cpu.flags.Zero = (flags & (1 << 6)) != 0
@@ -935,29 +935,53 @@ func (cpu *CPU) setFlags(flags byte) {
 	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }
 
-func (cpu *CPU) pushStack(address types.Word) error {
-	high, low := splitWord(address)
+// pushStack 'pushes' the two byte word onto the stack, before decrementing the
+// stack pointer by two.
+//
+// Example:
+//
+//	// Assuming the stack pointer was 0xFFFF prior to the pushStack instruction:
+//	cpu.pushStack(0x1234)
+//	// Memory location 0xFFFE (stackPointer - 1) = 0x12
+//	// Memory location 0xFFFD (stackPointer - 2) = 0x34
+func (cpu *CPU) pushStack(value types.Word) error {
+	high, low := splitWord(value)
+
 	err := cpu.Bus.WriteByteAt(cpu.stackPointer-1, high)
 	if err != nil {
-		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer-1: %v", cpu.stackPointer-1, err)
+		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer - 1 (0x%04X): %v", high, cpu.stackPointer-1, err)
 	}
+
 	err = cpu.Bus.WriteByteAt(cpu.stackPointer-2, low)
 	if err != nil {
-		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer-2: %v", cpu.stackPointer-2, err)
+		return fmt.Errorf("could not write 0x%02X to cpu.stackPointer - 2 (0x%04X): %v", low, cpu.stackPointer-2, err)
 	}
+
 	cpu.stackPointer -= 2
 	return nil
 }
 
+// popStack 'pops' a two byte word from the stack, before incrementing the
+// stack pointer by two.
+//
+// Example:
+//
+// // Assuming the stack pointer was 0xFFFD prior to the popStack instruction, and:
+// // Memory location 0xFFFE (stackPointer - 1) = 0x12
+// // Memory location 0xFFFD (stackPointer - 2) = 0x34
+// poppedValue, _ := cpu.popStack()
+// // poppedValue = 0x1234
 func (cpu *CPU) popStack() (types.Word, error) {
 	low, err := cpu.Bus.ReadByteAt(cpu.stackPointer)
 	if err != nil {
-		return 0, fmt.Errorf("could not read from cpu.stackPointer: %v", err)
+		return 0, fmt.Errorf("could not read byte from cpu.stackPointer (0x%04X): %v", cpu.stackPointer, err)
 	}
+
 	high, err := cpu.Bus.ReadByteAt(cpu.stackPointer + 1)
 	if err != nil {
-		return 0, fmt.Errorf("could not read from cpu.stackPointer + 1: %v", err)
+		return 0, fmt.Errorf("could not read byte from cpu.stackPointer + 1 (0x%04X): %v", cpu.stackPointer+1, err)
 	}
+
 	cpu.stackPointer += 2
 	return joinBytes(high, low), nil
 }
@@ -1138,7 +1162,7 @@ func (cpu *CPU) daa() {
 		cpu.A += 0x06 // Add 6 to the lower nibble of the accumulator
 	}
 
-	// Adjust higher nibble
+	// Adjust upper nibble
 	upperNibble := cpu.A >> 4 // Isolate the four MSBs
 	if upperNibble > 9 || cpu.flags.Carry {
 		cpu.flags.Carry = upperNibble > 9
@@ -1223,6 +1247,20 @@ func (cpu *CPU) ret(condition bool) error {
 	return nil
 }
 
+// rst (restart) is a special purpose subroutine jump.
+//
+// The contents of the program counter are pushed onto the stack for later use by
+// a RET instruction.  The program counter is then set to the address parameter.
+func (cpu *CPU) rst(address types.Word) error {
+	err := cpu.pushStack(cpu.programCounter)
+	if err != nil {
+		return err
+	}
+
+	cpu.programCounter = address
+	return nil
+}
+
 // joinBytes combines two bytes into a 16-bit word.
 //
 // This function takes a high byte and a low byte and joins them to form
@@ -1282,7 +1320,7 @@ func splitWord(address types.Word) (high, low byte) {
 //	cpu.setSignZeroParityFlags(0x80)
 //	// cpu.flags.Sign is true
 //	// cpu.flags.Zero is false
-//	// cpu.flags.Parity is true (0x80 has one 1 bit, which is odd, so Parity is false)
+//	// cpu.flags.Parity is false (0x80 has an odd number of 1's)
 func (cpu *CPU) setSignZeroParityFlags(input byte) {
 	cpu.flags.Sign = input >= 0b1000_0000
 	cpu.flags.Zero = input == 0
@@ -1308,4 +1346,12 @@ func (cpu CPU) getHL() types.Word {
 
 func (cpu CPU) getAPSW() types.Word {
 	return joinBytes(cpu.A, cpu.getFlags())
+}
+
+func (cpu CPU) getM() (byte, error) {
+	readByte, err := cpu.Bus.ReadByteAt(cpu.getHL())
+	if err != nil {
+		return 0, err
+	}
+	return readByte, nil
 }
