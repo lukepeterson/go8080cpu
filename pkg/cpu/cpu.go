@@ -49,6 +49,7 @@ func (cpu *CPU) Load(data []byte) error {
 			return fmt.Errorf("could not write byte 0x%02X at address 0x%04X: %v", value, types.Word(addr), err)
 		}
 	}
+
 	return nil
 }
 
@@ -70,6 +71,7 @@ func (cpu *CPU) Run() error {
 			cpu.DumpMemory(0xFFDF, 0xFFFF) // End of stack
 		}
 	}
+
 	return nil
 }
 
@@ -95,4 +97,55 @@ func (cpu *CPU) fetchWord() (types.Word, error) {
 	}
 
 	return joinBytes(high, low), nil
+}
+
+// getFlags returns the current state of the CPU flags packed into a single byte, for use in
+// functions such as PUSH PSW.  The flags are ordered from MSB (bit 7) to LSB (bit 0).
+//
+// This method performs the following steps:
+// 1. Generates a slice of eight bools for the flag storage
+// 2. Iterates through each bit in the slice, shifting the bits to the left if set
+//
+// Example:
+//
+//	cpu := &CPU{flags: Flags{Sign: true, Parity: true}}
+//	result := cpu.getFlags()
+//	// result is 0b10000110 (0x86 or 134)
+func (cpu CPU) getFlags() byte {
+	flags := []bool{
+		cpu.flags.Sign,
+		cpu.flags.Zero,
+		false, // Bit 5 is always false
+		cpu.flags.AuxCarry,
+		false, // Bit 3 is always false
+		cpu.flags.Parity,
+		true, // Bit 1 is always true
+		cpu.flags.Carry,
+	}
+
+	var result byte
+	for i, flag := range flags {
+		if flag {
+			result |= 1 << (7 - i)
+		}
+	}
+
+	return result
+}
+
+// setFlags updates the CPU flags based on the provided flags byte.
+//
+// Example:
+//
+//	cpu.setFlags(0b10010110) // 0x96
+//	// cpu.flags = Flags{Sign: true, Zero: false, AuxCarry: true, Parity: true, Carry: false}
+func (cpu *CPU) setFlags(flags byte) {
+	cpu.flags.Sign = (flags & (1 << 7)) != 0
+	cpu.flags.Zero = (flags & (1 << 6)) != 0
+	// Bit 5 is always false
+	cpu.flags.AuxCarry = (flags & (1 << 4)) != 0
+	// Bit 3 is always false
+	cpu.flags.Parity = (flags & (1 << 2)) != 0
+	// Bit 1 is always true
+	cpu.flags.Carry = (flags & (1 << 0)) != 0
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/lukepeterson/go8080cpu/pkg/memory"
 )
 
-func TestCPUInstructions(t *testing.T) {
+func TestExecute(t *testing.T) {
 	testCases := []struct {
 		name    string
 		code    string
@@ -1603,44 +1603,44 @@ func TestCPUInstructions(t *testing.T) {
 			// entry point of the bytecode with an ORG directive in the assembler.
 			name:    "RST 1",
 			code:    "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0009},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0009},
 		},
 		{
 			name:    "RST 2",
 			code:    "RST 2\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0011},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0011},
 		},
 		{
 			name:    "RST 3",
 			code:    "RST 3\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0019},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0019},
 		},
 		{
 			name:    "RST 4",
 			code:    "RST 4\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0021},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0021},
 		},
 		{
 			name:    "RST 5",
 			code:    "RST 5\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0029},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0029},
 		},
 		{
 			name:    "RST 6",
 			code:    "RST 6\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0031},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0031},
 		},
 		{
 			name:    "RST 7",
 			code:    "RST 7\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
-			initCPU: &CPU{},
-			wantCPU: &CPU{programCounter: 0x0039},
+			initCPU: &CPU{stackPointer: 0xFFFF},
+			wantCPU: &CPU{stackPointer: 0xFFFD, programCounter: 0x0039},
 		},
 		{
 			name: "INR A from 0x01",
@@ -3421,7 +3421,7 @@ func TestCPUInstructions(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// We don't new cpu.New() here as we don't (yet) have a better
+			// We don't use cpu.New() here as we don't (yet) have a better
 			// way to initialise the initial CPU state.
 			gotCPU := tc.initCPU
 			gotCPU.Bus = memory.New()
@@ -3444,7 +3444,7 @@ func TestCPUInstructions(t *testing.T) {
 				t.Errorf("error running cpu: %v", err)
 			}
 
-			// Most tests don't involve checking the program counter, so we only need
+			// Most tests don't involve the program counter, so we only need
 			// to run the equality check when it's set to a non-zero value.
 			if wantCPU.programCounter != 0 {
 				if gotCPU.programCounter != wantCPU.programCounter {

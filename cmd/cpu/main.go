@@ -24,20 +24,20 @@ func main() {
 		HLT
 	`
 
-	assembler := assembler.New()
-	err := assembler.Assemble(code)
+	asm := assembler.New()
+	err := asm.Assemble(code)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, instruction := range assembler.ByteCode {
+	for _, instruction := range asm.ByteCode {
 		fmt.Printf("%02X ", instruction)
 	}
 	fmt.Println("")
 
-	goCPU.Load(assembler.ByteCode)
-	runErr := goCPU.Run()
-	if runErr != nil {
-		log.Fatal(runErr)
+	goCPU.Load(asm.ByteCode)
+	err = goCPU.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
