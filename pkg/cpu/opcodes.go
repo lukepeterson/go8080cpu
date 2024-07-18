@@ -138,19 +138,40 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x6F: // MOV L,A - Move register to register
 		cpu.L = cpu.A
 	case 0x70: // MOV M,B - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.B)
+		err := cpu.setM(cpu.B)
+		if err != nil {
+			return err
+		}
 	case 0x71: // MOV M,C - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.C)
+		err := cpu.setM(cpu.C)
+		if err != nil {
+			return err
+		}
 	case 0x72: // MOV M,D - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.D)
+		err := cpu.setM(cpu.D)
+		if err != nil {
+			return err
+		}
 	case 0x73: // MOV M,E - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.E)
+		err := cpu.setM(cpu.E)
+		if err != nil {
+			return err
+		}
 	case 0x74: // MOV M,H - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.H)
+		err := cpu.setM(cpu.H)
+		if err != nil {
+			return err
+		}
 	case 0x75: // MOV M,L - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.L)
+		err := cpu.setM(cpu.L)
+		if err != nil {
+			return err
+		}
 	case 0x77: // MOV M,A - Move register to memory
-		cpu.Bus.WriteByteAt(cpu.getHL(), cpu.A)
+		err := cpu.setM(cpu.A)
+		if err != nil {
+			return err
+		}
 	case 0x78: // MOV A,B - Move register to register
 		cpu.A = cpu.B
 	case 0x79: // MOV A,C - Move register to register
@@ -205,13 +226,16 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-		cpu.Bus.WriteByteAt(cpu.getHL(), fetchedByte)
+		err = cpu.setM(fetchedByte)
+		if err != nil {
+			return err
+		}
 	case 0x3E: // MVI A - Move immediate register
 		cpu.A, err = cpu.fetchByte()
 		if err != nil {
 			return err
 		}
-	case 0x01: // LXI B - Load immediate register paid B&C
+	case 0x01: // LXI B - Load immediate register pair B&C
 		fetchedWord, err := cpu.fetchWord()
 		if err != nil {
 			return err
@@ -555,7 +579,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		cpu.inr(&readByte)
-		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
+		err = cpu.setM(readByte)
+		if err != nil {
+			return err
+		}
 	case 0x3C: // INR A - Increment register
 		cpu.inr(&cpu.A)
 	case 0x05: // DCR B - Decrement register
@@ -576,7 +603,10 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 		cpu.dcr(&readByte)
-		cpu.Bus.WriteByteAt(cpu.getHL(), readByte)
+		err = cpu.setM(readByte)
+		if err != nil {
+			return err
+		}
 	case 0x3D: // DCR A - Decrement register
 		cpu.dcr(&cpu.A)
 	case 0x03: // INX B - Increment B&C registers
@@ -1355,4 +1385,13 @@ func (cpu CPU) getM() (byte, error) {
 	}
 
 	return readByte, nil
+}
+
+func (cpu *CPU) setM(value byte) error {
+	err := cpu.Bus.WriteByteAt(cpu.getHL(), value)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
