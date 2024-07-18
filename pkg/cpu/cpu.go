@@ -49,6 +49,7 @@ func (cpu *CPU) Load(data []byte) error {
 			return fmt.Errorf("could not write byte 0x%02X at address 0x%04X: %v", value, types.Word(addr), err)
 		}
 	}
+
 	return nil
 }
 
@@ -70,6 +71,7 @@ func (cpu *CPU) Run() error {
 			cpu.DumpMemory(0xFFDF, 0xFFFF) // End of stack
 		}
 	}
+
 	return nil
 }
 

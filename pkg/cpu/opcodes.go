@@ -24,8 +24,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	switch opCode {
 	// MOVE, LOAD AND STORE
 	case 0x40: // MOV B,B - Move register to register
-		temp := cpu.B // Redundant, but added for completeness
-		cpu.B = temp
+		// No operation
 	case 0x41: // MOV B,C - Move register to register
 		cpu.B = cpu.C
 	case 0x42: // MOV B,D - Move register to register
@@ -46,8 +45,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x48: // MOV C,B - Move register to register
 		cpu.C = cpu.B
 	case 0x49: // MOV C,C - Move register to register
-		temp := cpu.C
-		cpu.C = temp
+		// No operation
 	case 0x4A: // MOV C,D - Move register to register
 		cpu.C = cpu.D
 	case 0x4B: // MOV C,E - Move register to register
@@ -68,8 +66,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x51: // MOV D,C - Move register to register
 		cpu.D = cpu.C
 	case 0x52: // MOV D,D - Move register to register
-		temp := cpu.D
-		cpu.D = temp
+		// No operation
 	case 0x53: // MOV D,E - Move register to register
 		cpu.D = cpu.E
 	case 0x54: // MOV D,H - Move register to register
@@ -90,8 +87,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x5A: // MOV E,D - Move register to register
 		cpu.E = cpu.D
 	case 0x5B: // MOV E,E - Move register to register
-		temp := cpu.E
-		cpu.E = temp
+		// No operation
 	case 0x5C: // MOV E,H - Move register to register
 		cpu.E = cpu.H
 	case 0x5D: // MOV E,L - Move register to register
@@ -112,8 +108,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x63: // MOV H,E - Move register to register
 		cpu.H = cpu.E
 	case 0x64: // MOV H,H - Move register to register
-		temp := cpu.H
-		cpu.H = temp
+		// No operation
 	case 0x65: // MOV H,L - Move register to register
 		cpu.H = cpu.L
 	case 0x66: // MOV H,M - Move memory to register
@@ -134,8 +129,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 	case 0x6C: // MOV L,H - Move register to register
 		cpu.L = cpu.H
 	case 0x6D: // MOV L,L - Move register to register
-		temp := cpu.L
-		cpu.L = temp
+		// No operation
 	case 0x6E: // MOV L,M - Move memory to register
 		cpu.L, err = cpu.getM()
 		if err != nil {
@@ -175,8 +169,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 			return err
 		}
 	case 0x7F: // MOV A,A - Move register to register
-		temp := cpu.A
-		cpu.A = temp
+		// No operation
 	case 0x06: // MVI B - Move immediate register
 		cpu.B, err = cpu.fetchByte()
 		if err != nil {
@@ -915,6 +908,7 @@ func (cpu CPU) getFlags() byte {
 			result |= 1 << (7 - i)
 		}
 	}
+
 	return result
 }
 
@@ -1177,7 +1171,7 @@ func (cpu *CPU) daa() {
 // The comparison is performed by internally subtracting the contents of the register
 // from the accumulator (leaving both unchanged) and setting the condition bits according to the result.
 // We take a temporary copy of the A register first, then perform the subtraction to extra the bits,
-// then reset the A register to the temporary copy to preserve its contents.
+// then reset the A register to the temporary copy to restore its contents.
 //
 // Parameters:
 // - register (byte): The value of the register to be compared with the A register
@@ -1202,9 +1196,11 @@ func (cpu *CPU) jmp(condition bool) error {
 	if err != nil {
 		return fmt.Errorf("could not jmp() to address 0x%04X: %v", address, err)
 	}
+
 	if condition {
 		cpu.programCounter = address
 	}
+
 	return nil
 }
 
@@ -1219,6 +1215,7 @@ func (cpu *CPU) call(condition bool) error {
 	if err != nil {
 		return err
 	}
+
 	if condition {
 		err = cpu.pushStack(cpu.programCounter)
 		if err != nil {
@@ -1226,6 +1223,7 @@ func (cpu *CPU) call(condition bool) error {
 		}
 		cpu.programCounter = address
 	}
+
 	return nil
 }
 
@@ -1241,9 +1239,11 @@ func (cpu *CPU) ret(condition bool) error {
 	if err != nil {
 		return fmt.Errorf("could not ret() from address 0x%04X: %v", address, err)
 	}
+
 	if condition {
 		cpu.programCounter = address
 	}
+
 	return nil
 }
 
@@ -1353,5 +1353,6 @@ func (cpu CPU) getM() (byte, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return readByte, nil
 }
