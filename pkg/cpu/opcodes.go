@@ -676,17 +676,13 @@ func (cpu *CPU) Execute(opCode byte) error {
 		}
 		cpu.add(fetchedByte, WithCarry)
 	case 0x09: // DAD B
-		cpu.flags.Carry = 0xFFFF-cpu.getBC() < cpu.getHL()
-		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.getBC())
+		cpu.dad(cpu.getBC())
 	case 0x19: // DAD D
-		cpu.flags.Carry = 0xFFFF-cpu.getDE() < cpu.getHL()
-		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.getDE())
+		cpu.dad(cpu.getDE())
 	case 0x29: // DAD H
-		cpu.flags.Carry = 0xFFFF-cpu.getHL() < cpu.getHL()
-		cpu.H, cpu.L = splitWord(cpu.getHL() * 2) // Add HL to itself
+		cpu.dad(cpu.getHL())
 	case 0x39: // DAD SP
-		cpu.flags.Carry = 0xFFFF-cpu.stackPointer < cpu.getHL()
-		cpu.H, cpu.L = splitWord(cpu.getHL() + cpu.stackPointer)
+		cpu.dad(cpu.stackPointer)
 
 	// SUBTRACT
 	case 0x90: // SUB B - Subtract register from A
@@ -1095,6 +1091,17 @@ func (cpu *CPU) add(register byte, carry byte) {
 
 	// Return the eight least significant bits (LSB) only
 	cpu.A = byte(result)
+}
+
+// dad performs a double add to the two byte value stores in the H and L registers
+//
+// Example:
+// // Assume BC = 0x339F and HL = 0xA17B
+// cpu.dad(cpu.getBC())
+// // HL now contains 0xD51A
+func (cpu *CPU) dad(value types.Word) {
+	cpu.flags.Carry = 0xFFFF-value < cpu.getHL()
+	cpu.H, cpu.L = splitWord(cpu.getHL() + value)
 }
 
 // sub subtracts the value of a register and an optional borrow-in from the accumulator,
