@@ -97,8 +97,8 @@ func (cpu *CPU) fetchWord() (types.Word, error) {
 	return joinBytes(high, low), nil
 }
 
-// getFlags returns the current state of the CPU flags packed into a single byte, for use in
-// functions such as PUSH PSW.  The flags are ordered from MSB (bit 7) to LSB (bit 0).
+// getFlags returns the current state of the CPU flags packed into a single byte.
+// The flags are ordered from MSB (bit 7) to LSB (bit 0).
 //
 // This method performs the following steps:
 // 1. Generates a slice of eight bools for the flag storage
@@ -121,6 +121,7 @@ func (cpu CPU) getFlags() byte {
 		cpu.flags.Carry,
 	}
 
+	// Convert the five boolean values stored in cpu.flags into an 8-bit byte
 	var result byte
 	for i, flag := range flags {
 		if flag {
