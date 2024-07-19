@@ -37,9 +37,7 @@ type Bus interface {
 }
 
 func New() *CPU {
-	newCPU := &CPU{}
-	newCPU.Bus = memory.New()
-	return newCPU
+	return &CPU{Bus: memory.New()}
 }
 
 func (cpu *CPU) Load(data []byte) error {
