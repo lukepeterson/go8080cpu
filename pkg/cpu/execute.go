@@ -878,9 +878,9 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// CONTROL
 	case 0xFB: // EI - Enable interrupts
-		return errNotImplemented(opCode)
+		cpu.interruptEnabled = true
 	case 0xF3: // DI - Disable interrupts
-		return errNotImplemented(opCode)
+		cpu.interruptEnabled = false
 	case 0x00: // NOP - No-operation
 		// Do nothing
 	case 0x76: // HLT - Halt

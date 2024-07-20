@@ -26,6 +26,10 @@ type CPU struct {
 	stackPointer   types.Word
 	programCounter types.Word
 
+	interruptEnabled     bool
+	interruptPending     bool
+	interruptInstruction byte
+
 	Bus       Bus
 	halted    bool
 	DebugMode bool
@@ -53,14 +57,22 @@ func (cpu *CPU) Load(data []byte) error {
 
 func (cpu *CPU) Run() error {
 	for !cpu.halted {
-		fetchedByte, err := cpu.fetchByte()
-		if err != nil {
-			return fmt.Errorf("could not fetch byte: %v", err)
+		var nextInstruction byte
+		var err error
+		if cpu.interruptEnabled && cpu.interruptPending {
+			cpu.interruptEnabled = false
+			cpu.interruptPending = false
+			nextInstruction = cpu.interruptInstruction
+		} else {
+			nextInstruction, err = cpu.fetchByte()
+			if err != nil {
+				return fmt.Errorf("could not fetch byte: %v", err)
+			}
 		}
 
-		err = cpu.Execute(fetchedByte)
+		err = cpu.Execute(nextInstruction)
 		if err != nil {
-			return fmt.Errorf("could not execute fetchedByte 0x%02X: %v", fetchedByte, err)
+			return fmt.Errorf("could not execute nextInstruction 0x%02X: %v", nextInstruction, err)
 		}
 
 		if cpu.DebugMode {
