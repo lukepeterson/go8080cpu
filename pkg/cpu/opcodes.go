@@ -348,7 +348,7 @@ func (cpu *CPU) ret(condition bool) error {
 func (cpu *CPU) rst(address types.Word) error {
 	err := cpu.push(cpu.programCounter)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not push() cpu.programCounter: 0x%04X: %v", cpu.programCounter, err)
 	}
 
 	cpu.programCounter = address
