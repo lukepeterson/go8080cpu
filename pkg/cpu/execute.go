@@ -872,9 +872,17 @@ func (cpu *CPU) Execute(opCode byte) error {
 
 	// INPUT/OUTPUT
 	case 0xDB: // IN - Input
-		return errNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.in(fetchedByte)
 	case 0xD3: // OUT - Output
-		return errNotImplemented(opCode)
+		fetchedByte, err := cpu.fetchByte()
+		if err != nil {
+			return err
+		}
+		cpu.out(fetchedByte)
 
 	// CONTROL
 	case 0xFB: // EI - Enable interrupts

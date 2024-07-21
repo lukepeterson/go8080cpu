@@ -16,15 +16,16 @@ type Flags struct {
 }
 
 type CPU struct {
-	A    byte
-	B, C byte
-	D, E byte
-	H, L byte
-
+	A     byte
+	B, C  byte
+	D, E  byte
+	H, L  byte
 	flags Flags
 
 	stackPointer   types.Word
 	programCounter types.Word
+
+	ports map[byte]byte
 
 	interruptEnabled     bool
 	interruptPending     bool
@@ -41,7 +42,10 @@ type Bus interface {
 }
 
 func New() *CPU {
-	return &CPU{Bus: memory.New()}
+	return &CPU{
+		Bus:   memory.New(),
+		ports: make(map[byte]byte, 256),
+	}
 }
 
 func (cpu *CPU) Load(data []byte) error {

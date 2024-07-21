@@ -27,7 +27,7 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 - :white_check_mark: Logical (36 instructions)
 - :white_check_mark: Rotate (4 instructions)
 - :white_check_mark: Specials (4 instructions)
-- :x: Input/output (2 instructions)
+- :white_check_mark: Input/output (2 instructions)
 - :white_check_mark: Control (4 instructions)
 
 ## Future enhancements
