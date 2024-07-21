@@ -355,6 +355,16 @@ func (cpu *CPU) rst(address types.Word) error {
 	return nil
 }
 
+// in reads an 8-bit value from the port specified in the port parameter
+func (cpu *CPU) in(port byte) {
+	cpu.A = cpu.ports[port]
+}
+
+// out writes the value of the accumulator to the port specified in the port parameter
+func (cpu *CPU) out(port byte) {
+	cpu.ports[port] = cpu.A
+}
+
 // joinBytes combines two bytes into a 16-bit word.
 //
 // This function takes a high byte and a low byte and joins them to form
@@ -459,9 +469,4 @@ func (cpu *CPU) setM(value byte) error {
 	}
 
 	return nil
-}
-
-// ErrNotImplemented is a temporary function to be removed when all instructions are implemented
-func errNotImplemented(opCode byte) error {
-	return fmt.Errorf("instruction 0x%02X not implemented", opCode)
 }
