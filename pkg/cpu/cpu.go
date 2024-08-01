@@ -89,6 +89,8 @@ func (cpu *CPU) Run() error {
 	return nil
 }
 
+// fetchByte fetches the byte in memory pointed to by the program counter, and then
+// increments the program counter by one.
 func (cpu *CPU) fetchByte() (byte, error) {
 	readByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
 	if err != nil {
@@ -99,6 +101,8 @@ func (cpu *CPU) fetchByte() (byte, error) {
 	return readByte, nil
 }
 
+// fetchWord fetches the next two bytes in memory using fetchByte, and returns
+// them as a single two-byte word.
 func (cpu *CPU) fetchWord() (types.Word, error) {
 	low, err := cpu.fetchByte() // 8080 is little endian, so low byte comes first when reading from memory
 	if err != nil {

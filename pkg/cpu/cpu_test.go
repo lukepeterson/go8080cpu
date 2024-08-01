@@ -92,8 +92,8 @@ func TestCPUSetFlags(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cpu := &CPU{}
-			cpu.setFlags(tt.flags) // setFlags() has no return, so use getFlags to confirm they were set correctly.
+			cpu := New()
+			cpu.setFlags(tt.flags)
 			if got := cpu.getFlags(); got != tt.flags {
 				t.Errorf("CPU.setFlags() = 0b%08b, want 0b%08b", got, tt.flags)
 			}
