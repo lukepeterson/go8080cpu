@@ -19,6 +19,7 @@ func New() *Memory {
 	}
 }
 
+// ReadByteAt reads a byte from the specified memory location
 func (memory Memory) ReadByteAt(address types.Word) (byte, error) {
 	if int(address) >= len(memory.Data) {
 		return 0, fmt.Errorf("could not read from address 0x%04X (out of bounds as memory size is 0x%04X)", address, len(memory.Data))
@@ -27,6 +28,7 @@ func (memory Memory) ReadByteAt(address types.Word) (byte, error) {
 	return memory.Data[address], nil
 }
 
+// WriteByteTo writes a byte to the specified memory location
 func (memory *Memory) WriteByteAt(address types.Word, data byte) error {
 	if int(address) >= len(memory.Data) {
 		return fmt.Errorf("could not write to address 0x%04X (out of bounds as memory size is 0x%04X)", address, len(memory.Data))
