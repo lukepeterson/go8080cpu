@@ -1593,14 +1593,16 @@ func TestExecute(t *testing.T) {
 			wantCPU: &CPU{A: 0x02, stackPointer: 0xFFFF, programCounter: 0x0007},
 		},
 		{
-			// RST instructions are tricky to test, as they have predetermined jump points set by the CPU
-			// for use by interrupts, starting at 0x0000 and finishing at 0x0038.  Our tests below simply
-			// confirm that each of the RST instructions jump to the correct HLT location, then
-			// testing that the programCounter matches the expected value.
+			// RST instructions are tricky to test, as they have predetermined
+			// jump points set by the CPU for use by interrupts, starting at
+			// 0x0000 and finishing at 0x0038.  Our tests below confirm that
+			// each RST instruction jumps to the correct HLT location, then
+			// tests that the programCounter matches the expected value.
 			//
-			// RST 0 is missing from this list as it has a jump destination of 0x0000.  This makes
-			// it very difficult to test the RET from the instruction until we have a way to set the
-			// entry point of the bytecode with an ORG directive in the assembler.
+			// RST 0 is missing from this list as it has a jump destination
+			// of 0x0000, making it very difficult to test the RET from the
+			// instruction until we have a way to set the entry point of the
+			// bytecode with an ORG directive in the assembler.
 			name:    "RST 1",
 			code:    "RST 1\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nINR A\nHLT\nINR A",
 			initCPU: &CPU{stackPointer: 0xFFFF},
