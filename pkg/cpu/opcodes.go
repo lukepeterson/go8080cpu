@@ -12,7 +12,7 @@ const (
 	WithCarry = 1
 )
 
-// push 'pushes' the two byte word onto the stack, before decrementing the
+// push 'pushes' the two-byte word onto the stack before decrementing the
 // stack pointer by two.
 //
 // Example:
@@ -38,7 +38,7 @@ func (cpu *CPU) push(value types.Word) error {
 	return nil
 }
 
-// pop 'pops' a two byte word from the stack, before incrementing the
+// pop 'pops' a two-byte word from the stack before incrementing the
 // stack pointer by two.
 //
 // Example:
@@ -68,7 +68,7 @@ func (cpu *CPU) pop() (types.Word, error) {
 // This method performs the following steps:
 // 1. Checks and sets the auxiliary carry flag based on the lower nibble of the register.
 // 2. Increments the value of the register by 1.
-// 3. Sets the Sign, Zero, and Parity flags based on the new value of the register.
+// 3. Sets the Sign, Zero, and Parity flags based on the register's new value.
 //
 // Parameters:
 // - register (*byte): A pointer to the byte register to be incremented.
@@ -91,7 +91,7 @@ func (cpu *CPU) inr(register *byte) {
 // This method performs the following steps:
 // 1. Checks and sets the auxiliary carry flag based on the lower nibble of the register.
 // 2. Decrements the value of the register by 1.
-// 3. Sets the Sign, Zero, and Parity flags based on the new value of the register.
+// 3. Sets the Sign, Zero, and Parity flags based on the register's new value.
 //
 // Parameters:
 // - register (*byte): A pointer to the byte register to be decremented.
@@ -138,11 +138,11 @@ func (cpu *CPU) add(register byte, carry byte) {
 	// Set the carry flag by checking whether we've got an overflow into bit eight.
 	cpu.flags.Carry = result > 0b1111_1111 // (0xFF)
 
-	// Set the auxillary carry flag by checking whether our addition results in a carry-out from bit four.
+	// Set the auxiliary carry flag by checking whether our addition results in a carry-out from bit four.
 	auxCarrySum := (cpu.A&0b1111 + register&0b1111 + carry&0b1111)
 	cpu.flags.AuxCarry = auxCarrySum > 0b1111 // (0x0F)
 
-	// Set the sign, zero and parity flags, based on the LSB only, given we've already
+	// Set the sign, zero and parity flags based on the LSB only, given we've already
 	// taken note of whether there was a carry-in to bit eight above.
 	cpu.setSignZeroParityFlags(byte(result))
 

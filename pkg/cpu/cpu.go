@@ -89,7 +89,7 @@ func (cpu *CPU) Run() error {
 	return nil
 }
 
-// fetchByte fetches the byte in memory pointed to by the program counter, and then
+// fetchByte fetches the byte in memory pointed to by the program counter and then
 // increments the program counter by one.
 func (cpu *CPU) fetchByte() (byte, error) {
 	readByte, err := cpu.Bus.ReadByteAt(cpu.programCounter)
