@@ -32,7 +32,6 @@ An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU
 
 ## Future enhancements
 - Replace the memory locations in tests with labels once the assembler supports them.
-- Write tests for WriteByteAt()
 
 # Running tests
 Run `go test ./...`.
