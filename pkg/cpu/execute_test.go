@@ -3420,6 +3420,96 @@ func TestExecute(t *testing.T) {
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x79, B: 0x79, C: 0x21},
 		},
+		{
+			name: "CPUDIAG.ASM MOV/INR/DCR",
+			code: `
+				MVI A, 29H
+				MVI B, 49H
+				ADD B
+				DAA
+				MOV B, A
+
+				MVI A, 85H
+				MVI C, 36H
+				ADD C
+				DAA
+				MOV C, A
+
+				MOV A, B
+				ADI 01H
+
+				MOV B, A
+				HLT
+			`,
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x79, B: 0x79, C: 0x21},
+		},
+
+		{
+			name: "CPUDIAG.ASM MOV/INC/DCR",
+			code: `
+				MVI A,77H
+				INR A
+				MOV B,A
+				INR B
+				MOV C,B
+				DCR C
+				MOV D,C
+				MOV E,D
+				MOV H,E
+				MOV L,H
+				MOV A,L	;TEST "MOV" A,L,H,E,D,C,B,A
+				DCR A
+				MOV C,A
+				MOV E,C
+				MOV L,E
+				MOV B,L
+				MOV D,B
+				MOV H,D
+				MOV A,H	;TEST "MOV" A,H,D,B,L,E,C,A
+				MOV D,A
+				INR D
+				MOV L,D
+				MOV C,L
+				INR C
+				MOV H,C
+				MOV B,H
+				DCR B
+				MOV E,B
+				MOV A,E	;TEST "MOV" A,E,B,H,C,L,D,A
+				MOV E,A
+				INR E
+				MOV B,E
+				MOV H,B
+				INR H
+				MOV C,H
+				MOV L,C
+				MOV D,L
+				DCR D
+				MOV A,D	;TEST "MOV" A,D,L,C,H,B,E,A
+				MOV H,A
+				DCR H
+				MOV D,H
+				MOV B,D
+				MOV L,B
+				INR L
+				MOV E,L
+				DCR E
+				MOV C,E
+				MOV A,C	;TEST "MOV" A,C,E,L,B,D,H,A
+				MOV L,A
+				DCR L
+				MOV H,L
+				MOV E,H
+				MOV D,E
+				MOV C,D
+				MOV B,C
+				MOV A,B
+				HLT
+			`,
+			initCPU: &CPU{},
+			wantCPU: &CPU{A: 0x77, B: 0x77, C: 0x77, D: 0x77, E: 0x77, H: 0x77, L: 0x77, flags: Flags{Parity: true}},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
