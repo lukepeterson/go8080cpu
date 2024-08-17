@@ -1,6 +1,6 @@
 # Intel 8080 CPU emulator in Go
 
-An Intel 8080 CPU emulator, written in Go.  This project uses [my Intel 8080 CPU assembler](https://github.com/lukepeterson/go8080assembler), especially for running tests.
+This is my Intel 8080 CPU emulator, written in Go.  I built it because computers are awesome, and it was a great excuse to also write [an Intel 8080 CPU assembler](https://github.com/lukepeterson/go8080assembler).
 
 [![Tests](https://github.com/lukepeterson/go8080cpu/actions/workflows/go.yml/badge.svg)](https://github.com/lukepeterson/go8080cpu/actions/workflows/go.yml)
 ![Go Report Card](https://goreportcard.com/badge/github.com/lukepeterson/go8080cpu)
