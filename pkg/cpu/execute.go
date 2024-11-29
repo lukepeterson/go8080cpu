@@ -68,7 +68,7 @@ func (cpu *CPU) Execute(opCode byte) error {
 		if err != nil {
 			return err
 		}
-	case 0x57: // MOV D,A
+	case 0x57: // MOV D,A - Move register to register
 		cpu.D = cpu.A
 	case 0x58: // MOV E,B - Move register to register
 		cpu.E = cpu.B
@@ -653,25 +653,25 @@ func (cpu *CPU) Execute(opCode byte) error {
 		cpu.add(readByte, WithCarry)
 	case 0x8F: // ADC A - Add register to A with carry
 		cpu.add(cpu.A, WithCarry)
-	case 0xC6: // ADI
+	case 0xC6: // ADI - Add immediate to A
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.add(fetchedByte, NoCarry)
-	case 0xCE: // ACI
+	case 0xCE: // ACI - Add immediate to A with carry
 		fetchedByte, err := cpu.fetchByte()
 		if err != nil {
 			return err
 		}
 		cpu.add(fetchedByte, WithCarry)
-	case 0x09: // DAD B
+	case 0x09: // DAD B - Add B&C to H&L
 		cpu.dad(cpu.getBC())
-	case 0x19: // DAD D
+	case 0x19: // DAD D - Add D&E to H&L
 		cpu.dad(cpu.getDE())
-	case 0x29: // DAD H
+	case 0x29: // DAD H - Add H&L to H&L
 		cpu.dad(cpu.getHL())
-	case 0x39: // DAD SP
+	case 0x39: // DAD SP - Add stack pointer to H&L
 		cpu.dad(cpu.stackPointer)
 
 	// SUBTRACT
