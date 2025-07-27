@@ -3,7 +3,7 @@ package cpu
 import (
 	"testing"
 
-	"github.com/lukepeterson/go8080assembler/assembler"
+	"github.com/lukepeterson/go8080assembler/pkg/assembler"
 	"github.com/lukepeterson/go8080cpu/pkg/memory"
 )
 
@@ -693,7 +693,7 @@ func TestExecute(t *testing.T) {
 			code: `
 				MVI A, 0x55
 				STA 0x3344
-				LXI H 0x3344
+				LXI H, 0x3344
 				MOV B, M
 				HLT
 				`,
@@ -703,7 +703,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "LDA",
 			code: `
-				LXI H 0x0101
+				LXI H, 0x0101
 				MVI M, 0x55
 				LDA 0x0101
 				HLT
@@ -941,9 +941,9 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JMP",
 			code: `
-				JMP 0x04
-				HLT
-				HLT
+						JMP END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{programCounter: 0x0005},
@@ -951,10 +951,10 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JC (carry set - jump)",
 			code: `
-				STC
-				JC 0x05
-				HLT
-				HLT
+						STC
+						JC END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0006},
@@ -962,9 +962,9 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JC (carry not set - don't jump)",
 			code: `
-				JC 0x04
-				HLT
-				HLT
+						JC END
+				END: 	HLT
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{programCounter: 0x0004},
@@ -972,10 +972,10 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JNC (carry set - don't jump)",
 			code: `
-				STC
-				JNC 0x05
-				HLT
-				HLT
+						STC
+						JNC END
+				END: 	HLT
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Carry: true}, programCounter: 0x0005},
@@ -983,9 +983,9 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JNC (carry not set - jump)",
 			code: `
-				JNC 0x04
-				HLT
-				HLT
+						JNC END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{programCounter: 0x0005},
@@ -993,10 +993,10 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JZ (zero set - jump)",
 			code: `
-				CMP A
-				JZ 0x05
-				HLT
-				HLT
+						CMP A
+						JZ END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0006},
@@ -1004,20 +1004,20 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JZ (zero not set - don't jump)",
 			code: `
-				JZ 0x04
-				HLT
-				HLT
-				`,
+						JZ END
+				END: 	HLT
+						HLT
+					`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{programCounter: 0x0004},
 		},
 		{
 			name: "JNZ (zero set - don't jump)",
 			code: `
-				CMP A
-				JNZ 0x05
-				HLT
-				HLT
+						CMP A
+						JNZ END
+				END: 	HLT
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, programCounter: 0x0005},
@@ -1025,9 +1025,9 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JNZ (zero not set - jump)",
 			code: `
-				JNZ 0x04
-				HLT
-				HLT
+						JNZ END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{programCounter: 0x0005},
@@ -1035,11 +1035,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JP (sign flag set - don't jump)",
 			code: `
-				MVI A, 0x7F
-				INR A
-				JP 0x07
-				HLT
-				HLT
+						MVI A, 0x7F
+						INR A
+						JP END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0007},
@@ -1047,11 +1047,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JP (sign flag not set - jump)",
 			code: `
-				MVI A, 0x7E
-				INR A
-				JP 0x07
-				HLT
-				HLT
+					    MVI A, 0x7E
+					    INR A
+					    JP END
+					    HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x7F, programCounter: 0x0008},
@@ -1059,11 +1059,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JM (sign flag set - jump)",
 			code: `
-				MVI A, 0x7F
-				INR A
-				JM 0x07
-				HLT
-				HLT
+						MVI A, 0x7F
+						INR A
+						JM END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, programCounter: 0x0008},
@@ -1071,11 +1071,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JM (sign flag not set - don't jump)",
 			code: `
-				MVI A, 0x7E
-				INR A
-				JM 0x07
-				HLT
-				HLT
+						MVI A, 0x7E
+						INR A
+						JM END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x7F, programCounter: 0x0007},
@@ -1083,11 +1083,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JPE (parity even - jump)",
 			code: `
-				MVI A, 0x02
-				INR A
-				JPE 0x07
-				HLT
-				HLT
+						MVI A, 0x02
+						INR A
+						JPE END
+						HLT
+				END: 	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0008},
@@ -1095,11 +1095,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JPE (parity odd - don't jump)",
 			code: `
-				MVI A, 0x01
-				INR A
-				JPE 0x07
-				HLT
-				HLT
+						MVI A, 0x01
+						INR A
+						JPE END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x02, programCounter: 0x0007},
@@ -1107,11 +1107,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JPO (parity even - don't jump)",
 			code: `
-				MVI A, 0x02
-				INR A
-				JPO 0x07
-				HLT
-				HLT
+						MVI A, 0x02
+						INR A
+						JPO END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, programCounter: 0x0007},
@@ -1119,11 +1119,11 @@ func TestExecute(t *testing.T) {
 		{
 			name: "JPO (parity odd - jump)",
 			code: `
-				MVI A, 0x01
-				INR A
-				JPO 0x07
-				HLT
-				HLT
+						MVI A, 0x01
+						INR A
+						JPO END
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x02, programCounter: 0x0008},
@@ -1131,10 +1131,10 @@ func TestExecute(t *testing.T) {
 		{
 			name: "PCHL",
 			code: `
-				LXI H, 0x05
-				PCHL
-				HLT
-				HLT
+						LXI H, END
+						PCHL
+						HLT
+				END:	HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{L: 0x05, programCounter: 0x0006},
@@ -1142,12 +1142,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CALL and RET",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1155,12 +1156,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CC (carry not set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				CC 0x07
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CC FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1168,13 +1170,14 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CC (carry set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				STC
-				CC 0x08
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						STC
+						CC FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x55, flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
@@ -1182,12 +1185,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CNC (carry not set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				CNC 0x07
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CNC FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1195,13 +1199,14 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CNC (carry set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				STC
-				CNC 0x08
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						STC
+						CNC FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
@@ -1209,13 +1214,14 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CZ (zero set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				CMP A
-				CZ 0x08
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CMP A
+						CZ FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x55, flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
@@ -1223,12 +1229,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CZ (zero not set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				CZ 0x08
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CZ FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1236,13 +1243,14 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CNZ (zero set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				CMP A
-				CNZ 0x08
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CMP A
+						CNZ FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0008},
@@ -1250,12 +1258,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CNZ (zero not set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				CNZ 0x07
-				HLT
-				MVI A, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						CNZ FUNC
+						HLT
+
+				FUNC:	MVI A, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x55, stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1263,14 +1272,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CP (sign flag set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x7F
-				INR A
-				CP 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x7F
+						INR A
+						CP FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x80, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1278,14 +1288,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CP (sign flag not set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x7E
-				INR A
-				CP 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x7E
+						INR A
+						CP FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x7F, B: 0x55, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1293,14 +1304,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CM (sign flag set - call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x7F
-				INR A
-				CM 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x7F
+						INR A
+						CM FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x80, B: 0x55, flags: Flags{Sign: true, AuxCarry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1308,14 +1320,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CM (sign flag not set - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x7E
-				INR A
-				CM 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x7E
+						INR A
+						CM FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x7F, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1323,14 +1336,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CPE (parity even - call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x02
-				INR A
-				CPE 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x02
+						INR A
+						CPE FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x03, B: 0x55, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1338,14 +1352,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CPE (parity odd - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x01
-				INR A
-				CPE 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x01
+						INR A
+						CPE FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x02, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1353,14 +1368,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CPO (parity even - don't call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x02
-				INR A
-				CPO 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x02
+						INR A
+						CPO FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x03, flags: Flags{Parity: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1368,14 +1384,15 @@ func TestExecute(t *testing.T) {
 		{
 			name: "CPO (parity odd - call)",
 			code: `
-				LXI SP, 0xFFFF
-				MVI A, 0x01
-				INR A
-				CPO 0x0A
-				HLT
-				MVI B, 0x55
-				RET
-				HLT
+						LXI SP, 0xFFFF
+						MVI A, 0x01
+						INR A
+						CPO FUNC
+						HLT
+
+				FUNC:	MVI B, 0x55
+						RET
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{A: 0x02, B: 0x55, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1383,24 +1400,26 @@ func TestExecute(t *testing.T) {
 		{
 			name: "RC (carry not set - don't return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				RC
-				HLT
-				`,
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	RC
+						HLT
+					`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0009},
 		},
 		{
 			name: "RC (carry set - return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				STC
-				RC
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	STC
+						RC
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1408,11 +1427,12 @@ func TestExecute(t *testing.T) {
 		{
 			name: "RNC (carry not set - return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				RNC
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC: 	RNC
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1420,12 +1440,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "RNC (carry set - don't return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				STC
-				RNC
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	STC
+						RNC
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Carry: true}, stackPointer: 0xFFFF, programCounter: 0x000A},
@@ -1433,12 +1454,13 @@ func TestExecute(t *testing.T) {
 		{
 			name: "RZ (zero set - return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				CMP A
-				RZ
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	CMP A
+						RZ
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{flags: Flags{Zero: true, Parity: true}, stackPointer: 0xFFFF, programCounter: 0x0007},
@@ -1446,11 +1468,12 @@ func TestExecute(t *testing.T) {
 		{
 			name: "RZ (zero not set - don't return)",
 			code: `
-				LXI SP, 0xFFFF
-				CALL 0x07
-				HLT
-				RZ
-				HLT
+						LXI SP, 0xFFFF
+						CALL FUNC
+						HLT
+
+				FUNC:	RZ
+						HLT
 				`,
 			initCPU: &CPU{},
 			wantCPU: &CPU{stackPointer: 0xFFFF, programCounter: 0x0009},
@@ -3138,7 +3161,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "ORI",
 			code: `
-				ORI AAH
+				ORI 0xAA
 				HLT
 			`,
 			initCPU: &CPU{A: 0b0101_0101},
@@ -3520,13 +3543,23 @@ func TestExecute(t *testing.T) {
 			wantCPU := tc.wantCPU
 			wantCPU.Bus = memory.New()
 
-			a := assembler.New()
-			err := a.Assemble(tc.code)
+			a := assembler.New(tc.code)
+			bytecode, err := a.Assemble()
 			if (err != nil) != tc.wantErr {
 				t.Errorf("Assembler.Assemble() error = %v, wantErr %v", err, tc.wantErr)
 			}
 
-			err = gotCPU.Load(a.ByteCode)
+			// err := a.Assemble(tc.code)
+			// if (err != nil) != tc.wantErr {
+			// 	t.Errorf("Assembler.Assemble() error = %v, wantErr %v", err, tc.wantErr)
+			// }
+			// a := assembler.New()
+			// err := a.Assemble(tc.code)
+			// if (err != nil) != tc.wantErr {
+			// 	t.Errorf("Assembler.Assemble() error = %v, wantErr %v", err, tc.wantErr)
+			// }
+
+			err = gotCPU.Load(bytecode)
 			if err != nil {
 				t.Errorf("error loading bytecode into CPU: %v", err)
 			}

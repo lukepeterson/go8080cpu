@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/lukepeterson/go8080assembler/assembler"
+	"github.com/lukepeterson/go8080assembler/pkg/assembler"
 	"github.com/lukepeterson/go8080cpu/pkg/cpu"
 )
 
 func main() {
 
 	goCPU := cpu.New()
-	// goCPU.DebugMode = true
+	goCPU.DebugMode = true
 
-	code := `
+	input := `
 		INR A
 		DCR H
 		INR B
@@ -22,20 +22,20 @@ func main() {
 		DCR E
 		INR L
 		HLT
-	`
+		`
 
-	asm := assembler.New()
-	err := asm.Assemble(code)
+	asm := assembler.New(input)
+	bytecode, err := asm.Assemble()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
-	for _, instruction := range asm.ByteCode {
-		fmt.Printf("%02X ", instruction)
+	for _, b := range bytecode {
+		fmt.Printf("%02X ", b)
 	}
-	fmt.Println("")
+	fmt.Println()
 
-	goCPU.Load(asm.ByteCode)
+	goCPU.Load(bytecode)
 	err = goCPU.Run()
 	if err != nil {
 		log.Fatal(err)
